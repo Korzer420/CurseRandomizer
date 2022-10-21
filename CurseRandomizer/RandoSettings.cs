@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CurseRandomizer
+namespace CurseRandomizer;
+
+public class RandoSettings
 {
-    public class Class1
-    {
-    }
+    public bool CapEffects { get; set; }
 }
