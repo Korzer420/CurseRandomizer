@@ -18,5 +18,14 @@ public class CurseRandomizer : Mod
     public override void Initialize()
     {
         base.Initialize();
+        ModHooks.LanguageGetHook += ModHooks_LanguageGetHook;
     }
+
+    private string ModHooks_LanguageGetHook(string key, string sheetTitle, string orig)
+    {
+        if (key == "Curse_Randomizer_Fool_1")
+            orig = "FOOL";
+        return orig;
+    }
+
 }

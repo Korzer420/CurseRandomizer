@@ -45,5 +45,10 @@ public enum CurseType
     /// <summary>
     /// Hits grant 1 less soul.
     /// </summary>
-    Thirst
+    Thirst,
+
+    /// <summary>
+    /// A custom curse implemented by another mod.
+    /// </summary>
+    Custom
 }
