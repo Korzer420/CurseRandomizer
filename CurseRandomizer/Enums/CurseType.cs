@@ -3,7 +3,7 @@
 public enum CurseType
 {
     /// <summary>
-    /// Let the player take 1 damage. The other curses default to this if they cannot be executed.
+    /// Let the player take 1 damage.
     /// </summary>
     Pain,
 
@@ -28,7 +28,7 @@ public enum CurseType
     Emptyness,
 
     /// <summary>
-    /// Teleports the player back to their bench.
+    /// Teleports the player back to their bench. The other curses default to this if they cannot be executed.
     /// </summary>
     Desorientation,
 
