@@ -1,0 +1,82 @@
+[
+	{
+		"name": "Sly_Cheap",
+		"logic": "Room_shop[left1] + Rescued_Sly"
+	},
+	{
+		"name": "Sly_Medium",
+		"logic": "Room_shop[left1] + Rescued_Sly + WALLET"
+	},
+	{
+		"name": "Sly_Expensive",
+		"logic": "Room_shop[left1] + Rescued_Sly + WALLET>1"
+	},
+	{
+		"name": "Sly_Extreme_Valuable",
+		"logic": "Room_shop[left1] + Rescued_Sly + WALLET>2"
+	},
+	{
+		"name": "Sly_(Key)_Cheap",
+		"logic": "Room_shop[left1] + Rescued_Sly + SHOPKEY"
+	},
+	{
+		"name": "Sly_(Key)_Medium",
+		"logic": "Room_shop[left1] + Rescued_Sly + WALLET + SHOPKEY"
+	},
+	{
+		"name": "Sly_(Key)_Expensive",
+		"logic": "Room_shop[left1] + Rescued_Sly + WALLET>1 + SHOPKEY"
+	},
+	{
+		"name": "Sly_(Key)_Extreme_Valuable",
+		"logic": "Room_shop[left1] + Rescued_Sly + WALLET>2 + SHOPKEY"
+	},
+	{
+		"name": "Salubra_Cheap",
+		"logic": "Room_Charm_Shop[left1]"
+	},
+	{
+		"name": "Salubra_Medium",
+		"logic": "Room_Charm_Shop[left1] + WALLET"
+	},
+	{
+		"name": "Salubra_Expensive",
+		"logic": "Room_Charm_Shop[left1] + WALLET>1"
+	},
+	{
+		"name": "Salubra_Extreme_Valuable",
+		"logic": "Room_Charm_Shop[left1] + WALLET>2"
+	},
+	{
+		"name": "Leg_Eater_Cheap",
+		"logic": "Fungus2_26[left1]"
+	},
+	{
+		"name": "Leg_Eater_Medium",
+		"logic": "Fungus2_26[left1] + WALLET"
+	},
+	{
+		"name": "Leg_Eater_Expensive",
+		"logic": "Fungus2_26[left1] + WALLET>1"
+	},
+	{
+		"name": "Leg_Eater_Extreme_Valuable",
+		"logic": "Fungus2_26[left1] + WALLET>2"
+	},
+	{
+		"name": "Iselda_Cheap",
+		"logic": "Room_mapper[left1] + Rescued_Sly"
+	},
+	{
+		"name": "Iselda_Medium",
+		"logic": "Room_mapper[left1] + WALLET"
+	},
+	{
+		"name": "Iselda_Expensive",
+		"logic": "Room_mapper[left1] + WALLET>1"
+	},
+	{
+		"name": "Iselda_Extreme_Valuable",
+		"logic": "Room_mapper[left1] + WALLET>2"
+	}
+]

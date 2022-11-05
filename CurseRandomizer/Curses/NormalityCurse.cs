@@ -22,13 +22,6 @@ internal class NormalityCurse : Curse
         orig(self);
     }
 
-    private bool ModHooks_GetPlayerBoolHook(string name, bool orig)
-    {
-        if (name.StartsWith("equippedCharm_") && int.TryParse(name.Substring(14), out int charmId))
-            orig = orig && !DisabledCharmId.Contains(charmId);
-        return orig;
-    }
-
     internal List<int> DisabledCharmId { get; set; } = new();
 
     private string ShowUselessCharm(string key, string sheetTitle, string orig)
@@ -85,4 +78,6 @@ internal class NormalityCurse : Curse
     public override object ParseData() => DisabledCharmId;
 
     public override void LoadData(object data) => DisabledCharmId = (List<int>)data;
+
+    public override void ResetData() => DisabledCharmId.Clear();
 }

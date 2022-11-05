@@ -34,6 +34,8 @@ public static class CurseManager
 
     internal static CurseHandler Handler { get; set; }
 
+    
+
     #endregion
 
     internal static void Initialize()
@@ -41,6 +43,7 @@ public static class CurseManager
         GameObject coroutineHolder = new("Curse Randomizer Handler");
         GameObject.DontDestroyOnLoad(coroutineHolder);
         Handler = coroutineHolder.AddComponent<CurseHandler>();
+        
     }
 
     /// <summary>

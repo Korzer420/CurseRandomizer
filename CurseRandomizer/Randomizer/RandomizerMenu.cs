@@ -19,9 +19,11 @@ internal class RandomizerMenu
 
     private MenuElementFactory<RandoSettings> _factory;
 
-    private GridItemPanel _curseOption;
+    private GridItemPanel _curseOptions;
 
     private NumericEntryField<int> _curseAmount;
+
+    private VerticalItemPanel _capPanel;
 
     /// <summary>
     /// Gets the instance of the menu.
@@ -40,16 +42,21 @@ internal class RandomizerMenu
             // Settings
             _factory.Elements.Skip(1).Take(5).ToArray(),
             // Curse main settings
-            _factory.Elements.Skip(6).Take(3).ToArray(),
-            // Allowed pools
-            _factory.Elements.Skip(10).Take(10).ToArray(),
+            _factory.Elements.Skip(6).Take(4).ToArray(),
             // Allowed curses
-            _factory.Elements.Skip(20).ToArray()
+            _factory.Elements.Skip(11).Take(10).ToArray(),
+            // Allowed pools
+            _factory.Elements.Skip(21).Take(9).ToArray(),
+            // Curse caps
+            _factory.Elements.Skip(30).ToArray()
         };
-        // Change curse option visibility
+        // Change curse options visibility
         elements[1][2].SelfChanged += ChangeCurse;
-        elements[2][2].SelfChanged += ToggleCustomCurseAmount;
-        _curseAmount = _factory.Elements[9] as NumericEntryField<int>;
+        elements[2][0].SelfChanged += ToggleCapVisibilty;
+        // Change custom curse amount visiblity
+        elements[2][3].SelfChanged += ToggleCustomCurseAmount;
+        
+        _curseAmount = _factory.Elements[10] as NumericEntryField<int>;
         _curseAmount.MoveTo(new(0f, -200f));
         if (CurseRandomizer.Instance.Settings.CurseAmount == Amount.Custom)
             _curseAmount.Show();
@@ -58,30 +65,45 @@ internal class RandomizerMenu
         GridItemPanel mainSettings = new(_mainPage, new(0, 320f), 5, 0, 300, false, elements[1]);
         new VerticalItemPanel(_mainPage, new(0f, 400f), 140f, false, new IMenuElement[] { elements[0][0], mainSettings});
         VerticalItemPanel[] curseSettings = new VerticalItemPanel[3];
-        curseSettings[1] = new VerticalItemPanel(_mainPage, new(0, 0f), 50f, false, 
-            new IMenuElement[] { new MenuLabel(_mainPage, "Replacable Pools", MenuLabel.Style.Body) }.Concat(elements[2]).ToArray());
+        // Available curses
         curseSettings[0] = new VerticalItemPanel(_mainPage, new(0f, 0f), 50f, false, elements[3]);
+        // Main curse settings
+        curseSettings[1] = new VerticalItemPanel(_mainPage, new(0, 0f), 50f, false, 
+            new IMenuElement[] { new MenuLabel(_mainPage, "Placeable Curses", MenuLabel.Style.Body) }.Concat(elements[2]).ToArray());
+        // Available item pools.
         curseSettings[2] = new VerticalItemPanel(_mainPage, new(0f, 0f), 50f, false, 
-            new IMenuElement[] { new MenuLabel(_mainPage, "Placable Curses", MenuLabel.Style.Body)}.Concat(elements[4]).ToArray());
-        _curseOption = new(_mainPage, new(0f, 100f), 3, 0f, 400f, true, curseSettings);
+            new IMenuElement[] { new MenuLabel(_mainPage, "Replaceable Items", MenuLabel.Style.Body)}.Concat(elements[4]).ToArray());
+        _capPanel = new(_mainPage, new(-700f, 100f), 75f, false, elements[5]);
+
+        _curseOptions = new(_mainPage, new(0f, 100f), 3, 0f, 400f, true, curseSettings);
         if (!CurseRandomizer.Instance.Settings.UseCurses)
-            _curseOption.Hide();
+            _curseOptions.Hide();
+        if (!CurseRandomizer.Instance.Settings.CapEffects)
+            _capPanel.Hide();
     }
 
-    private void ToggleCustomCurseAmount(IValueElement obj)
+    private void ToggleCapVisibilty(IValueElement useCaps)
     {
-        if ((Amount)obj.Value == Amount.Custom)
+        if ((bool)useCaps.Value)
+            _capPanel.Show();
+        else
+            _capPanel.Hide();
+    }
+
+    private void ToggleCustomCurseAmount(IValueElement curseAmount)
+    {
+        if ((Amount)curseAmount.Value == Amount.Custom)
             _curseAmount.Show();
         else
             _curseAmount.Hide();
     }
 
-    private void ChangeCurse(IValueElement obj)
+    private void ChangeCurse(IValueElement useCurses)
     {
-        if ((bool)obj.Value)
-            _curseOption.Show();
+        if ((bool)useCurses.Value)
+            _curseOptions.Show();
         else
-            _curseOption.Hide();
+            _curseOptions.Hide();
     }
 
     private bool HandleButton(MenuPage previousPage, out SmallButton connectionButton)

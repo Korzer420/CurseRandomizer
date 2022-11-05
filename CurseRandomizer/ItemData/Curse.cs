@@ -89,4 +89,10 @@ public abstract class Curse
     /// </summary>
     /// <param name="data">The data which got stored by <see cref="ParseData"/>.</param>
     public virtual void LoadData(object data) { }
+
+    /// <summary>
+    /// Resets all data for the curse.
+    /// <para>Called when the player starts a new game file.</para>
+    /// </summary>
+    public virtual void ResetData() { }
 }

@@ -1,6 +1,8 @@
-﻿namespace CurseRandomizer.Curses;
+﻿using Benchwarp;
+
+namespace CurseRandomizer.Curses;
 
 internal class DesorientationCurse : Curse
 {
-    public override void ApplyCurse() => GameManager.instance.StartCoroutine(HeroController.instance.Respawn());
+    public override void ApplyCurse() => ChangeScene.WarpToRespawn();
 }

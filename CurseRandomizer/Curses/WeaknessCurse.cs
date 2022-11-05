@@ -45,13 +45,15 @@ internal class WeaknessCurse : Curse
 
     public override void ApplyCurse()
     {
-        Stacks--;
+        Stacks++;
         PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
     }
 
     public override object ParseData() => Stacks;
 
     public override void LoadData(object data) => Stacks = (int)data;
+
+    public override void ResetData() => Stacks = 0;
 
     #endregion
 }

@@ -50,4 +50,6 @@ internal class StupidityCurse : Curse
     public override void LoadData(object data) => Stacks = (int)data;
 
     public override object ParseData() => Stacks;
+
+    public override void ResetData() => Stacks = 0;
 }

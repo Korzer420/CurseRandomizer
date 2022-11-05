@@ -22,4 +22,6 @@ internal class ThirstCurse : Curse
     public override object ParseData() => Stacks;
 
     public override void LoadData(object data) => Stacks = (int)data;
+
+    public override void ResetData() => Stacks = 0;
 }

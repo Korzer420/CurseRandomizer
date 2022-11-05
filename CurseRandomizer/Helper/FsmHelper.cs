@@ -1,5 +1,7 @@
 ﻿using HutongGames.PlayMaker;
+using ItemChanger.Extensions;
 using System;
+using System.Linq;
 
 namespace CurseRandomizer.Helper;
 
@@ -22,5 +24,22 @@ public static class FsmHelper
         if (!string.IsNullOrEmpty(stateName) && !string.Equals(stateName, action.State.Name, StringComparison.OrdinalIgnoreCase))
             return false;
         return true;
+    }
+
+    /// <summary>
+    /// Move a transition from one state to another.
+    /// </summary>
+    /// <param name="state"></param>
+    /// <param name="transitionName"></param>
+    /// <param name="newState"></param>
+    public static void AdjustTransition(this FsmState state, string transitionName, string newState)
+    {
+        FsmTransition transition = state.Transitions.FirstOrDefault(x => string.Equals(x.FsmEvent.Name, transitionName));
+        if (transition == null)
+            throw new Exception($"Couldn't find transition {transitionName} in state {state.Name}");
+        FsmState destination = state.Fsm.States.FirstOrDefault(x => string.Equals(x.Name, newState));
+        if (destination == null)
+            throw new Exception("Couldn't find destination state.");
+        transition.SetToState(destination);
     }
 }
