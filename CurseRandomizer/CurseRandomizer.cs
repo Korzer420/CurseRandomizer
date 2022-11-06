@@ -44,17 +44,33 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
     public void OnLoadGlobal(GlobalSaveData randoSettings) => _settings = randoSettings.Settings;
 
     public void OnLoadLocal(LocalSaveData saveData) 
-    { 
-        CurseManager.ParseSaveData(saveData?.CurseData);
-        if (saveData == null)
-            return;
-        ModManager.StartGeo = saveData.StartGeo;
-        ModManager.CanAccessBronze = saveData.BronzeAccess;
-        ModManager.CanAccessSilver = saveData.SilverAccess;
-        ModManager.CanAccessGold = saveData.GoldAccess;
-        ModManager.WalletAmount = saveData.Wallets;
-        ModManager.SoulVessel = saveData.SoulVessels;
-        ModManager.DreamUpgrade = saveData.DreamNailFragments;
+    {
+        try
+        {
+            CurseManager.ParseSaveData(saveData?.CurseData);
+            if (saveData == null)
+                return;
+            ModManager.StartGeo = saveData.StartGeo;
+            ModManager.CanAccessBronze = saveData.BronzeAccess;
+            ModManager.CanAccessSilver = saveData.SilverAccess;
+            ModManager.CanAccessGold = saveData.GoldAccess;
+            ModManager.WalletAmount = saveData.Wallets;
+            ModManager.SoulVessel = saveData.SoulVessels;
+            ModManager.DreamUpgrade = saveData.DreamNailFragments;
+            CurseManager.UseCaps = saveData.UseCaps;
+            ModManager.IsWalletCursed = saveData.WalletCursed;
+            ModManager.IsVesselCursed = saveData.VesselCursed;
+            ModManager.IsColoCursed = saveData.ColoCursed;
+            ModManager.IsDreamNailCursed = saveData.DreamNailCursed;
+            CurseManager.DefaultCurse = CurseManager.GetCurseByType(saveData.DefaultCurse);
+            foreach (Curse curse in CurseManager.GetCurses())
+                if (saveData.CurseCaps.ContainsKey(curse.Name))
+                    curse.Cap = saveData.CurseCaps[curse.Name];
+        }
+        catch (System.Exception exception)
+        {
+            LogError("In LoadLocal: " + exception.StackTrace);
+        }
     }
 
     public GlobalSaveData OnSaveGlobal() => new() { Settings = Settings };
@@ -64,19 +80,27 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         LocalSaveData saveData = new()
         {
             CurseData = new(),
+            CurseCaps = new(),
             BronzeAccess = ModManager.CanAccessBronze,
             SilverAccess = ModManager.CanAccessSilver,
             GoldAccess = ModManager.CanAccessGold,
             StartGeo = ModManager.StartGeo,
             Wallets = ModManager.WalletAmount,
             SoulVessels = ModManager.SoulVessel,
-            DreamNailFragments = ModManager.DreamUpgrade
+            DreamNailFragments = ModManager.DreamUpgrade,
+            UseCaps = CurseManager.UseCaps,
+            DefaultCurse = CurseManager.DefaultCurse == null ? CurseType.Pain :CurseManager.DefaultCurse.Type,
+            ColoCursed = ModManager.IsColoCursed,
+            VesselCursed = ModManager.IsVesselCursed,
+            WalletCursed = ModManager.IsWalletCursed,
+            DreamNailCursed = ModManager.IsDreamNailCursed
         };
         foreach (Curse curse in CurseManager.GetCurses())
         {
             object data = curse.ParseData();
             if (data != null)
                 saveData.CurseData.Add(curse.Name, data);
+            saveData.CurseCaps.Add(curse.Name, curse.Cap);
         }
 	    return saveData;
     }

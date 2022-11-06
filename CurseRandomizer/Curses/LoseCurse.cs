@@ -6,7 +6,7 @@ internal class LoseCurse : Curse
 {
     public override bool CanApplyCurse()
     {
-        int cap = CurseRandomizer.Instance.Settings.CapEffects ? Cap : 0;
+        int cap = UseCap ? Cap : 0;
         for (int i = 1; i < 5; i++)
             if (PlayerData.instance.GetInt($"trinket{i}") > cap)
                 return true;
@@ -16,7 +16,7 @@ internal class LoseCurse : Curse
     public override void ApplyCurse()
     {
         List<string> viableSlots = new();
-        int cap = CurseRandomizer.Instance.Settings.CapEffects
+        int cap = UseCap
         ? Cap
         : 0;
 

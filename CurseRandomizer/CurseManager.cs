@@ -32,9 +32,12 @@ public static class CurseManager
     /// </summary>
     public static Curse DefaultCurse { get; set; }
 
-    internal static CurseHandler Handler { get; set; }
+    /// <summary>
+    /// Gets or sets if curses should use their caps.
+    /// </summary>
+    public static bool UseCaps { get; set; }
 
-    
+    internal static CurseHandler Handler { get; set; }
 
     #endregion
 

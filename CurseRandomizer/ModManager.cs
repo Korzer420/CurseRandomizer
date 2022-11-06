@@ -15,8 +15,6 @@ namespace CurseRandomizer.Manager;
 /// </summary>
 internal static class ModManager
 {
-    private static RandoSettings Settings => CurseRandomizer.Instance.Settings; 
-
     static ModManager()
     {
         On.UIManager.StartNewGame += UIManager_StartNewGame;
@@ -46,28 +44,36 @@ internal static class ModManager
 
     public static int SoulVessel { get; set; } = 2;
 
+    public static bool IsWalletCursed { get; set; }
+
+    public static bool IsDreamNailCursed { get; set; }
+
+    public static bool IsVesselCursed { get; set; }
+
+    public static bool IsColoCursed { get; set; }
+
     #endregion
 
     private static System.Collections.IEnumerator UIManager_ReturnToMainMenu(On.UIManager.orig_ReturnToMainMenu orig, UIManager self)
     {
-        if (Settings.CursedWallet)
+        if (IsWalletCursed)
         {
             On.HeroController.AddGeo -= CapGeoByWallet;
             On.GeoCounter.NewSceneRefresh -= AdjustGeoColor;
             On.HutongGames.PlayMaker.Actions.SetMaterialColor.OnEnter -= SetMaterialColor_OnEnter;
         }
-        if (Settings.CursedColo)
+        if (IsColoCursed)
         {
             On.PlayMakerFSM.OnEnable -= BlockColoAccess;
             ModHooks.LanguageGetHook -= ShowColoPreview;
         }
-        if (Settings.CursedDreamNail)
+        if (IsDreamNailCursed)
         {
-            On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter -= PreventGhostWarrior;
+            On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter -= PreventDreamBosses;
             On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= PreventGreyPrinceZote;
             On.PlayMakerFSM.OnEnable -= PreventWhiteDefender;
         }
-        if (Settings.CursedVessel)
+        if (IsVesselCursed)
         { 
             IL.PlayerData.AddMPCharge -= LimitSoul;
             On.PlayMakerFSM.OnEnable -= AdjustSoulAmount;
@@ -90,24 +96,25 @@ internal static class ModManager
 
     private static void Hook()
     {
-        if (Settings.CursedWallet)
+        if (IsWalletCursed)
         {
             On.HeroController.AddGeo += CapGeoByWallet;
             On.GeoCounter.NewSceneRefresh += AdjustGeoColor;
             On.HutongGames.PlayMaker.Actions.SetMaterialColor.OnEnter += SetMaterialColor_OnEnter;
         }
-        if (Settings.CursedColo)
+        if (IsColoCursed)
         {
             On.PlayMakerFSM.OnEnable += BlockColoAccess;
             ModHooks.LanguageGetHook += ShowColoPreview;
+            ModHooks.SetPlayerBoolHook += ActivatePasses;
         }
-        if (Settings.CursedDreamNail)
+        if (IsDreamNailCursed)
         {
-            On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter += PreventGhostWarrior;
+            On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter += PreventDreamBosses;
             On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += PreventGreyPrinceZote;
             On.PlayMakerFSM.OnEnable += PreventWhiteDefender;
         }
-        if (Settings.CursedVessel)
+        if (IsVesselCursed)
         { 
             IL.PlayerData.AddMPCharge += LimitSoul;
             On.PlayMakerFSM.OnEnable += AdjustSoulAmount;
@@ -259,11 +266,22 @@ internal static class ModManager
         return orig;
     }
 
+    private static bool ActivatePasses(string name, bool orig)
+    {
+        if (name == "CanAccessBronze")
+            CanAccessBronze = orig;
+        else if (name == "CanAccessSilver")
+            CanAccessSilver = orig;
+        else if (name == "CanAccessGold")
+            CanAccessGold = orig;
+        return orig;
+    }
+
     #endregion
 
     #region Dream Nail Handler
 
-    private static void PreventGhostWarrior(On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.orig_OnEnter orig, PlayerDataBoolTest self)
+    private static void PreventDreamBosses(On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.orig_OnEnter orig, PlayerDataBoolTest self)
     {
         if ((self.IsCorrectContext("Appear", "Ghost Warrior NPC", "Init")
             || self.IsCorrectContext("Conversation Control", "Ghost Warrior NPC", "Init")) && DreamUpgrade == 0)

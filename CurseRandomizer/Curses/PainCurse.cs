@@ -4,7 +4,7 @@ internal class PainCurse : Curse
 {
     public override bool CanApplyCurse()
     {
-        if (CurseRandomizer.Instance.Settings.CapEffects)
+        if (UseCap)
             return PlayerData.instance.GetInt(nameof(PlayerData.instance.health)) > Cap;
         return true;
     }

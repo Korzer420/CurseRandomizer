@@ -1,4 +1,5 @@
-﻿using CurseRandomizer.Manager;
+﻿using CurseRandomizer.ItemData;
+using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer;
 using ItemChanger;
 using ItemChanger.Locations;
@@ -47,10 +48,21 @@ internal static class RandoManager
         });
 
         // Data for wallets.
-        Finder.DefineCustomItem(new ItemData.WalletItem()
+        Finder.DefineCustomItem(new WalletItem()
         {
             name = "Geo_Wallet",
-            tags = new(),
+            tags = new()
+            {
+                new InteropTag()
+                {
+                    Message = "CurseData",
+                     Properties = new()
+                     {
+                         {"MimicNames", new string[] {"Wallet", "Moneybag", "Ge0 Wallet"} },
+                         {"CanMimic", () => CurseRandomizer.Instance.Settings.CursedWallet }
+                     }
+                }
+            },
             UIDef = new MsgUIDef()
             {
                 name = new BoxedString("Geo Wallet"),
@@ -84,7 +96,18 @@ internal static class RandoManager
                 shopDesc = new BoxedString("You like beating up someone? Then this is a must-have."),
                 sprite = new CustomSprite("Bronze_Pass")
             },
-            tags = new(),
+            tags = new()
+            {
+                new InteropTag()
+                {
+                    Message = "CurseData",
+                     Properties = new()
+                     {
+                         {"MimicNames", new string[] {"Colo 1 Access", "Warrior Trial Ticket", "Bronce Trial Ticket"} },
+                         {"CanMimic", () => CurseRandomizer.Instance.Settings.CursedColo }
+                     }
+                }
+            },
         });
         Finder.DefineCustomItem(new ItemChanger.Items.BoolItem()
         {
@@ -97,7 +120,18 @@ internal static class RandoManager
                 shopDesc = new BoxedString("You like beating up someone? Then this is a must-have."),
                 sprite = new CustomSprite("Silver_Pass")
             },
-            tags = new(),
+            tags = new()
+            {
+                new InteropTag()
+                {
+                    Message = "CurseData",
+                     Properties = new()
+                     {
+                         {"MimicNames", new string[] {"Colo 2 Access", "Silver Trial Pass", "Silwer Trial Ticket"} },
+                         {"CanMimic", () => CurseRandomizer.Instance.Settings.CursedColo }
+                     }
+                }
+            },
         });
         Finder.DefineCustomItem(new ItemChanger.Items.BoolItem()
         {
@@ -110,16 +144,36 @@ internal static class RandoManager
                 shopDesc = new BoxedString("You like beating up someone? Then this is a must-have."),
                 sprite = new CustomSprite("Gold_Pass")
             },
-            tags = new(),
+            tags = new()
+            {
+                new InteropTag()
+                {
+                    Message = "CurseData",
+                     Properties = new()
+                     {
+                         {"MimicNames", new string[] {"Colo 3 Access", "Fool Trial Ticket", "Golt Trial Ticket"} },
+                         {"CanMimic", () => CurseRandomizer.Instance.Settings.CursedColo }
+                     }
+                }
+            },
         });
 
-        // Data for cursed dream
-        Finder.DefineCustomItem(new ItemChanger.Items.IntItem()
+        // Data for cursed dream nail
+        Finder.DefineCustomItem(new DreamFragmentItem()
         {
             name = Dreamnail_Fragment,
-            amount = 1,
-            fieldName = "Dreamnail_Curse",
-            tags = new(),
+            tags = new()
+            {
+                new InteropTag()
+                {
+                    Message = "CurseData",
+                     Properties = new()
+                     {
+                         {"MimicNames", new string[] {"Dreem Nail Fragment", "Dream Nayl Fragment", "Dream Nai1 Fragment"} },
+                         {"CanMimic", () => CurseRandomizer.Instance.Settings.CursedDreamNail }
+                     }
+                }
+            },
             UIDef = new MsgUIDef()
             {
                 name = new BoxedString("Fight Fragment"),
@@ -165,17 +219,20 @@ internal static class RandoManager
                 else if (curseItem.UIDef is LoreUIDef lore)
                     lore.lore = new BoxedString("You are a FOOL");
 
-                if (curseItem.UIDef is not MsgUIDef msgUIDef)
-                    CurseRandomizer.Instance.LogError("Item " + mimicItem.name + " couldn't be mimicked correctly. UI Def has to be inhert from MsgUIDef.");
-                else if (MimicNames.Mimics.ContainsKey(mimicItem.name))
-                    msgUIDef.name = new BoxedString(MimicNames.Mimics[mimicItem.name][_generator.Next(0, MimicNames.Mimics[mimicItem.name].Length)]);
-                else
+                if (!CurseRandomizer.Instance.Settings.PerfectMimics)
                 {
-                    (mimicItem.tags.First(x => x is IInteropTag tag && tag.Message == "CurseData") as IInteropTag).TryGetProperty("MimicNames", out string[] mimicNames);
-                    if (mimicNames == null || !mimicNames.Any())
-                        CurseRandomizer.Instance.LogError("Couldn't find a mimic name. Will take the normal UI name of: " + mimicItem.name);
+                    if (curseItem.UIDef is not MsgUIDef msgUIDef)
+                        CurseRandomizer.Instance.LogError("Item " + mimicItem.name + " couldn't be mimicked correctly. UI Def has to be inhert from MsgUIDef.");
+                    else if (MimicNames.Mimics.ContainsKey(mimicItem.name))
+                        msgUIDef.name = new BoxedString(MimicNames.Mimics[mimicItem.name][_generator.Next(0, MimicNames.Mimics[mimicItem.name].Length)]);
                     else
-                        msgUIDef.name = new BoxedString(mimicNames[_generator.Next(0, mimicNames.Length)]);
+                    {
+                        (mimicItem.tags.First(x => x is IInteropTag tag && tag.Message == "CurseData") as IInteropTag).TryGetProperty("MimicNames", out string[] mimicNames);
+                        if (mimicNames == null || !mimicNames.Any())
+                            CurseRandomizer.Instance.LogError("Couldn't find a mimic name. Will take the normal UI name of: " + mimicItem.name);
+                        else
+                            msgUIDef.name = new BoxedString(mimicNames[_generator.Next(0, mimicNames.Length)]);
+                    }
                 }
                 curseItem.CurseName = _availableCurses[_generator.Next(0, _availableCurses.Count)].Name;
                 requestedItemArgs.Current = curseItem;
@@ -183,7 +240,7 @@ internal static class RandoManager
         }
         catch (Exception exception)
         {
-            throw new Exception("Couldn't resolve item " + exception.StackTrace);
+            throw new Exception("Couldn't transform curse item: " + exception.StackTrace);
         }
     }
 
@@ -198,6 +255,7 @@ internal static class RandoManager
         _generator = new(builder.gs.Seed);
         if (CurseRandomizer.Instance.Settings.CursedWallet)
         {
+            ModManager.IsWalletCursed = true;
             ModManager.WalletAmount = 0;
             builder.AddItemByName("Geo_Wallet", 4);
             if (builder.StartItems.EnumerateDistinct().FirstOrDefault(x => x.EndsWith("_Geo")) is string geoName)
@@ -224,7 +282,6 @@ internal static class RandoManager
                 if (group.Locations.GetCount(LocationNames.Leg_Eater) > 0 && !shopToReplace.Contains(LocationNames.Leg_Eater))
                     shopToReplace.Add(LocationNames.Leg_Eater);
             }
-            CurseRandomizer.Instance.Log("Shops to replace: " + shopToReplace.Count);
             foreach (string shop in shopToReplace)
             {
                 builder.ReplaceLocation(shop, $"{shop}_Cheap");
@@ -373,10 +430,14 @@ internal static class RandoManager
             }
         }
         else
+        {
             ModManager.WalletAmount = 4;
+            ModManager.IsWalletCursed = false;
+        }
 
         if (CurseRandomizer.Instance.Settings.CursedColo)
         {
+            ModManager.IsColoCursed = true;
             ModManager.CanAccessBronze = false;
             ModManager.CanAccessSilver = false;
             ModManager.CanAccessGold = false;
@@ -421,17 +482,22 @@ internal static class RandoManager
             ModManager.CanAccessBronze = true;
             ModManager.CanAccessSilver = true;
             ModManager.CanAccessGold = true;
+            ModManager.IsColoCursed = false;
         }
 
         if (CurseRandomizer.Instance.Settings.CursedDreamNail)
         {
             ModManager.DreamUpgrade = 0;
             builder.AddItemByName(Dreamnail_Fragment, 2);
+            ModManager.IsDreamNailCursed = true;
         }
+        else
+            ModManager.IsDreamNailCursed = false;
 
         // To not even bother with figuring out with EVERY SINGLE FIREBALL SKIP, we just prevent this setting from working, if fireball skips are on.
         if (CurseRandomizer.Instance.Settings.CursedVessel && !builder.gs.SkipSettings.FireballSkips)
         {
+            ModManager.IsVesselCursed = true;
             ModManager.SoulVessel = 0;
             if (builder.gs.MiscSettings.VesselFragments == VesselFragmentType.OneFragmentPerVessel)
                 builder.AddItemByName(ItemNames.Full_Soul_Vessel, 2);
@@ -441,7 +507,7 @@ internal static class RandoManager
                 builder.AddItemByName(ItemNames.Vessel_Fragment, 6);
         }
         else
-            CurseRandomizer.Instance.Settings.CursedVessel = false;
+            ModManager.IsVesselCursed = false;
     }
 
     /// <summary>
@@ -451,96 +517,105 @@ internal static class RandoManager
     /// <exception cref="Exception"></exception>
     private static void ApplyCurses(RequestBuilder builder)
     {
-        if (!CurseRandomizer.Instance.Settings.Enabled)
-            return;
         ReplacedItems.Clear();
+        if (!CurseRandomizer.Instance.Settings.Enabled || !CurseRandomizer.Instance.Settings.UseCurses)
+            return;
+        
         AddCustomMimics(builder.gs);
-        // Handles the placed curses.
-        if (CurseRandomizer.Instance.Settings.UseCurses)
-        {
-            // Get all items which can be removed.
-            List<string> replacableItems = GetReplaceableItems(builder.gs);
+        // Get all items which can be removed.
+        List<string> replacableItems = GetReplaceableItems(builder.gs);
 
-            // Get all pools, which the items can be removed from.
-            List<ItemGroupBuilder> availablePools = new();
-            foreach (StageBuilder stage in builder.Stages)
-                foreach (ItemGroupBuilder itemGroup in stage.Groups.Where(x => x is ItemGroupBuilder).Select(x => x as ItemGroupBuilder))
-                {
-                    if (availablePools.Contains(itemGroup))
-                        continue;
-                    foreach (string item in itemGroup.Items.EnumerateDistinct())
-                        if (replacableItems.Contains(item))
-                        {
-                            availablePools.Add(itemGroup);
-                            break;
-                        }
-                }
-            _availableCurses.Clear();
-            if (CurseRandomizer.Instance.Settings.CustomCurses && CurseManager.GetCurseByType(CurseType.Custom) != null)
-                _availableCurses.AddRange(CurseManager.GetCurses().Where(x => x.Type == CurseType.Custom));
-            if (CurseRandomizer.Instance.Settings.PainCurse)
-                _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Pain));
-            if (CurseRandomizer.Instance.Settings.GreedCurse)
-                _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Greed));
-            if (CurseRandomizer.Instance.Settings.StupidityCurse && !builder.gs.SkipSettings.FireballSkips)
-                _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Stupidity));
-            if (CurseRandomizer.Instance.Settings.NormalityCurse)
-                _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Normality));
-            if (CurseRandomizer.Instance.Settings.DesorientationCurse)
-                _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Desorientation));
-            if (CurseRandomizer.Instance.Settings.EmptynessCurse)
-                _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Emptyness));
-            if (CurseRandomizer.Instance.Settings.ThirstCurse)
-                _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Thirst));
-            if (CurseRandomizer.Instance.Settings.WeaknessCurse)
-                _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Weakness));
-            if (CurseRandomizer.Instance.Settings.LoseCurse)
-                _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Lose));
-            if (CurseRandomizer.Instance.Settings.CustomCurses && CurseManager.GetCurses().Any(x => x.Type == CurseType.Custom))
-                _availableCurses.AddRange(CurseManager.GetCurses().Where(x => x.Type == CurseType.Custom));
-
-            if (!_availableCurses.Any())
-                throw new Exception("No curses available to place.");
-
-            int amount = CurseRandomizer.Instance.Settings.CurseAmount switch
+        // Get all pools, which the items can be removed from.
+        List<ItemGroupBuilder> availablePools = new();
+        foreach (StageBuilder stage in builder.Stages)
+            foreach (ItemGroupBuilder itemGroup in stage.Groups.Where(x => x is ItemGroupBuilder).Select(x => x as ItemGroupBuilder))
             {
-                Amount.Few => builder.rng.Next(1, 6),
-                Amount.Some => builder.rng.Next(3, 11),
-                Amount.Medium => builder.rng.Next(5, 16),
-                Amount.Many => builder.rng.Next(7, 21),
-                Amount.OhOh => builder.rng.Next(10, 31),
-                Amount.Custom => CurseRandomizer.Instance.Settings.CurseItems,
-                _ => 0
-            };
-            if (CurseRandomizer.Instance.Settings.CurseMethod != RequestMethod.Add)
-                // Remove the items.
-                for (; amount > 0; amount--)
-                {
-                    if (!availablePools.Any())
+                if (availablePools.Contains(itemGroup))
+                    continue;
+                foreach (string item in itemGroup.Items.EnumerateDistinct())
+                    if (replacableItems.Contains(item))
+                    {
+                        availablePools.Add(itemGroup);
                         break;
-                    ItemGroupBuilder pickedGroup = availablePools[builder.rng.Next(0, availablePools.Count)];
-                    string[] availableItems = pickedGroup.Items.EnumerateDistinct().Where(x => replacableItems.Contains(x)).ToArray();
-                    string pickedItem = availableItems[builder.rng.Next(0, availableItems.Length)];
-                    pickedGroup.Items.Remove(pickedItem, 1);
-                    ReplacedItems.Add(pickedItem);
-                    if (availableItems.Length == 0)
-                        availablePools.Remove(pickedGroup);
-                    if (pickedItem == ItemNames.Mask_Shard)
-                        builder.AddItemByName("Fool_Item_Mocked_Shard");
-                    else if (pickedItem == ItemNames.Double_Mask_Shard)
-                        builder.AddItemByName("Fool_Item_Two_Mocked_Shards");
-                    else if (pickedItem == ItemNames.Full_Mask)
-                        builder.AddItemByName("Fool_Item_Mocked_Mask");
-                    else
-                        builder.AddItemByName("Fool_Item");
-                    CurseRandomizer.Instance.LogDebug("Removed " + pickedItem + " for a curse.");
-                }
+                    }
+            }
+        _availableCurses.Clear();
+        if (CurseRandomizer.Instance.Settings.CustomCurses && CurseManager.GetCurseByType(CurseType.Custom) != null)
+            _availableCurses.AddRange(CurseManager.GetCurses().Where(x => x.Type == CurseType.Custom));
+        if (CurseRandomizer.Instance.Settings.PainCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Pain));
+        if (CurseRandomizer.Instance.Settings.GreedCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Greed));
+        if (CurseRandomizer.Instance.Settings.StupidityCurse && !builder.gs.SkipSettings.FireballSkips)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Stupidity));
+        if (CurseRandomizer.Instance.Settings.NormalityCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Normality));
+        if (CurseRandomizer.Instance.Settings.DesorientationCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Desorientation));
+        if (CurseRandomizer.Instance.Settings.EmptynessCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Emptyness));
+        if (CurseRandomizer.Instance.Settings.ThirstCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Thirst));
+        if (CurseRandomizer.Instance.Settings.WeaknessCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Weakness));
+        if (CurseRandomizer.Instance.Settings.LoseCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Lose));
+        if (CurseRandomizer.Instance.Settings.CustomCurses && CurseManager.GetCurses().Any(x => x.Type == CurseType.Custom))
+            _availableCurses.AddRange(CurseManager.GetCurses().Where(x => x.Type == CurseType.Custom));
 
-            if (amount > 0 && CurseRandomizer.Instance.Settings.CurseMethod != RequestMethod.ForceReplace)
-                builder.AddItemByName("Fool_Item", amount);
-            else if (CurseRandomizer.Instance.Settings.CurseMethod == RequestMethod.ForceReplace && amount > 0)
-                CurseRandomizer.Instance.LogWarn("Couldn't replace enough items to satisfy the selected amount. Disposed amount: " + amount);
-        }
+        if (!_availableCurses.Any())
+            throw new Exception("No curses available to place.");
+
+        int amount = CurseRandomizer.Instance.Settings.CurseAmount switch
+        {
+            Amount.Few => builder.rng.Next(1, 6),
+            Amount.Some => builder.rng.Next(3, 11),
+            Amount.Medium => builder.rng.Next(5, 16),
+            Amount.Many => builder.rng.Next(7, 21),
+            Amount.OhOh => builder.rng.Next(10, 31),
+            Amount.Custom => CurseRandomizer.Instance.Settings.CurseItems,
+            _ => 0
+        };
+        if (CurseRandomizer.Instance.Settings.CurseMethod != RequestMethod.Add)
+            // Remove the items.
+            for (; amount > 0; amount--)
+            {
+                if (!availablePools.Any())
+                    break;
+                ItemGroupBuilder pickedGroup = availablePools[builder.rng.Next(0, availablePools.Count)];
+                string[] availableItems = pickedGroup.Items.EnumerateDistinct().Where(x => replacableItems.Contains(x)).ToArray();
+                string pickedItem = availableItems[builder.rng.Next(0, availableItems.Length)];
+                pickedGroup.Items.Remove(pickedItem, 1);
+                ReplacedItems.Add(pickedItem);
+                if (availableItems.Length == 0)
+                    availablePools.Remove(pickedGroup);
+                if (pickedItem == ItemNames.Mask_Shard)
+                    builder.AddItemByName("Fool_Item_Mocked_Shard");
+                else if (pickedItem == ItemNames.Double_Mask_Shard)
+                    builder.AddItemByName("Fool_Item_Two_Mocked_Shards");
+                else if (pickedItem == ItemNames.Full_Mask)
+                    builder.AddItemByName("Fool_Item_Mocked_Mask");
+                else
+                    builder.AddItemByName("Fool_Item");
+                CurseRandomizer.Instance.LogDebug("Removed " + pickedItem + " for a curse.");
+            }
+
+        if (amount > 0 && CurseRandomizer.Instance.Settings.CurseMethod != RequestMethod.ForceReplace)
+            builder.AddItemByName("Fool_Item", amount);
+        else if (CurseRandomizer.Instance.Settings.CurseMethod == RequestMethod.ForceReplace && amount > 0)
+            CurseRandomizer.Instance.LogWarn("Couldn't replace enough items to satisfy the selected amount. Disposed amount: " + amount);
+
+        // Set the caps
+        CurseManager.GetCurseByType(CurseType.Pain).Cap = CurseRandomizer.Instance.Settings.PainCap;
+        CurseManager.GetCurseByType(CurseType.Stupidity).Cap = CurseRandomizer.Instance.Settings.StupidityCap;
+        CurseManager.GetCurseByType(CurseType.Normality).Cap = CurseRandomizer.Instance.Settings.NormalityCap;
+        CurseManager.GetCurseByType(CurseType.Emptyness).Cap = CurseRandomizer.Instance.Settings.EmptynessCap;
+        CurseManager.GetCurseByType(CurseType.Greed).Cap = CurseRandomizer.Instance.Settings.GreedCap;
+        CurseManager.GetCurseByType(CurseType.Lose).Cap = CurseRandomizer.Instance.Settings.LoseCap;
+        CurseManager.GetCurseByType(CurseType.Thirst).Cap = CurseRandomizer.Instance.Settings.ThirstCap;
+        CurseManager.GetCurseByType(CurseType.Weakness).Cap = CurseRandomizer.Instance.Settings.WeaknessCap;
+
+        CurseManager.DefaultCurse = CurseManager.GetCurseByType(CurseRandomizer.Instance.Settings.DefaultCurse);
     }
 
     /// <summary>
@@ -671,7 +746,6 @@ internal static class RandoManager
     private static void AddCustomMimics(GenerationSettings settings)
     {
         _mimicableItems.Clear();
-        CurseRandomizer.Instance.LogDebug("Add mimic items");
         AddBaseMimics(settings);
         foreach (KeyValuePair<string, AbstractItem> item in Finder.GetFullItemList().Where(x => x.Value.tags != null && x.Value.tags.Any(x => x is IInteropTag)))
         {

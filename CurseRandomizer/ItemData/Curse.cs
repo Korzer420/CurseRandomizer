@@ -43,7 +43,7 @@ public abstract class Curse
     /// <summary>
     /// Gets the value that indicates if the <see cref="Cap"/> should be used.
     /// </summary>
-    public bool UseCap => CurseRandomizer.Instance.Settings.CapEffects;
+    public bool UseCap => CurseManager.UseCaps;
 
     #endregion
 

@@ -4,7 +4,7 @@ internal class EmptynessCurse : Curse
 {
     public override bool CanApplyCurse()
     {
-        int cap = CurseRandomizer.Instance.Settings.CapEffects ? Cap : 1;
+        int cap = UseCap ? Cap : 1;
         return PlayerData.instance.GetInt("maxHealth") > cap;
     }
 

@@ -1,9 +1,5 @@
 ﻿using Modding;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CurseRandomizer.Curses;
 
@@ -39,7 +35,7 @@ internal class WeaknessCurse : Curse
 
     public override bool CanApplyCurse()
     {
-        int cap = CurseRandomizer.Instance.Settings.CapEffects ? Cap : 1;
+        int cap = UseCap ? Cap : 1;
         return 5 + 4 * PlayerData.instance.GetInt(nameof(PlayerData.instance.nailSmithUpgrades)) - Stacks > cap;
     }
 

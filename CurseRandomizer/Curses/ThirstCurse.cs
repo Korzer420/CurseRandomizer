@@ -13,7 +13,7 @@ internal class ThirstCurse : Curse
 
     public override bool CanApplyCurse()
     {
-        int cap = CurseRandomizer.Instance.Settings.CapEffects ? Cap : 1;
+        int cap = UseCap ? Cap : 1;
         return 11 - Stacks > cap;
     }
 

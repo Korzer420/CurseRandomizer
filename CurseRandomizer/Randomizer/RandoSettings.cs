@@ -25,6 +25,8 @@ public class RandoSettings
 
     #region Curse Settings
 
+    public bool PerfectMimics { get; set; }
+
     public bool CapEffects { get; set; }
 
     public CurseType DefaultCurse { get; set; }

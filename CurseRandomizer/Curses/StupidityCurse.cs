@@ -41,7 +41,7 @@ internal class StupidityCurse : Curse
 
     public override bool CanApplyCurse()
     {
-        int cap = CurseRandomizer.Instance.Settings.CapEffects ? Cap : 99;
+        int cap = UseCap ? Cap : 99;
         return 33 + Stacks < cap;
     }
 
