@@ -3,9 +3,9 @@ using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer;
 using ItemChanger;
 using ItemChanger.Locations;
-using ItemChanger.Placements;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
+using Modding;
 using RandomizerCore.Logic;
 using RandomizerCore.LogicItems;
 using RandomizerMod.RandomizerData;
@@ -24,7 +24,7 @@ internal static class RandoManager
 {
     #region Constants
 
-    public const string GeoWallet = "Geo_Wallet";
+    public const string Geo_Wallet = "Geo_Wallet";
     public const string Bronze_Trial_Ticket = "Bronze_Trial_Ticket";
     public const string Silver_Trial_Ticket = "Silver_Trial_Ticket";
     public const string Gold_Trial_Ticket = "Gold_Trial_Ticket";
@@ -50,7 +50,7 @@ internal static class RandoManager
         // Data for wallets.
         Finder.DefineCustomItem(new WalletItem()
         {
-            name = "Geo_Wallet",
+            name = Geo_Wallet,
             tags = new()
             {
                 new InteropTag()
@@ -190,7 +190,29 @@ internal static class RandoManager
         OnUpdate.Subscribe(9999f, ApplyCurses);
         Finder.GetItemOverride += TranformCurseItems;
         RCData.RuntimeLogicOverride.Subscribe(9999f, ModifyLogic);
+        RandoController.OnCalculateHash += RandoController_OnCalculateHash;
         RandomizerMenu.AttachMenu();
+    }
+
+    private static int RandoController_OnCalculateHash(RandoController controller, int hashValue)
+    {
+        if (!CurseRandomizer.Instance.Settings.Enabled || !CurseRandomizer.Instance.Settings.UseCurses)
+            return hashValue;
+        int addition = 0;
+        if (CurseRandomizer.Instance.Settings.PerfectMimics)
+            addition += 410;
+        if (CurseRandomizer.Instance.Settings.CapEffects)
+            addition++;
+
+        foreach (Curse curse in _availableCurses)
+        {
+            addition += 120 * (int)curse.Type;
+            addition += 5 * curse.Cap;
+        }
+        addition += (int)CurseManager.DefaultCurse.Type * 420;
+        addition += (int)CurseRandomizer.Instance.Settings.DefaultCurse * 777;
+
+        return 24691 + addition;
     }
 
 
@@ -204,7 +226,7 @@ internal static class RandoManager
             if (requestedItemArgs.ItemName.StartsWith("Fool_Item") && CurseRandomizer.Instance.Settings.UseCurses)
             {
                 AbstractItem mimicItem = _mimicableItems[_generator.Next(0, _mimicableItems.Count)];
-
+                CurseRandomizer.Instance.LogDebug("Try to replicate: " + mimicItem.name);
                 CurseItem curseItem = new()
                 {
                     name = "Fake_" + mimicItem.name,
@@ -299,7 +321,7 @@ internal static class RandoManager
                     };
                     info.onRandoLocationCreation += (factory, location) =>
                     {
-                        location.AddCost(new LogicGeoCost(builder.lm, /*_generator.Next(0, 201)*/200));
+                        location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(0, 201)));
                     };
                 });
                 builder.EditLocationRequest($"{shop}_Medium", info =>
@@ -312,7 +334,7 @@ internal static class RandoManager
                     };
                     info.onRandoLocationCreation += (factory, location) =>
                     {
-                        location.AddCost(new LogicGeoCost(builder.lm, /*_generator.Next(201, 501)*/500));
+                        location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(201, 501)));
                     };
                 });
                 builder.EditLocationRequest($"{shop}_Expensive", info =>
@@ -325,7 +347,7 @@ internal static class RandoManager
                     };
                     info.onRandoLocationCreation += (factory, location) =>
                     {
-                        location.AddCost(new LogicGeoCost(builder.lm, /*_generator.Next(501, 1001)*/ 1000));
+                        location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(501, 1001)));
                     };
                 });
                 builder.EditLocationRequest($"{shop}_Extreme_Valuable", info =>
@@ -338,7 +360,7 @@ internal static class RandoManager
                     };
                     info.onRandoLocationCreation += (factory, location) =>
                     {
-                        location.AddCost(new LogicGeoCost(builder.lm, /*_generator.Next(1001, 1801)*/ 1800));
+                        location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(1001, 1801)));
                     };
                 });
 
@@ -365,7 +387,7 @@ internal static class RandoManager
                             if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
                                 cost.GeoAmount = 200;
                             else
-                                location.AddCost(new LogicGeoCost(builder.lm, /*_generator.Next(0, 201)*/200));
+                                location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(0, 201)));
                             location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
                         };
                     });
@@ -384,7 +406,7 @@ internal static class RandoManager
                             if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
                                 cost.GeoAmount = 500;
                             else
-                                location.AddCost(new LogicGeoCost(builder.lm, /*_generator.Next(0, 201)*/500));
+                                location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(201, 501)));
                             location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
                         };
                     });
@@ -403,7 +425,7 @@ internal static class RandoManager
                             if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
                                 cost.GeoAmount = 1000;
                             else
-                                location.AddCost(new LogicGeoCost(builder.lm, /*_generator.Next(0, 201)*/1000));
+                                location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(501, 1001)));
                             location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
                         };
                     });
@@ -422,7 +444,7 @@ internal static class RandoManager
                             if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
                                 cost.GeoAmount = 1800;
                             else
-                                location.AddCost(new LogicGeoCost(builder.lm, /*_generator.Next(0, 201)*/1800));
+                                location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(1001, 1801)));
                             location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
                         };
                     });
@@ -520,7 +542,7 @@ internal static class RandoManager
         ReplacedItems.Clear();
         if (!CurseRandomizer.Instance.Settings.Enabled || !CurseRandomizer.Instance.Settings.UseCurses)
             return;
-        
+
         AddCustomMimics(builder.gs);
         // Get all items which can be removed.
         List<string> replacableItems = GetReplaceableItems(builder.gs);
@@ -749,16 +771,21 @@ internal static class RandoManager
 #if RELEASE
         AddBaseMimics(settings); 
 #endif
-        foreach (KeyValuePair<string, AbstractItem> item in Finder.GetFullItemList().Where(x => x.Value.tags != null && x.Value.tags.Any(x => x is IInteropTag)))
+        foreach (KeyValuePair<string, AbstractItem> item in ReflectionHelper.GetField<Dictionary<string, AbstractItem>>(typeof(Finder), "CustomItems"))
         {
             if (_mimicableItems.Contains(item.Value))
                 continue;
             // Other connections can add mimics via an interop tag, here we get all items which are eligatible to be mimicked.
             try
             {
-                if (item.Value.tags.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseTag)
+                if (item.Value.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseTag)
+                {
                     if (curseTag.TryGetProperty("CanMimic", out Func<bool> check) && check.Invoke())
+                    {
+                        CurseRandomizer.Instance.LogDebug("Added " + item.Key + " as a viable mimic.");
                         _mimicableItems.Add(item.Value);
+                    }
+                }
             }
             catch (Exception exception)
             {
@@ -821,19 +848,19 @@ internal static class RandoManager
 
 #endif
         if (CurseRandomizer.Instance.Settings.Custom)
-            foreach (AbstractItem item in Finder.GetFullItemList().Values)
+            foreach (KeyValuePair<string, AbstractItem> item in ReflectionHelper.GetField<Dictionary<string, AbstractItem>>(typeof(Finder), "CustomItems"))
             {
                 try
                 {
-                    if (viableItems.Contains(item.name))
+                    if (viableItems.Contains(item.Key))
                         continue;
-                    if (item.tags.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseData)
+                    if (item.Value.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseData)
                         if (curseData.TryGetProperty("CanReplace", out Func<bool> replaceMethod) && replaceMethod.Invoke())
-                            viableItems.Add(item.name);
+                            viableItems.Add(item.Key);
                 }
                 catch (Exception exception)
                 {
-                    throw new Exception($"Couldn't determine if item {item?.name} can be replaced: " + exception.Message + " StackTrace: " + exception.StackTrace);
+                    throw new Exception($"Couldn't determine if item {item.Key} can be replaced: " + exception.Message + " StackTrace: " + exception.StackTrace);
                 }
             }
 

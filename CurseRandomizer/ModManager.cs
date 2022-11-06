@@ -3,9 +3,11 @@ using HutongGames.PlayMaker.Actions;
 using ItemChanger;
 using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
+using ItemChanger.Placements;
 using Modding;
 using MonoMod.Cil;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CurseRandomizer.Manager;
@@ -92,6 +94,19 @@ internal static class ModManager
     {
         orig(self, permaDeath, bossRush);
         Hook();
+        // Fix for the shop placement wrap.
+        if (IsWalletCursed)
+        {
+            Dictionary<string, AbstractPlacement> placements = ItemChanger.Internal.Ref.Settings.Placements;
+            if (placements.ContainsKey("Sly_(Key)_Cheap"))
+                (placements["Sly_(Key)_Cheap"] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
+            if (placements.ContainsKey("Sly_(Key)_Medium"))
+                (placements["Sly_(Key)_Medium"] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
+            if (placements.ContainsKey("Sly_(Key)_Expensive"))
+                (placements["Sly_(Key)_Expensive"] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
+            if (placements.ContainsKey("Sly_(Key)_High_Valuable"))
+                (placements["Sly_(Key)_High_Valuable"] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
+        }
     }
 
     private static void Hook()
