@@ -94,7 +94,7 @@ To allow this mod to consider your items, add a interop tag to them (or your own
 
 ### Mimics
 Add these properties to the Interop tag:
-- CanMimic (Func<bool>): The mod will evaluate this in the request to determine if mimics of your item can be created. In most cases this should be tied to a boolean on your setting. Use this to prevent mimics appear for items, which are not even randomized. If the mod cannot find a match with this, this item will be ignored.
+- CanMimic (IBool): The mod will evaluate this in the request to determine if mimics of your item can be created. In most cases this should be tied to a boolean on your setting. Use this to prevent mimics appear for items, which are not even randomized. If the mod cannot find a match with this, this item will be ignored.
 - MimicNames (string[]): If your item is evaluated as a viable mimic, it will try to take a name from this array (if your item is rolled). This will be called, when Rando requests the items from IC. Note, that the "Perfect Mimics" option, will just take the original name.
 
 **The UIDef of the item has to be inhert from MsgUIDef, for mimics to work!** The mod will clone your UIDef and adjust a few things.
@@ -105,7 +105,7 @@ Generally speaking, only items which have a significant purpose should be mimick
 
 ### Replacements
 Add this property to the Interop tag:
-- CanReplace (Func<bool>): Evaluates in the request if an item can be replaced.
+- CanReplace (IBool): Evaluates in the request if an item can be replaced.
 
 Only use this for real junk items, which have no purpose at all.
 If it is important for your configuration, which items are actually removed, you can use RandoManager.RemovedItems to figure that out.
