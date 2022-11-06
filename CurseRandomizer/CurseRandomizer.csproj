@@ -6,7 +6,7 @@
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<LangVersion>latest</LangVersion>
 		<AssemblyTitle>CurseRandomizer</AssemblyTitle>
-		<AssemblyVersion>0.1.0.0</AssemblyVersion>
+		<AssemblyVersion>0.0.1.0</AssemblyVersion>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -15,6 +15,7 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<DocumentationFile></DocumentationFile>
+		<FileVersion>0.0.1.0</FileVersion>
 	</PropertyGroup>
 
 	<Target Name="CopyMod" AfterTargets="PostBuildEvent">
