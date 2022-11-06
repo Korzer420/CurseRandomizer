@@ -59,7 +59,7 @@ internal static class RandoManager
                      Properties = new()
                      {
                          {"MimicNames", new string[] {"Wallet", "Moneybag", "Ge0 Wallet"} },
-                         {"CanMimic", () => CurseRandomizer.Instance.Settings.CursedWallet }
+                         {"CanMimic",  new InternalBoolCheck(){ ItemNumber = 0 } }
                      }
                 }
             },
@@ -104,7 +104,7 @@ internal static class RandoManager
                      Properties = new()
                      {
                          {"MimicNames", new string[] {"Colo 1 Access", "Warrior Trial Ticket", "Bronce Trial Ticket"} },
-                         {"CanMimic", () => CurseRandomizer.Instance.Settings.CursedColo }
+                         {"CanMimic", new InternalBoolCheck() { ItemNumber = 1 } }
                      }
                 }
             },
@@ -128,7 +128,7 @@ internal static class RandoManager
                      Properties = new()
                      {
                          {"MimicNames", new string[] {"Colo 2 Access", "Silver Trial Pass", "Silwer Trial Ticket"} },
-                         {"CanMimic", () => CurseRandomizer.Instance.Settings.CursedColo }
+                         {"CanMimic", new InternalBoolCheck() { ItemNumber = 1 } }
                      }
                 }
             },
@@ -152,7 +152,7 @@ internal static class RandoManager
                      Properties = new()
                      {
                          {"MimicNames", new string[] {"Colo 3 Access", "Fool Trial Ticket", "Golt Trial Ticket"} },
-                         {"CanMimic", () => CurseRandomizer.Instance.Settings.CursedColo }
+                         {"CanMimic", new InternalBoolCheck() { ItemNumber = 1 } }
                      }
                 }
             },
@@ -170,7 +170,7 @@ internal static class RandoManager
                      Properties = new()
                      {
                          {"MimicNames", new string[] {"Dreem Nail Fragment", "Dream Nayl Fragment", "Dream Nai1 Fragment"} },
-                         {"CanMimic", () => CurseRandomizer.Instance.Settings.CursedDreamNail }
+                         {"CanMimic", new InternalBoolCheck() { ItemNumber = 2 } }
                      }
                 }
             },
@@ -769,7 +769,7 @@ internal static class RandoManager
     {
         _mimicableItems.Clear();
 #if RELEASE
-        AddBaseMimics(settings); 
+        AddBaseMimics(settings);
 #endif
         foreach (KeyValuePair<string, AbstractItem> item in ReflectionHelper.GetField<Dictionary<string, AbstractItem>>(typeof(Finder), "CustomItems"))
         {
@@ -780,7 +780,7 @@ internal static class RandoManager
             {
                 if (item.Value.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseTag)
                 {
-                    if (curseTag.TryGetProperty("CanMimic", out Func<bool> check) && check.Invoke())
+                    if (curseTag.TryGetProperty("CanMimic", out IBool check) && check.Value)
                     {
                         CurseRandomizer.Instance.LogDebug("Added " + item.Key + " as a viable mimic.");
                         _mimicableItems.Add(item.Value);
@@ -855,7 +855,7 @@ internal static class RandoManager
                     if (viableItems.Contains(item.Key))
                         continue;
                     if (item.Value.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseData)
-                        if (curseData.TryGetProperty("CanReplace", out Func<bool> replaceMethod) && replaceMethod.Invoke())
+                        if (curseData.TryGetProperty("CanReplace", out IBool canReplace) && canReplace.Value)
                             viableItems.Add(item.Key);
                 }
                 catch (Exception exception)
