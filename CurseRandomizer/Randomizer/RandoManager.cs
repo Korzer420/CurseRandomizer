@@ -746,7 +746,9 @@ internal static class RandoManager
     private static void AddCustomMimics(GenerationSettings settings)
     {
         _mimicableItems.Clear();
-        AddBaseMimics(settings);
+#if RELEASE
+        AddBaseMimics(settings); 
+#endif
         foreach (KeyValuePair<string, AbstractItem> item in Finder.GetFullItemList().Where(x => x.Value.tags != null && x.Value.tags.Any(x => x is IInteropTag)))
         {
             if (_mimicableItems.Contains(item.Value))
@@ -764,7 +766,6 @@ internal static class RandoManager
                 CurseRandomizer.Instance.LogError(exception.StackTrace);
             }
         }
-        CurseRandomizer.Instance.LogDebug("Completed setting up mimic names.");
     }
 
     /// <summary>
@@ -774,6 +775,7 @@ internal static class RandoManager
     {
         List<string> viableItems = new();
 
+#if RELEASE
         if (CurseRandomizer.Instance.Settings.MaskShards && generationSettings.PoolSettings.MaskShards)
             viableItems.Add(generationSettings.MiscSettings.MaskShards switch
             {
@@ -817,6 +819,7 @@ internal static class RandoManager
             }
         }
 
+#endif
         if (CurseRandomizer.Instance.Settings.Custom)
             foreach (AbstractItem item in Finder.GetFullItemList().Values)
             {

@@ -1,6 +1,7 @@
 ﻿using CurseRandomizer.Manager;
 using CurseRandomizer.SaveManagment;
 using Modding;
+using System.Reflection;
 
 namespace CurseRandomizer;
 
@@ -14,6 +15,8 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
     }
 
     public static CurseRandomizer Instance { get; set; }
+
+    public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
     public RandoSettings Settings => _settings ??= new();
 
