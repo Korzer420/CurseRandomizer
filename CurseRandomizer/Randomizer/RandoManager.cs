@@ -221,11 +221,12 @@ internal static class RandoManager
     /// </summary>
     private static void TranformCurseItems(GetItemEventArgs requestedItemArgs)
     {
+        AbstractItem mimicItem = null;
         try
         {
             if (requestedItemArgs.ItemName.StartsWith("Fool_Item") && CurseRandomizer.Instance.Settings.UseCurses)
             {
-                AbstractItem mimicItem = _mimicableItems[_generator.Next(0, _mimicableItems.Count)];
+                mimicItem = _mimicableItems[_generator.Next(0, _mimicableItems.Count)];
                 CurseRandomizer.Instance.LogDebug("Try to replicate: " + mimicItem.name);
                 CurseItem curseItem = new()
                 {
@@ -262,7 +263,7 @@ internal static class RandoManager
         }
         catch (Exception exception)
         {
-            throw new Exception("Couldn't transform curse item: " + exception.StackTrace);
+            CurseRandomizer.Instance.LogError($"Couldn't transform curse item: {mimicItem?.name}" + exception.StackTrace);
         }
     }
 

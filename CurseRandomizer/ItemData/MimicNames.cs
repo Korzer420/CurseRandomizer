@@ -15,6 +15,7 @@ public static class MimicNames
         { Left_Mothwing_Cloak, new string[]{ "Left M0thwing Cloak", "Left Mothwing Cl0ak", "Left Motwing Cloak", "Left Mothwing C1oak", "Let Mothwing Cloak", "Left Dash" } },
         { Mothwing_Cloak, new string[]{ "M0thwing Cloak", "Mothwing Cl0ak", "Motwing Cloak", "Mothwing C1oak", "Dash", "Cothwing Mloak" } },
         { Right_Mothwing_Cloak, new string[]{ "Right M0thwing Cloak", "Right Mothwing Cl0ak", "Right Motwing Cloak", " Right Mothwing C1oak", "Right Dash", "Rigt Mothwing Cloak", "Ride Mothwing Cloak" } },
+        { Shade_Cloak, new string[] {"Shad Cloak", "Schade Cloak", "Shade Clock"} },
         { Crystal_Heart, new string[]{"Crystal Hearth", "Crysta1 Heart", "Cyrstal Heart", "Superdash", "Krystal Heart"} },
         { Left_Crystal_Heart, new string[]{"Lef7 Crystal Heart", "Left Crysta1 Heart", "Left Superdash", "Left Cyrstal Heart" } },
         { Right_Crystal_Heart, new string[]{"Rigth Crystal Heart", "Right Crysta1 Heart", "Right Superdash", "Right Cyrstal Heart" } },
@@ -108,6 +109,7 @@ public static class MimicNames
         { Love_Key, new string[]{"Lowe Key", "Love Kay"} },
         { Elegant_Key, new string[]{"Elegent Key", "Elagant Key", "Elegand Key" } },
         { Pale_Ore, new string[]{"Pal Ore", "Pa1e Ore", "Pale Or", "Ore" } },
-        { Rancid_Egg, new string[]{"Rancit Egg", "Rancid's Egg"} }
+        { Rancid_Egg, new string[]{"Rancit Egg", "Rancid's Egg"} },
+        { Kings_Brand, new string[]{"King Brand", "King's Brendt", "King's Brands", "Kang's Brind"} }
     };
 }
