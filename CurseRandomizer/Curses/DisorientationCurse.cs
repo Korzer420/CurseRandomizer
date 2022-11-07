@@ -2,7 +2,7 @@
 
 namespace CurseRandomizer.Curses;
 
-internal class DesorientationCurse : Curse
+internal class DisorientationCurse : Curse
 {
     public override void ApplyCurse() => ChangeScene.WarpToRespawn();
 }

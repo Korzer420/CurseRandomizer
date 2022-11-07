@@ -573,10 +573,10 @@ internal static class RandoManager
             _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Stupidity));
         if (CurseRandomizer.Instance.Settings.NormalityCurse)
             _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Normality));
-        if (CurseRandomizer.Instance.Settings.DesorientationCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Desorientation));
-        if (CurseRandomizer.Instance.Settings.EmptynessCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Emptyness));
+        if (CurseRandomizer.Instance.Settings.DisorientationCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Disorientation));
+        if (CurseRandomizer.Instance.Settings.EmptinessCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Emptiness));
         if (CurseRandomizer.Instance.Settings.ThirstCurse)
             _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Thirst));
         if (CurseRandomizer.Instance.Settings.WeaknessCurse)
@@ -632,7 +632,7 @@ internal static class RandoManager
         CurseManager.GetCurseByType(CurseType.Pain).Cap = CurseRandomizer.Instance.Settings.PainCap;
         CurseManager.GetCurseByType(CurseType.Stupidity).Cap = CurseRandomizer.Instance.Settings.StupidityCap;
         CurseManager.GetCurseByType(CurseType.Normality).Cap = CurseRandomizer.Instance.Settings.NormalityCap;
-        CurseManager.GetCurseByType(CurseType.Emptyness).Cap = CurseRandomizer.Instance.Settings.EmptynessCap;
+        CurseManager.GetCurseByType(CurseType.Emptiness).Cap = CurseRandomizer.Instance.Settings.EmptynessCap;
         CurseManager.GetCurseByType(CurseType.Greed).Cap = CurseRandomizer.Instance.Settings.GreedCap;
         CurseManager.GetCurseByType(CurseType.Lose).Cap = CurseRandomizer.Instance.Settings.LoseCap;
         CurseManager.GetCurseByType(CurseType.Thirst).Cap = CurseRandomizer.Instance.Settings.ThirstCap;

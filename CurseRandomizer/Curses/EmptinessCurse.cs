@@ -1,6 +1,6 @@
 ﻿namespace CurseRandomizer.Curses;
 
-internal class EmptynessCurse : Curse
+internal class EmptinessCurse : Curse
 {
     public override bool CanApplyCurse()
     {

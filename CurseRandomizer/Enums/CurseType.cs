@@ -25,12 +25,12 @@ public enum CurseType
     /// <summary>
     /// Removes a mask from the player.
     /// </summary>
-    Emptyness,
+    Emptiness,
 
     /// <summary>
     /// Teleports the player back to their bench. The other curses default to this if they cannot be executed.
     /// </summary>
-    Desorientation,
+    Disorientation,
 
     /// <summary>
     /// Reduces the nail damage by 1.

@@ -48,9 +48,9 @@ public class RandoSettings
 
     public bool LoseCurse { get; set; }
 
-    public bool EmptynessCurse { get; set; }
+    public bool EmptinessCurse { get; set; }
 
-    public bool DesorientationCurse { get; set; }
+    public bool DisorientationCurse { get; set; }
 
     public bool WeaknessCurse { get; set; }
 
