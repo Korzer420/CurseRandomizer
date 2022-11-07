@@ -35,7 +35,7 @@ public class RandoSettings
 
     public Amount CurseAmount { get; set; }
 
-    [MenuRange(0, 50)]
+    [MenuRange(0, 100)]
     public int CurseItems { get; set; }
 
     #region Curses

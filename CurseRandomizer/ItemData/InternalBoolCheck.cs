@@ -10,17 +10,13 @@ internal class InternalBoolCheck : IBool
     {
         get
         {
-            switch (ItemNumber)
+            return ItemNumber switch
             {
-                case 0:
-                    return CurseRandomizer.Instance.Settings.CursedWallet;
-                case 1:
-                    return CurseRandomizer.Instance.Settings.CursedColo;
-                case 2:
-                    return CurseRandomizer.Instance.Settings.CursedDreamNail;
-                default:
-                    return false;
-            }
+                0 => CurseRandomizer.Instance.Settings.CursedWallet,
+                1 => CurseRandomizer.Instance.Settings.CursedColo,
+                2 => CurseRandomizer.Instance.Settings.CursedDreamNail,
+                _ => false,
+            };
         }
     }
 

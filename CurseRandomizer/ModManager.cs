@@ -332,7 +332,7 @@ internal static class ModManager
     private static void AdjustSoulAmount(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
     {
         if (self.FsmName == "Soul Orb Control" && self.gameObject.name == "Soul Orb" && SoulVessel < 2)
-            self.FsmVariables.FindFsmFloat("Liquid Y Per MP").Value = SoulVessel == 0 ? 0.0513f : 0.0342f;
+            self.FsmVariables.FindFsmFloat("Liquid Y Per MP").Value = SoulVessel == 0 ? 0.0513f : 0.02736f;
         orig(self);
     }
 
@@ -373,13 +373,31 @@ internal static class ModManager
 
     private static void HookVesselGain(On.HeroController.orig_AddToMaxMPReserve orig, HeroController self, int amount)
     {
-        if (SoulVessel < 2)
+        try
         {
-            SoulVessel++;
-            GameManager.instance.soulVessel_fsm.FsmVariables.FindFsmFloat("Liquid Y Per MP").Value = SoulVessel == 1 ? 0.0342f : 0.0171f;
+            if (SoulVessel < 2)
+            {
+                SoulVessel++;
+                PlayMakerFSM fsm = GameObject.Find("_GameCameras").transform.Find("HudCamera/Hud Canvas/Soul Orb").gameObject.LocateMyFSM("Soul Orb Control");
+                if (fsm != null)
+                { 
+                    fsm.FsmVariables.FindFsmFloat("Liquid Y Per MP").Value = SoulVessel == 1 ? 0.02736f : 0.0171f;
+                    PlayerData.instance.SetInt(nameof(PlayerData.instance.maxMP), SoulVessel == 1 ? 66 : 99);
+                }
+                else
+                {
+                    CurseRandomizer.Instance.LogError("Couldn't update soul vessel. Fsm not found");
+                    orig(self, amount);
+                }
+            }
+            else
+                orig(self, amount);
         }
-        else
+        catch (Exception)
+        {
+            CurseRandomizer.Instance.LogError("Couldn't update soul vessel.");
             orig(self, amount);
+        }
     }
 
     #endregion

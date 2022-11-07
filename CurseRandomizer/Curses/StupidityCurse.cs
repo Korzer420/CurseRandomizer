@@ -1,4 +1,5 @@
 ﻿using CurseRandomizer.Helper;
+using CurseRandomizer.Manager;
 using UnityEngine;
 
 namespace CurseRandomizer.Curses;
@@ -42,6 +43,10 @@ internal class StupidityCurse : Curse
     public override bool CanApplyCurse()
     {
         int cap = UseCap ? Cap : 99;
+        if (ModManager.SoulVessel == 0)
+            cap = 33;
+        else if (ModManager.SoulVessel == 1)
+            cap = Mathf.Min(cap, 66);
         return 33 + Stacks < cap;
     }
 

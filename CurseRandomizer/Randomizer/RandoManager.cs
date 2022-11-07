@@ -261,6 +261,10 @@ internal static class RandoManager
                 requestedItemArgs.Current = curseItem;
             }
         }
+        catch (ArgumentOutOfRangeException outOfRange)
+        {
+            CurseRandomizer.Instance.LogError("Couldn't found any mimickable items. Make sure that at least one item can mimicked.");
+        }
         catch (Exception exception)
         {
             CurseRandomizer.Instance.LogError($"Couldn't transform curse item: {mimicItem?.name}" + exception.StackTrace);
@@ -530,7 +534,10 @@ internal static class RandoManager
                 builder.AddItemByName(ItemNames.Vessel_Fragment, 6);
         }
         else
+        { 
             ModManager.IsVesselCursed = false;
+            ModManager.SoulVessel = 2;
+        }
     }
 
     /// <summary>
@@ -781,11 +788,14 @@ internal static class RandoManager
             {
                 if (item.Value.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseTag)
                 {
+                    CurseRandomizer.Instance.LogDebug("Found "+item.Key+" with a viable tag.");
                     if (curseTag.TryGetProperty("CanMimic", out IBool check) && check.Value)
                     {
                         CurseRandomizer.Instance.LogDebug("Added " + item.Key + " as a viable mimic.");
                         _mimicableItems.Add(item.Value);
                     }
+                    else
+                        CurseRandomizer.Instance.LogDebug("Couldn't find a CanMimic property or didn't pass the check");
                 }
             }
             catch (Exception exception)
@@ -913,6 +923,19 @@ internal static class RandoManager
                 builder.DoLogicEdit(new("Nailsmith_Upgrade_2", "(ORIG) + WALLET>1"));
                 builder.DoLogicEdit(new("Nailsmith_Upgrade_3", "(ORIG) + WALLET>2"));
                 builder.DoLogicEdit(new("Nailsmith_Upgrade_4", "(ORIG) + WALLET>2"));
+            }
+
+            if (builder.IsTerm("LISTEN"))
+            {
+                string[] stages = new string[] { "_Cheap", "_Medium", "_Expensive", "_High_Valuable" };
+                foreach (string stage in stages)
+                {
+                    builder.DoLogicEdit(new($"{LocationNames.Iselda}{stage}", "(ORIG) + LISTEN"));
+                    builder.DoLogicEdit(new($"{LocationNames.Salubra}{stage}", "(ORIG) + LISTEN"));
+                    builder.DoLogicEdit(new($"{LocationNames.Sly}{stage}", "(ORIG) + LISTEN"));
+                    builder.DoLogicEdit(new($"{LocationNames.Sly_Key}{stage}", "(ORIG) + LISTEN"));
+                    builder.DoLogicEdit(new($"{LocationNames.Leg_Eater}{stage}", "(ORIG) + LISTEN"));
+                }
             }
         }
 
