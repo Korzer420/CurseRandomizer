@@ -52,7 +52,7 @@ internal class StupidityCurse : Curse
 
     public override void ApplyCurse() => Stacks++;
 
-    public override void LoadData(object data) => Stacks = (int)data;
+    public override void LoadData(object data) => Stacks = int.Parse(data.ToString());
 
     public override object ParseData() => Stacks;
 

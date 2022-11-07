@@ -79,7 +79,14 @@ public static class CurseManager
         if (curseData == null)
             return;
         foreach (string curseName in curseData.Keys)
-            if (GetCurseByName(curseName) is Curse curse)
-                curse.LoadData(curseData[curseName]);
+            try
+            {
+                if (GetCurseByName(curseName) is Curse curse)
+                    curse.LoadData(curseData[curseName]);
+            }
+            catch (System.Exception exception)
+            {
+                CurseRandomizer.Instance.LogError(exception.Message + " StackTrace: " + exception.StackTrace);  
+            }
     }
 }

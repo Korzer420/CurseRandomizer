@@ -47,7 +47,7 @@ internal class WeaknessCurse : Curse
 
     public override object ParseData() => Stacks;
 
-    public override void LoadData(object data) => Stacks = (int)data;
+    public override void LoadData(object data) => Stacks = int.Parse(data.ToString());
 
     public override void ResetData() => Stacks = 0;
 

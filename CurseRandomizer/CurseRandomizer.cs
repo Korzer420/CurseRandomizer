@@ -50,8 +50,10 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         try
         {
             CurseManager.ParseSaveData(saveData?.CurseData);
+            CurseRandomizer.Instance.Log("Save data");
             if (saveData == null)
                 return;
+            CurseRandomizer.Instance.Log("Start geo is: "+saveData.StartGeo);
             ModManager.StartGeo = saveData.StartGeo;
             ModManager.CanAccessBronze = saveData.BronzeAccess;
             ModManager.CanAccessSilver = saveData.SilverAccess;
@@ -64,6 +66,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             ModManager.IsVesselCursed = saveData.VesselCursed;
             ModManager.IsColoCursed = saveData.ColoCursed;
             ModManager.IsDreamNailCursed = saveData.DreamNailCursed;
+            CurseRandomizer.Instance.Log("Is vessel cursed: " + saveData.VesselCursed);
             CurseManager.DefaultCurse = CurseManager.GetCurseByType(saveData.DefaultCurse);
             foreach (Curse curse in CurseManager.GetCurses())
                 if (saveData.CurseCaps.ContainsKey(curse.Name))
