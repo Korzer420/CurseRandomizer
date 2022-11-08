@@ -927,7 +927,7 @@ internal static class RandoManager
 
             if (builder.IsTerm("LISTEN"))
             {
-                string[] stages = new string[] { "_Cheap", "_Medium", "_Expensive", "_High_Valuable" };
+                string[] stages = new string[] { "_Cheap", "_Medium", "_Expensive", "_Extreme_Valuable" };
                 foreach (string stage in stages)
                 {
                     builder.DoLogicEdit(new($"{LocationNames.Iselda}{stage}", "(ORIG) + LISTEN"));
