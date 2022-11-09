@@ -68,6 +68,7 @@ internal static class ModManager
         {
             On.PlayMakerFSM.OnEnable -= BlockColoAccess;
             ModHooks.LanguageGetHook -= ShowColoPreview;
+            ModHooks.SetPlayerBoolHook -= ActivatePasses;
         }
         if (IsDreamNailCursed)
         {
@@ -80,6 +81,7 @@ internal static class ModManager
             IL.PlayerData.AddMPCharge -= LimitSoul;
             On.PlayMakerFSM.OnEnable -= AdjustSoulAmount;
             On.HeroController.AddToMaxMPReserve -= HookVesselGain;
+            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= IntCompare_OnEnter;
         }
         yield return orig(self);
     }
@@ -134,7 +136,15 @@ internal static class ModManager
             IL.PlayerData.AddMPCharge += LimitSoul;
             On.PlayMakerFSM.OnEnable += AdjustSoulAmount;
             On.HeroController.AddToMaxMPReserve += HookVesselGain;
+            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += IntCompare_OnEnter;
         }
+    }
+
+    private static void IntCompare_OnEnter(On.HutongGames.PlayMaker.Actions.IntCompare.orig_OnEnter orig, IntCompare self)
+    {
+        if (self.IsCorrectContext("Soul Orb Control", "Soul Orb", "Check Eyes"))
+            self.integer2.Value = SoulVessel == 0 ? 17 : (SoulVessel == 1 ? 33 : 55);
+        orig(self);
     }
 
     #region Wallet Handler
@@ -336,35 +346,28 @@ internal static class ModManager
         orig(self);
     }
 
-    private static void LimitSoul(ILContext il)
+private static void LimitSoul(ILContext il)
+{
+    try
     {
-        CurseRandomizer.Instance.Log("Modify MP charge");
-        try
-        {
-            ILCursor cursor = new(il);
-            cursor.Goto(0);
+        ILCursor cursor = new(il);
+        cursor.Goto(0);
 
+        if (cursor.TryGotoNext(MoveType.After,
+            x => x.MatchCallvirt<PlayerData>("GetBool")))
+        {
+            cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel == 1);
             if (cursor.TryGotoNext(MoveType.After,
+                x => x.MatchLdstr("soulLimited"),
                 x => x.MatchCallvirt<PlayerData>("GetBool")))
             {
-                cursor.EmitDelegate<Func<bool, bool>>(x => x && SoulVessel == 1);
+                cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel < 2);
                 if (cursor.TryGotoNext(MoveType.After,
-                    x => x.MatchLdstr("soulLimited"),
-                    x => x.MatchCallvirt<PlayerData>("GetBool")))
-                {
-                    cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel < 2);
-                    if (cursor.TryGotoNext(MoveType.After,
-                        x => x.MatchCall(typeof(BossSequenceController).FullName, "get_BoundSoul")))
-                        cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel == 0);
-                    else
-                        CurseRandomizer.Instance.Log("Couldn't find getBoundSoul on BossSequence Controller");
-                }
-                else
-                    CurseRandomizer.Instance.Log("Couldn't find second GetBool");
+                    x => x.MatchCall(typeof(BossSequenceController).FullName, "get_BoundSoul")))
+                    cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel == 0);
             }
-            else
-                CurseRandomizer.Instance.Log("Couldn't find first GetBool");
         }
+    }
         catch (Exception exception)
         {
             CurseRandomizer.Instance.Log(exception.StackTrace);

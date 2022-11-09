@@ -2,7 +2,7 @@
 
 namespace CurseRandomizer.Curses;
 
-internal class LoseCurse : Curse
+internal class LostCurse : Curse
 {
     public override bool CanApplyCurse()
     {

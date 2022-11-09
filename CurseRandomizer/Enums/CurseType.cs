@@ -20,7 +20,7 @@ public enum CurseType
     /// <summary>
     /// Remove a relic or charm notch.
     /// </summary>
-    Lose,
+    Lost,
 
     /// <summary>
     /// Removes a mask from the player.

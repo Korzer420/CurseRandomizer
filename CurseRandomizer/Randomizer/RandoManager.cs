@@ -263,7 +263,7 @@ internal static class RandoManager
         }
         catch (ArgumentOutOfRangeException outOfRange)
         {
-            CurseRandomizer.Instance.LogError("Couldn't found any mimickable items. Make sure that at least one item can mimicked.");
+            CurseRandomizer.Instance.LogError("Couldn't found any mimickable items. Make sure that at least one item exists.");
         }
         catch (Exception exception)
         {
@@ -328,6 +328,15 @@ internal static class RandoManager
                     {
                         location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(0, 201)));
                     };
+                    info.onRandomizerFinish += placement =>
+                    {
+                        if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
+                                || randoLocation.costs == null)
+                            return;
+                        if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
+                            foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
+                                gc.GeoAmount = 1;
+                    };
                 });
                 builder.EditLocationRequest($"{shop}_Medium", info =>
                 {
@@ -340,6 +349,15 @@ internal static class RandoManager
                     info.onRandoLocationCreation += (factory, location) =>
                     {
                         location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(201, 501)));
+                    };
+                    info.onRandomizerFinish += placement =>
+                    {
+                        if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
+                                || randoLocation.costs == null)
+                            return;
+                        if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
+                            foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
+                                gc.GeoAmount = 1;
                     };
                 });
                 builder.EditLocationRequest($"{shop}_Expensive", info =>
@@ -354,6 +372,15 @@ internal static class RandoManager
                     {
                         location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(501, 1001)));
                     };
+                    info.onRandomizerFinish += placement =>
+                    {
+                        if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
+                                || randoLocation.costs == null)
+                            return;
+                        if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
+                            foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
+                                gc.GeoAmount = 1;
+                    };
                 });
                 builder.EditLocationRequest($"{shop}_Extreme_Valuable", info =>
                 {
@@ -366,6 +393,15 @@ internal static class RandoManager
                     info.onRandoLocationCreation += (factory, location) =>
                     {
                         location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(1001, 1801)));
+                    };
+                    info.onRandomizerFinish += placement =>
+                    {
+                        if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
+                                || randoLocation.costs == null)
+                            return;
+                        if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
+                            foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
+                                gc.GeoAmount = 1;
                     };
                 });
 
@@ -390,10 +426,19 @@ internal static class RandoManager
                         info.onRandoLocationCreation += (factory, location) =>
                         {
                             if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
-                                cost.GeoAmount = 200;
+                                cost.GeoAmount = _generator.Next(0, 201);
                             else
                                 location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(0, 201)));
                             location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
+                        };
+                        info.onRandomizerFinish += placement =>
+                        {
+                            if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
+                                || randoLocation.costs == null)
+                                return;
+                            if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
+                                foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
+                                    gc.GeoAmount = 1;
                         };
                     });
                     builder.EditLocationRequest("Salubra_(Requires_Charms)_Medium", info =>
@@ -409,10 +454,19 @@ internal static class RandoManager
                         info.onRandoLocationCreation += (factory, location) =>
                         {
                             if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
-                                cost.GeoAmount = 500;
+                                cost.GeoAmount = _generator.Next(201, 501);
                             else
                                 location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(201, 501)));
                             location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
+                        };
+                        info.onRandomizerFinish += placement =>
+                        {
+                            if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
+                                || randoLocation.costs == null)
+                                return;
+                            if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
+                                foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
+                                    gc.GeoAmount = 1;
                         };
                     });
                     builder.EditLocationRequest("Salubra_(Requires_Charms)_Expensive", info =>
@@ -428,10 +482,19 @@ internal static class RandoManager
                         info.onRandoLocationCreation += (factory, location) =>
                         {
                             if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
-                                cost.GeoAmount = 1000;
+                                cost.GeoAmount = _generator.Next(501, 1001);
                             else
                                 location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(501, 1001)));
                             location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
+                        };
+                        info.onRandomizerFinish += placement =>
+                        {
+                            if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
+                                || randoLocation.costs == null)
+                                return;
+                            if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
+                                foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
+                                    gc.GeoAmount = 1;
                         };
                     });
                     builder.EditLocationRequest("Salubra_(Requires_Charms)_Extreme_Valuable", info =>
@@ -447,10 +510,19 @@ internal static class RandoManager
                         info.onRandoLocationCreation += (factory, location) =>
                         {
                             if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
-                                cost.GeoAmount = 1800;
+                                cost.GeoAmount = _generator.Next(1001, 1801);
                             else
                                 location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(1001, 1801)));
                             location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
+                        };
+                        info.onRandomizerFinish += placement =>
+                        {
+                            if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
+                                 || randoLocation.costs == null)
+                                return;
+                            if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
+                                foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
+                                    gc.GeoAmount = 1;
                         };
                     });
                 }
@@ -534,7 +606,7 @@ internal static class RandoManager
                 builder.AddItemByName(ItemNames.Vessel_Fragment, 6);
         }
         else
-        { 
+        {
             ModManager.IsVesselCursed = false;
             ModManager.SoulVessel = 2;
         }
@@ -588,8 +660,8 @@ internal static class RandoManager
             _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Thirst));
         if (CurseRandomizer.Instance.Settings.WeaknessCurse)
             _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Weakness));
-        if (CurseRandomizer.Instance.Settings.LoseCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Lose));
+        if (CurseRandomizer.Instance.Settings.LostCurse)
+            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Lost));
         if (CurseRandomizer.Instance.Settings.CustomCurses && CurseManager.GetCurses().Any(x => x.Type == CurseType.Custom))
             _availableCurses.AddRange(CurseManager.GetCurses().Where(x => x.Type == CurseType.Custom));
 
@@ -641,7 +713,7 @@ internal static class RandoManager
         CurseManager.GetCurseByType(CurseType.Normality).Cap = CurseRandomizer.Instance.Settings.NormalityCap;
         CurseManager.GetCurseByType(CurseType.Emptiness).Cap = CurseRandomizer.Instance.Settings.EmptynessCap;
         CurseManager.GetCurseByType(CurseType.Greed).Cap = CurseRandomizer.Instance.Settings.GreedCap;
-        CurseManager.GetCurseByType(CurseType.Lose).Cap = CurseRandomizer.Instance.Settings.LoseCap;
+        CurseManager.GetCurseByType(CurseType.Lost).Cap = CurseRandomizer.Instance.Settings.LostCap;
         CurseManager.GetCurseByType(CurseType.Thirst).Cap = CurseRandomizer.Instance.Settings.ThirstCap;
         CurseManager.GetCurseByType(CurseType.Weakness).Cap = CurseRandomizer.Instance.Settings.WeaknessCap;
 
@@ -788,7 +860,7 @@ internal static class RandoManager
             {
                 if (item.Value.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseTag)
                 {
-                    CurseRandomizer.Instance.LogDebug("Found "+item.Key+" with a viable tag.");
+                    CurseRandomizer.Instance.LogDebug("Found " + item.Key + " with a viable tag.");
                     if (curseTag.TryGetProperty("CanMimic", out IBool check) && check.Value)
                     {
                         CurseRandomizer.Instance.LogDebug("Added " + item.Key + " as a viable mimic.");

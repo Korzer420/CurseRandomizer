@@ -46,7 +46,7 @@ public class RandoSettings
 
     public bool NormalityCurse { get; set; }
 
-    public bool LoseCurse { get; set; }
+    public bool LostCurse { get; set; }
 
     public bool EmptinessCurse { get; set; }
 
@@ -96,7 +96,7 @@ public class RandoSettings
     public int NormalityCap { get; set; }
 
     [MenuRange(0, 11)]
-    public int LoseCap { get; set; }
+    public int LostCap { get; set; }
 
     [MenuRange(1, 8)]
     public int EmptynessCap { get; set; } = 1;

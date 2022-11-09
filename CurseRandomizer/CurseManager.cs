@@ -13,11 +13,11 @@ public static class CurseManager
     {
         new PainCurse() { Name = "Pain", Type = CurseType.Pain, Cap = 1 },
         new GreedCurse() { Name = "Greed", Type = CurseType.Greed, Cap = 1000 },
-        new EmptinessCurse() { Name = "Emptyness", Type = CurseType.Emptiness, Cap = 3 },
+        new EmptinessCurse() { Name = "Emptiness", Type = CurseType.Emptiness, Cap = 3 },
         new ThirstCurse() { Name = "Thirst", Type = CurseType.Thirst, Cap = 5 },
         new WeaknessCurse() { Name = "Weakness", Type = CurseType.Weakness, Cap = 3 },
-        new DisorientationCurse() { Name = "Desorientation", Type = CurseType.Disorientation },
-        new LoseCurse() { Name = "Lose", Type = CurseType.Lose, Cap = 2 },
+        new DisorientationCurse() { Name = "Disorientation", Type = CurseType.Disorientation },
+        new LostCurse() { Name = "Lost", Type = CurseType.Lost, Cap = 2 },
         new NormalityCurse() { Name = "Normality", Type = CurseType.Normality, Cap = 5 },
         new StupidityCurse() { Name = "Stupidity", Type = CurseType.Stupidity, Cap = 50 }
     };
@@ -46,7 +46,6 @@ public static class CurseManager
         GameObject coroutineHolder = new("Curse Randomizer Handler");
         GameObject.DontDestroyOnLoad(coroutineHolder);
         Handler = coroutineHolder.AddComponent<CurseHandler>();
-        
     }
 
     /// <summary>
