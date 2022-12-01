@@ -5,29 +5,30 @@ Hollow Knight Randomizer Connection for more cursed stuff.
 
 Adds items which grant debuffs upon obtaining them. They mimic the appearance of normal items with the only distinction, that they have an incorrect name, giving the player a chance (in some contexts) to avoid those.
 
-Upon pickup, the curse evaluates if it can be applied in the first place. If it cannot, the default curse will be checked as well. If even the default curse fails, the "Desorientation" Curse is applied.
+Upon pickup, the curse evaluates if it can be applied in the first place. If it cannot, the default curse will be checked as well. If even the default curse fails, the "Disorientation" curse is applied.
 
 Basically:
-Can normal curse be applied? If not -> Can default curse be applied? If not -> Apply desorientation.
+Can normal curse be applied? If not -> Can default curse be applied? If not -> Apply disorientation.
 
-With this method it is ensured, that a curse is applied regardless of the context. Curses will only be applied, if you have control of the knight (otherwise, the curse will wait for you, to have control again).
+With this method it is ensured, that a curse is applied regardless of the context. Curses will only be applied, if you have control of the knight (otherwise, the curse will wait for you, to have control again and block the pause menu).
 
 ### Curses
 Here's a list of available curses:
 - Pain: Take 1 damage.
-- Desorientation: Warps you back to your bench.
-- Emptyness: Removes a mask. (Lower you max hp)
+- Disorientation: Warps you back to your bench.
+- Emptiness: Removes a mask. (Lower you max hp)
 - Lost: Remove a relic or notch (it is ensured, that you have at least one notch to equip quest charms)
 - Normality: Makes a charm useless, removing all it's effect. This curse cannot be applied to quest charms and "Baldur Killers". But it heals you to full health.
 - Thirst: Hits on enemies grant 1 soul less.
 - Weakness: Reduce your base nail damage by 1.
 - Greed: Takes 50% of you geo.
 - Stupidity: Spells cost 1 more soul (*This curse cannot be applied if you enabled fireball skips to prevent locking you out of progress*)
+- Custom: Adds all curses which are created from other mods to viable options.
 
 ### Main Settings
 
 #### Perfect Mimics
-If enabled, even the names will match the original items, giving the player no indicator if an item might be a curse instead. Playing with this is not recommended. (Unless you like pain... I guess)
+If enabled, even the names will match the original items, giving the player no indicator if an item might be a curse instead. Playing with this is not recommended. (Unless you like pain... I guess) If you are using the AllMajorItemsByArea mod, items which mimic skills will be considered as major items, trying to trick you even more.
 
 #### Cap Effects
 If enabled, the "cap" of curses can be determined by the player. These are used to evaluate if a curse can applied at all. For example, if you set the "Pain Cap" to 2, this curse cannot deal damage to you if you have 2 or less masks remaining. You cannot set the cap of "Desorientation" (since it doesn't have any) and Custom Curses.
@@ -39,12 +40,12 @@ Mostly the function as you would expect, but here are the special cases:
 - Lose: The cap determines the MIN amount of RELICS, that the player has to have for this curse to be applyable. Notches are considered with +1 for this! E.g the cap is 3, which means that the curse can only take notches from you if you have more than 4 notches.
 
 #### Default Curse
-Determines which curse should be applied to be casted if the normal curse fails. If this fails as well, desorientation is cast instead.
+Determines which curse should be applied to be casted if the normal curse fails. If this fails as well, disorientation is cast instead.
 
 #### Curse Method
 Determines how the curses should be placed.
-- Add: The mod simply adds the requested amount of curses as extra items.
-- Replace: The mod tries to replace items, which the player allowed via "Replaceable Items". If no items are left to replace, the rest will be added as additional items.
+- Add: The mod simply adds the requested amount of curses as extra items. Note that setting a high number of curses with this option might flood the shops a bit.
+- Replace: The mod tries to replace items, which the player allowed via "Replaceable Items". If no items are left to replace, the rest will be added as additional items. Note: If the randomizer fails repeatedly while also using rando plus, it is caused by curse randomizer removing pale ores, making the nail smith checks impossible to obtain. Consider turning off Pale Ore as replacable items in that case.
 - Force Replace: The mod tries to replace items, which the player allowed via "Replaceable Items". If no items are left to replace, the rest amount will be disposed.
 
 #### Curse Amount
@@ -54,18 +55,17 @@ Determines how many curses should be placed.
 - Medium: 5 to 15 curses
 - Many: 7 to 20 curses
 - Oh Oh: 10 to 30 curses will be placed.
-- Custom: A player defined range between 0 and 60.
+- Custom: A player defined range between 0 and 100.
 
 #### Replacable Items
 - Defines which items the mod can replace with curses if the curse method is not "Add".
-
 
 ## Cursed Wallet
 Limits the amount of geo the player can hold at a time. The base capacity is 200.
 Four wallet items will be added, increasing the max amount to 500, 1000, 5000, 9999999 respectivly.
 
 ### Special Interactions
-- **This settings does overwrite the cost cap which items in shops normally have, to match the requirement.** For example, normally major items are capped at 500 geo. If it is placed in the third stage (requiring two wallets), it's price will be randomized between 501 and 1000 geo. This causes geo checks placed in shop to be mostly pointless. **Even though the second to last wallet allows 5000 geo to be stored, shop items will never cost more than 1.8k geo!**
+- **This settings does overwrite the cost cap which items in shops normally have, to match the requirement.** For example, normally major items are capped at 500 geo. If it is placed in the third stage (requiring two wallets), it's price will be randomized between 501 and 1000 geo. This causes many junk checks placed in shop to be mostly pointless (e.g certain geo amounts or soul totems). **Even though the second to last wallet allows 5000 geo to be stored, shop items will never cost more than 1.8k geo!**
 - If Start Geo is enabled, the mod will grant you a percentage of it upon acquiring a wallet. You get 50% times the amount of wallets you have. So for example, if your starting geo was 700 (from which you would only get 200 due to the cap), the first wallet grants 350 geo, the second 700, the third 1050 and the last 1400 geo.
 
 ## Cursed Dreamnail
@@ -77,7 +77,7 @@ Adds 3 extra items, which lock the entrance to the trials in colosseum of fools.
 
 ## Cursed Vessel
 Similiar to "Cursed Mask" this does add additional soul vessel fragments to the pool and let you only have 33/66 at a time.
-This does affect the soul vessel in the UI though. It will be adjusted, to fit percentage-wise with the amount you can store.
+This does affect the soul vessel in the UI by the fill amount but not the actual graphic. It will be adjusted, to fit percentage-wise with the amount you can store.
 
 ## Integration
 This section is about how other (rando connection) mod developer can integrate their own items into this mod. If you are just a regular player, feel free to skip this part.
@@ -101,7 +101,7 @@ Add these properties to the Interop tag:
 
 Try to make the mimics names not impossible to figure out, but requiring a little thinking shouldn't hurt. I'd recommend substitute letters with numbers (e.g. C1aw), small typos, letter swaps or a different name that might also fit with the item (e.g. "Dash" for "Mothwing Cloak").
 
-Generally speaking, only items which have a significant purpose should be mimicked to actually fool player.
+Generally speaking, only items which have a significant purpose should be mimicked to actually fool players.
 
 ### Replacements
 Add this property to the Interop tag:
@@ -121,4 +121,3 @@ This has a few limitations though:
 - The cap can only be set by yourself, there is no support in the menu.
 - All additional curses fall under "Custom". Which means, that if player disable that option, you curse cannot be applied.
 - Custom curses cannot be chosen as default.
-
