@@ -47,7 +47,7 @@ internal class StupidityCurse : Curse
             cap = 33;
         else if (ModManager.SoulVessel == 1)
             cap = Mathf.Min(cap, 66);
-        return 33 + Stacks < cap;
+        return 33 + Stacks < cap && !RandomizerMod.RandomizerMod.RS.GenerationSettings.SkipSettings.FireballSkips;
     }
 
     public override void ApplyCurse() => Stacks++;

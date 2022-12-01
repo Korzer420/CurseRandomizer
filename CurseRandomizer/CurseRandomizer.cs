@@ -15,7 +15,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public static CurseRandomizer Instance { get; set; }
 
-    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "0.6.0.0";
+    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "1.0.0.0";
 
     public RandoSettings Settings => _settings ??= new();
 
@@ -24,14 +24,6 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         ModHooks.LanguageGetHook += ModHooks_LanguageGetHook;
         RandoManager.HookRando();
         CurseManager.Initialize();
-        On.UIManager.StartNewGame += UIManager_StartNewGame;
-    }
-
-    private void UIManager_StartNewGame(On.UIManager.orig_StartNewGame orig, UIManager self, bool permaDeath, bool bossRush)
-    {
-        foreach (Curse curse in CurseManager.GetCurses())
-            curse.ResetData();
-        orig(self, permaDeath, bossRush);
     }
 
     private string ModHooks_LanguageGetHook(string key, string sheetTitle, string orig)
@@ -66,7 +58,6 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             ModManager.IsVesselCursed = saveData.VesselCursed;
             ModManager.IsColoCursed = saveData.ColoCursed;
             ModManager.IsDreamNailCursed = saveData.DreamNailCursed;
-            CurseRandomizer.Instance.Log("Is vessel cursed: " + saveData.VesselCursed);
             CurseManager.DefaultCurse = CurseManager.GetCurseByType(saveData.DefaultCurse);
             foreach (Curse curse in CurseManager.GetCurses())
                 if (saveData.CurseCaps.ContainsKey(curse.Name))
@@ -109,6 +100,8 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         }
 	    return saveData;
     }
+
+    internal void PasteSettings(RandoSettings settings) => _settings = settings;
 
     #endregion
 }

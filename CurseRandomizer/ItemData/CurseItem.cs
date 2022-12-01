@@ -1,8 +1,7 @@
-﻿using ItemChanger;
+﻿using CurseRandomizer.ItemData;
+using ItemChanger;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
-using System.Collections;
-using UnityEngine;
 
 namespace CurseRandomizer;
 
@@ -16,18 +15,18 @@ internal class CurseItem : AbstractItem
     public override void GiveImmediate(GiveInfo info)
     {
         Curse curse = CurseManager.GetCurseByName(CurseName);
-        bool showFoolBox = UIDef is not BigUIDef || (info.MessageType != MessageType.Any && info.MessageType != MessageType.Big);
+        CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
         if (curse.CanApplyCurse())
-            curse.CastCurse(showFoolBox);
+            module.QueueCurse(CurseName);
         else if (CurseManager.DefaultCurse.CanApplyCurse())
         {
-            CurseManager.DefaultCurse.CastCurse(showFoolBox);
+            module.QueueCurse(CurseManager.DefaultCurse.Name);
             CurseName = CurseManager.DefaultCurse.Name;
         }
         else
         {
-            CurseManager.GetCurseByType(CurseType.Disorientation).CastCurse(showFoolBox);
-            CurseName = "Desorientation";
+            module.QueueCurse("Disorientation");
+            CurseName = "Disorientation";
         }
 
         if (UIDef is not BigUIDef || (info.MessageType != MessageType.Any && info.MessageType != MessageType.Big))
@@ -52,5 +51,4 @@ internal class CurseItem : AbstractItem
             PlayerData.instance.SetBool(nameof(PlayerData.instance.disablePause), false);
         }
     }
-
 }

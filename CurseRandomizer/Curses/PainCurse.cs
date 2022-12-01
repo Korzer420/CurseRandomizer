@@ -9,5 +9,14 @@ internal class PainCurse : Curse
         return true;
     }
 
-    public override void ApplyCurse() => HeroController.instance.TakeDamage(null, GlobalEnums.CollisionSide.top, 1, 0);
+    public override void ApplyCurse() => DoDamage(1);
+
+    internal static void DoDamage(int amount) 
+    {
+        // Pain should not be affected by overcharming hence we remove it temporarly.
+        bool overcharmed = PlayerData.instance.GetBool(nameof(PlayerData.instance.overcharmed));
+        PlayerData.instance.SetBool(nameof(PlayerData.instance.overcharmed), false);
+        HeroController.instance.TakeDamage(null, GlobalEnums.CollisionSide.top, amount, 0);
+        PlayerData.instance.SetBool(nameof(PlayerData.instance.overcharmed), overcharmed);
+    }
 }

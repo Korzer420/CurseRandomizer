@@ -8,9 +8,12 @@ using ItemChanger.UIDefs;
 using Modding;
 using RandomizerCore.Logic;
 using RandomizerCore.LogicItems;
+using RandomizerMod.Logging;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.RC;
 using RandomizerMod.Settings;
+using RandoSettingsManager;
+using RandoSettingsManager.SettingsManagement;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -61,6 +64,15 @@ internal static class RandoManager
                          {"MimicNames", new string[] {"Wallet", "Moneybag", "Ge0 Wallet"} },
                          {"CanMimic",  new InternalBoolCheck(){ ItemNumber = 0 } }
                      }
+                },
+                new InteropTag()
+                {
+                    Message = "RandoSupplementalMetadata",
+                    Properties = new()
+                    {
+                        {"IsMajorItem", true },
+                        {"MajorItemName", Geo_Wallet }
+                    }
                 }
             },
             UIDef = new MsgUIDef()
@@ -106,6 +118,15 @@ internal static class RandoManager
                          {"MimicNames", new string[] {"Colo 1 Access", "Warrior Trial Ticket", "Bronce Trial Ticket"} },
                          {"CanMimic", new InternalBoolCheck() { ItemNumber = 1 } }
                      }
+                },
+                new InteropTag()
+                {
+                    Message = "RandoSupplementalMetadata",
+                    Properties = new()
+                    {
+                        {"IsMajorItem", true },
+                        {"MajorItemName", Bronze_Trial_Ticket }
+                    }
                 }
             },
         });
@@ -130,6 +151,15 @@ internal static class RandoManager
                          {"MimicNames", new string[] {"Colo 2 Access", "Silver Trial Pass", "Silwer Trial Ticket"} },
                          {"CanMimic", new InternalBoolCheck() { ItemNumber = 1 } }
                      }
+                },
+                new InteropTag()
+                {
+                    Message = "RandoSupplementalMetadata",
+                    Properties = new()
+                    {
+                        {"IsMajorItem", true },
+                        {"MajorItemName", Silver_Trial_Ticket }
+                    }
                 }
             },
         });
@@ -154,6 +184,15 @@ internal static class RandoManager
                          {"MimicNames", new string[] {"Colo 3 Access", "Fool Trial Ticket", "Golt Trial Ticket"} },
                          {"CanMimic", new InternalBoolCheck() { ItemNumber = 1 } }
                      }
+                },
+                new InteropTag()
+                {
+                    Message = "RandoSupplementalMetadata",
+                    Properties = new()
+                    {
+                        {"IsMajorItem", true },
+                        {"MajorItemName", Gold_Trial_Ticket}
+                    }
                 }
             },
         });
@@ -172,6 +211,15 @@ internal static class RandoManager
                          {"MimicNames", new string[] {"Dreem Nail Fragment", "Dream Nayl Fragment", "Dream Nai1 Fragment"} },
                          {"CanMimic", new InternalBoolCheck() { ItemNumber = 2 } }
                      }
+                },
+                new InteropTag()
+                {
+                    Message = "RandoSupplementalMetadata",
+                    Properties = new()
+                    {
+                        {"IsMajorItem", true },
+                        {"MajorItemName", Dreamnail_Fragment }
+                    }
                 }
             },
             UIDef = new MsgUIDef()
@@ -192,12 +240,37 @@ internal static class RandoManager
         RCData.RuntimeLogicOverride.Subscribe(9999f, ModifyLogic);
         RandoController.OnCalculateHash += RandoController_OnCalculateHash;
         RandomizerMenu.AttachMenu();
+        SettingsLog.AfterLogSettings += WriteCurseRandoSettings;
+
+        if (ModHooks.GetMod("RandoSettingsManager") is Mod)
+            HookRandoSettingsManager();
+    }
+
+    private static void WriteCurseRandoSettings(LogArguments args, TextWriter textWriter)
+    {
+        textWriter.WriteLine("Curse Randomizer settings:");
+        using Newtonsoft.Json.JsonTextWriter jsonTextWriter = new(textWriter) { CloseOutput = false, };
+        JsonUtil._js.Serialize(jsonTextWriter, CurseRandomizer.Instance.Settings);
+        textWriter.WriteLine();
+    }
+
+    private static void HookRandoSettingsManager()
+    {
+        RandoSettingsManagerMod.Instance.RegisterConnection(new SimpleSettingsProxy<RandoSettings>(CurseRandomizer.Instance,
+        (RandoSettings? settings) =>
+        {
+            if (settings == null)
+                CurseRandomizer.Instance.Settings.Enabled = false;
+            else
+                CurseRandomizer.Instance.PasteSettings(settings);
+        },
+        () => CurseRandomizer.Instance.Settings));
     }
 
     private static int RandoController_OnCalculateHash(RandoController controller, int hashValue)
     {
         if (!CurseRandomizer.Instance.Settings.Enabled || !CurseRandomizer.Instance.Settings.UseCurses)
-            return hashValue;
+            return 0;
         int addition = 0;
         if (CurseRandomizer.Instance.Settings.PerfectMimics)
             addition += 410;
@@ -215,23 +288,22 @@ internal static class RandoManager
         return 24691 + addition;
     }
 
-
     /// <summary>
     /// Apply the mimic properties and the curse to the requested items.
     /// </summary>
     private static void TranformCurseItems(GetItemEventArgs requestedItemArgs)
     {
-        AbstractItem mimicItem = null;
+        AbstractItem itemToMimic = null;
         try
         {
             if (requestedItemArgs.ItemName.StartsWith("Fool_Item") && CurseRandomizer.Instance.Settings.UseCurses)
             {
-                mimicItem = _mimicableItems[_generator.Next(0, _mimicableItems.Count)];
-                CurseRandomizer.Instance.LogDebug("Try to replicate: " + mimicItem.name);
+                itemToMimic = _mimicableItems[_generator.Next(0, _mimicableItems.Count)];
+                CurseRandomizer.Instance.LogDebug("Try to replicate: " + itemToMimic.name);
                 CurseItem curseItem = new()
                 {
-                    name = "Fake_" + mimicItem.name,
-                    UIDef = mimicItem.GetResolvedUIDef().Clone()
+                    name = requestedItemArgs.ItemName.StartsWith("Fool_Item_") ? requestedItemArgs.ItemName : "Fake_" + itemToMimic.name,
+                    UIDef = itemToMimic.GetResolvedUIDef().Clone()
                 };
                 if (curseItem.UIDef is BigUIDef bigScreen)
                 {
@@ -245,17 +317,32 @@ internal static class RandoManager
                 if (!CurseRandomizer.Instance.Settings.PerfectMimics)
                 {
                     if (curseItem.UIDef is not MsgUIDef msgUIDef)
-                        CurseRandomizer.Instance.LogError("Item " + mimicItem.name + " couldn't be mimicked correctly. UI Def has to be inhert from MsgUIDef.");
-                    else if (MimicNames.Mimics.ContainsKey(mimicItem.name))
-                        msgUIDef.name = new BoxedString(MimicNames.Mimics[mimicItem.name][_generator.Next(0, MimicNames.Mimics[mimicItem.name].Length)]);
+                        CurseRandomizer.Instance.LogError("Item " + itemToMimic.name + " couldn't be mimicked correctly. UI Def has to be inhert from MsgUIDef.");
+                    else if (MimicNames.Mimics.ContainsKey(itemToMimic.name))
+                        msgUIDef.name = new BoxedString(MimicNames.Mimics[itemToMimic.name][_generator.Next(0, MimicNames.Mimics[itemToMimic.name].Length)]);
                     else
                     {
-                        (mimicItem.tags.First(x => x is IInteropTag tag && tag.Message == "CurseData") as IInteropTag).TryGetProperty("MimicNames", out string[] mimicNames);
+                        (itemToMimic.tags.First(x => x is IInteropTag tag && tag.Message == "CurseData") as IInteropTag).TryGetProperty("MimicNames", out string[] mimicNames);
                         if (mimicNames == null || !mimicNames.Any())
-                            CurseRandomizer.Instance.LogError("Couldn't find a mimic name. Will take the normal UI name of: " + mimicItem.name);
+                            CurseRandomizer.Instance.LogError("Couldn't find a mimic name. Will take the normal UI name of: " + itemToMimic.name);
                         else
                             msgUIDef.name = new BoxedString(mimicNames[_generator.Next(0, mimicNames.Length)]);
                     }
+                }
+                else
+                {
+                    // If perfect mimics is enabled, skills and items marked as major are 
+                    InteropTag tag = itemToMimic.tags?.FirstOrDefault(x => x is IInteropTag interop && interop.Message == "RandoSupplementalMetadata") as InteropTag;
+                    if (MimicNames.IsMajorItem(itemToMimic.name) || (tag != null && tag.TryGetProperty("IsMajorItem", out bool isMajor)))
+                        curseItem.AddTag(new InteropTag()
+                        {
+                            Message = "RandoSupplementalMetadata",
+                            Properties = new()
+                            {
+                                {"IsMajorItem", true },
+                                {"MajorItemName", "Fake_"+itemToMimic.name }
+                            }
+                        });
                 }
                 curseItem.CurseName = _availableCurses[_generator.Next(0, _availableCurses.Count)].Name;
                 requestedItemArgs.Current = curseItem;
@@ -267,7 +354,7 @@ internal static class RandoManager
         }
         catch (Exception exception)
         {
-            CurseRandomizer.Instance.LogError($"Couldn't transform curse item: {mimicItem?.name}" + exception.StackTrace);
+            CurseRandomizer.Instance.LogError($"Couldn't transform curse item: {itemToMimic?.name}" + exception.StackTrace);
         }
     }
 
@@ -594,10 +681,10 @@ internal static class RandoManager
             ModManager.IsDreamNailCursed = false;
 
         // To not even bother with figuring out with EVERY SINGLE FIREBALL SKIP, we just prevent this setting from working, if fireball skips are on.
-        if (CurseRandomizer.Instance.Settings.CursedVessel && !builder.gs.SkipSettings.FireballSkips)
+        if (CurseRandomizer.Instance.Settings.CursedVessel != 0 && !builder.gs.SkipSettings.FireballSkips)
         {
             ModManager.IsVesselCursed = true;
-            ModManager.SoulVessel = 0;
+            ModManager.SoulVessel = (CurseRandomizer.Instance.Settings.CursedVessel - 2) * -1;
             if (builder.gs.MiscSettings.VesselFragments == VesselFragmentType.OneFragmentPerVessel)
                 builder.AddItemByName(ItemNames.Full_Soul_Vessel, 2);
             else if (builder.gs.MiscSettings.VesselFragments == VesselFragmentType.TwoFragmentsPerVessel)
@@ -1069,5 +1156,4 @@ internal static class RandoManager
     }
 
     #endregion
-
 }

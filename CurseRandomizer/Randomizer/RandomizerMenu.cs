@@ -90,11 +90,27 @@ internal class RandomizerMenu
             _curseOptions.Hide();
             _capPanel.Hide();
             availableCurses.Hide();
-            poolLabel.Hide();
             _curseAmount.Hide();
+
+            curseSettings[2].Hide();
+            poolLabel.Hide();
         }
         else if (!CurseRandomizer.Instance.Settings.CapEffects)
             _capPanel.Hide();
+
+        elements[2][3].SelfChanged += element =>
+        {
+            if ((RequestMethod)element.Value == RequestMethod.Add)
+            {
+                curseSettings[2].Hide();
+                poolLabel.Hide();
+            }
+            else
+            {
+                curseSettings[2].Show();
+                poolLabel.Show();
+            }
+        };
     }
 
     private void ToggleCapVisibilty(IValueElement useCaps)
@@ -122,12 +138,21 @@ internal class RandomizerMenu
                 _capPanel.Show();
             else
                 _capPanel.Hide();
-            _curseLabels[0].Show();
             _curseLabels[1].Show();
             if (CurseRandomizer.Instance.Settings.CurseAmount == Amount.Custom)
                 _curseAmount.Show();
             else
                 _curseAmount.Hide();
+            if (CurseRandomizer.Instance.Settings.CurseMethod == RequestMethod.Add)
+            {
+                _curseOptions.Items[2].Hide();
+                _curseLabels[0].Hide();
+            }
+            else
+            {
+                _curseOptions.Items[2].Show();
+                _curseLabels[0].Show();
+            }
         }
         else
         {

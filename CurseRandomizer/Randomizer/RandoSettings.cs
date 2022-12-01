@@ -17,7 +17,8 @@ public class RandoSettings
 
     public bool UseCurses { get; set; }
 
-    public bool CursedVessel { get; set; }
+    [MenuRange(0,2)]
+    public int CursedVessel { get; set; } = 0;
 
     public bool CursedColo { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using CurseRandomizer.Helper;
+using CurseRandomizer.ItemData;
 using HutongGames.PlayMaker.Actions;
 using ItemChanger;
 using ItemChanger.Extensions;
@@ -8,6 +9,7 @@ using Modding;
 using MonoMod.Cil;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace CurseRandomizer.Manager;
@@ -61,8 +63,11 @@ internal static class ModManager
         if (IsWalletCursed)
         {
             On.HeroController.AddGeo -= CapGeoByWallet;
+            On.HeroController.AddGeoQuietly -= CapGeoByWallet;
+            On.HeroController.AddGeoToCounter -= CapGeoByWallet;
             On.GeoCounter.NewSceneRefresh -= AdjustGeoColor;
             On.HutongGames.PlayMaker.Actions.SetMaterialColor.OnEnter -= SetMaterialColor_OnEnter;
+            ModHooks.LanguageGetHook -= AddWalletDescription;
         }
         if (IsColoCursed)
         {
@@ -75,13 +80,14 @@ internal static class ModManager
             On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter -= PreventDreamBosses;
             On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= PreventGreyPrinceZote;
             On.PlayMakerFSM.OnEnable -= PreventWhiteDefender;
+            ModHooks.LanguageGetHook -= ShowDreamNailDescription;
         }
         if (IsVesselCursed)
         { 
             IL.PlayerData.AddMPCharge -= LimitSoul;
             On.PlayMakerFSM.OnEnable -= AdjustSoulAmount;
             On.HeroController.AddToMaxMPReserve -= HookVesselGain;
-            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= IntCompare_OnEnter;
+            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= FixVesselEyes;
         }
         yield return orig(self);
     }
@@ -95,6 +101,8 @@ internal static class ModManager
     private static void UIManager_StartNewGame(On.UIManager.orig_StartNewGame orig, UIManager self, bool permaDeath, bool bossRush)
     {
         orig(self, permaDeath, bossRush);
+        foreach (Curse curse in CurseManager.GetCurses())
+            curse.ResetData();
         Hook();
         // Fix for the shop placement wrap.
         if (IsWalletCursed)
@@ -116,8 +124,12 @@ internal static class ModManager
         if (IsWalletCursed)
         {
             On.HeroController.AddGeo += CapGeoByWallet;
+            On.HeroController.AddGeoQuietly += CapGeoByWallet;
+            On.HeroController.AddGeoToCounter += CapGeoByWallet;
             On.GeoCounter.NewSceneRefresh += AdjustGeoColor;
             On.HutongGames.PlayMaker.Actions.SetMaterialColor.OnEnter += SetMaterialColor_OnEnter;
+            ModHooks.LanguageGetHook += AddWalletDescription;
+            
         }
         if (IsColoCursed)
         {
@@ -130,21 +142,35 @@ internal static class ModManager
             On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter += PreventDreamBosses;
             On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += PreventGreyPrinceZote;
             On.PlayMakerFSM.OnEnable += PreventWhiteDefender;
+            ModHooks.LanguageGetHook += ShowDreamNailDescription;
         }
         if (IsVesselCursed)
         { 
             IL.PlayerData.AddMPCharge += LimitSoul;
             On.PlayMakerFSM.OnEnable += AdjustSoulAmount;
             On.HeroController.AddToMaxMPReserve += HookVesselGain;
-            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += IntCompare_OnEnter;
+            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += FixVesselEyes;
         }
+
+        CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
+        if (module.CurseQueue.Any())
+            CurseManager.Handler.StartCoroutine(module.WaitForControl());
     }
 
-    private static void IntCompare_OnEnter(On.HutongGames.PlayMaker.Actions.IntCompare.orig_OnEnter orig, IntCompare self)
+    private static string ShowDreamNailDescription(string key, string sheetTitle, string orig)
     {
-        if (self.IsCorrectContext("Soul Orb Control", "Soul Orb", "Check Eyes"))
-            self.integer2.Value = SoulVessel == 0 ? 17 : (SoulVessel == 1 ? 33 : 55);
-        orig(self);
+        if (key == "INV_DESC_DREAMNAIL_A" || key == "INV_DESC_DREAMNAIL_B")
+        { 
+            orig += "\r\n";
+            if (DreamUpgrade == 0)
+                orig += "It's not strong enough yet to fight the strong warriors from the past.";
+            else if (DreamUpgrade == 1)
+                orig += "With the fight fragment you can challenge the restless spirits of the strong warriors. " +
+                    "But it isn't strong enough yet to pierce through the stronger remaining dreams.";
+            else
+                orig += "With both fragments assembled no restless spirit can resist the challenge.";
+        }
+        return orig;
     }
 
     #region Wallet Handler
@@ -184,7 +210,51 @@ internal static class ModManager
         }
     }
 
+    /// <summary>
+    /// For most circumstances, this will handle the geo.
+    /// </summary>
     private static void CapGeoByWallet(On.HeroController.orig_AddGeo orig, HeroController self, int amount)
+    {
+        amount = DetermineGeoAmount(amount);
+        orig(self, amount);
+    }
+
+    /// <summary>
+    /// Caps silent geo added.
+    /// </summary>
+    private static void CapGeoByWallet(On.HeroController.orig_AddGeoToCounter orig, HeroController self, int amount)
+    {
+        amount = DetermineGeoAmount(amount);
+        orig(self, amount);
+    }
+
+    /// <summary>
+    /// Caps counter from geo.
+    /// </summary>
+    private static void CapGeoByWallet(On.HeroController.orig_AddGeoQuietly orig, HeroController self, int amount)
+    {
+        amount = DetermineGeoAmount(amount);
+        orig(self, amount);
+    }
+
+
+    private static string AddWalletDescription(string key, string sheetTitle, string orig)
+    {
+        if (key == "INV_DESC_GEO" && WalletAmount != 4)
+        {
+            int cap = WalletAmount switch
+            {
+                1 => 500,
+                2 => 1000,
+                3 => 5000,
+                _ => 200
+            };
+            orig += "\r\nWith your current wallet, you can hold up to " + cap + " geo in it.";
+        }
+        return orig;
+    }
+
+    private static int DetermineGeoAmount(int amount)
     {
         if (WalletAmount != 4)
         {
@@ -193,7 +263,7 @@ internal static class ModManager
             if (currentAmount + amount > walletSizes[WalletAmount])
                 amount = walletSizes[WalletAmount] - currentAmount;
         }
-        orig(self, amount);
+        return amount;
     }
 
     #endregion
@@ -346,28 +416,28 @@ internal static class ModManager
         orig(self);
     }
 
-private static void LimitSoul(ILContext il)
-{
-    try
+    private static void LimitSoul(ILContext il)
     {
-        ILCursor cursor = new(il);
-        cursor.Goto(0);
-
-        if (cursor.TryGotoNext(MoveType.After,
-            x => x.MatchCallvirt<PlayerData>("GetBool")))
+        try
         {
-            cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel == 1);
+            ILCursor cursor = new(il);
+            cursor.Goto(0);
+
             if (cursor.TryGotoNext(MoveType.After,
-                x => x.MatchLdstr("soulLimited"),
                 x => x.MatchCallvirt<PlayerData>("GetBool")))
             {
-                cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel < 2);
+                cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel == 1);
                 if (cursor.TryGotoNext(MoveType.After,
-                    x => x.MatchCall(typeof(BossSequenceController).FullName, "get_BoundSoul")))
-                    cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel == 0);
+                    x => x.MatchLdstr("soulLimited"),
+                    x => x.MatchCallvirt<PlayerData>("GetBool")))
+                {
+                    cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel < 2);
+                    if (cursor.TryGotoNext(MoveType.After,
+                        x => x.MatchCall(typeof(BossSequenceController).FullName, "get_BoundSoul")))
+                        cursor.EmitDelegate<Func<bool, bool>>(x => x || SoulVessel == 0);
+                }
             }
         }
-    }
         catch (Exception exception)
         {
             CurseRandomizer.Instance.Log(exception.StackTrace);
@@ -401,6 +471,13 @@ private static void LimitSoul(ILContext il)
             CurseRandomizer.Instance.LogError("Couldn't update soul vessel.");
             orig(self, amount);
         }
+    }
+
+    private static void FixVesselEyes(On.HutongGames.PlayMaker.Actions.IntCompare.orig_OnEnter orig, IntCompare self)
+    {
+        if (self.IsCorrectContext("Soul Orb Control", "Soul Orb", "Check Eyes"))
+            self.integer2.Value = SoulVessel == 0 ? 17 : (SoulVessel == 1 ? 33 : 55);
+        orig(self);
     }
 
     #endregion

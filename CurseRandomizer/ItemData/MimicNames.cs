@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using ItemChanger;
+using System.Collections.Generic;
+using System.Linq;
 using static ItemChanger.ItemNames;
 
 namespace CurseRandomizer;
@@ -112,4 +114,9 @@ public static class MimicNames
         { Rancid_Egg, new string[]{"Rancit Egg", "Rancid's Egg"} },
         { Kings_Brand, new string[]{"King Brand", "King's Brendt", "King's Brands", "Kang's Brind"} }
     };
+
+    /// <summary>
+    /// Checks if it the passed item is a major item (for the all major tracker). Only checks for skills.
+    /// </summary>
+    public static bool IsMajorItem(string item) => Mimics.Take(27).Any(x => x.Key == item);
 }

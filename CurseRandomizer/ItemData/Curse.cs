@@ -58,27 +58,6 @@ public abstract class Curse
     public abstract void ApplyCurse();
 
     /// <summary>
-    /// Queues the curse for being applied.
-    /// </summary>
-    internal void CastCurse(bool showFool = true) => CurseManager.Handler.StartCoroutine(DelayCurse(showFool));
-
-    /// <summary>
-    /// Wait for the HeroController to accept inputs, and then activate the curse.
-    /// </summary>
-    private IEnumerator DelayCurse(bool showFool)
-    {
-        yield return new WaitUntil(() => HeroController.instance.acceptingInput);
-        ApplyCurse();
-        if (showFool)
-        {
-            PlayMakerFSM playMakerFSM = PlayMakerFSM.FindFsmOnGameObject(FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value, "Display");
-            playMakerFSM.FsmVariables.GetFsmInt("Convo Amount").Value = 1;
-            playMakerFSM.FsmVariables.GetFsmString("Convo Title").Value = "Curse_Randomizer_Fool";
-            playMakerFSM.SendEvent("DISPLAY ENEMY DREAM");
-        }
-    }
-
-    /// <summary>
     /// Parses save data into the save data. Can later be read by <see cref="LoadData(object)"/>.
     /// </summary>
     /// <returns></returns>
