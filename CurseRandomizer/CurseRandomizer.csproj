@@ -57,9 +57,6 @@
 		<Reference Include="ItemChanger">
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\ItemChanger\ItemChanger.dll</HintPath>
 		</Reference>
-		<Reference Include="MajorItemByAreaTracker">
-		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\MajorItemByAreaTracker\MajorItemByAreaTracker.dll</HintPath>
-		</Reference>
 		<Reference Include="MenuChanger">
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\MenuChanger\MenuChanger.dll</HintPath>
 		</Reference>
