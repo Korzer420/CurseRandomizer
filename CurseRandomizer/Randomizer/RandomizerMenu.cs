@@ -3,6 +3,7 @@ using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
 using RandomizerMod.Menu;
+using System;
 using System.Linq;
 
 namespace CurseRandomizer.Randomizer;
@@ -183,5 +184,13 @@ internal class RandomizerMenu
     {
         RandomizerMenuAPI.AddMenuPage(Instance.ConstructMenu, Instance.HandleButton);
         MenuChangerMod.OnExitMainMenu += () => _instance = null;
+    }
+
+    internal void UpdateMenuSettings(RandoSettings settings)
+    {
+        if (settings == null)
+            _factory.ElementLookup[nameof(CurseRandomizer.Instance.Settings.Enabled)].SetValue(false);
+        else
+            _factory.SetMenuValues(settings);
     }
 }

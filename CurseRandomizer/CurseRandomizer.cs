@@ -15,7 +15,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public static CurseRandomizer Instance { get; set; }
 
-    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "0.7.0.0";
+    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "1.0.0.0";
 
     public RandoSettings Settings => _settings ??= new();
 
@@ -100,8 +100,6 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         }
 	    return saveData;
     }
-
-    internal void PasteSettings(RandoSettings settings) => _settings = settings;
 
     #endregion
 }

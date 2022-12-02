@@ -257,13 +257,7 @@ internal static class RandoManager
     private static void HookRandoSettingsManager()
     {
         RandoSettingsManagerMod.Instance.RegisterConnection(new SimpleSettingsProxy<RandoSettings>(CurseRandomizer.Instance,
-        (RandoSettings? settings) =>
-        {
-            if (settings == null)
-                CurseRandomizer.Instance.Settings.Enabled = false;
-            else
-                CurseRandomizer.Instance.PasteSettings(settings);
-        },
+        RandomizerMenu.Instance.UpdateMenuSettings,
         () => CurseRandomizer.Instance.Settings));
     }
 
