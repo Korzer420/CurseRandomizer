@@ -680,11 +680,19 @@ internal static class RandoManager
             ModManager.IsVesselCursed = true;
             ModManager.SoulVessel = (CurseRandomizer.Instance.Settings.CursedVessel - 2) * -1;
             if (builder.gs.MiscSettings.VesselFragments == VesselFragmentType.OneFragmentPerVessel)
-                builder.AddItemByName(ItemNames.Full_Soul_Vessel, 2);
+                builder.AddItemByName(ItemNames.Full_Soul_Vessel, CurseRandomizer.Instance.Settings.CursedVessel);
             else if (builder.gs.MiscSettings.VesselFragments == VesselFragmentType.TwoFragmentsPerVessel)
-                builder.AddItemByName(ItemNames.Double_Vessel_Fragment, 3);
+            {
+                if (CurseRandomizer.Instance.Settings.CursedVessel == 2)
+                    builder.AddItemByName(ItemNames.Double_Vessel_Fragment, 3);
+                else
+                {
+                    builder.AddItemByName(ItemNames.Double_Vessel_Fragment, 1);
+                    builder.AddItemByName(ItemNames.Vessel_Fragment, 1);
+                }
+            }
             else
-                builder.AddItemByName(ItemNames.Vessel_Fragment, 6);
+                builder.AddItemByName(ItemNames.Vessel_Fragment, CurseRandomizer.Instance.Settings.CursedVessel * 3);
         }
         else
         {
