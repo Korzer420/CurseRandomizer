@@ -1,6 +1,7 @@
 ﻿using CurseRandomizer.ItemData;
 using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer;
+using CurseRandomizer.Randomizer.Settings;
 using ItemChanger;
 using ItemChanger.Locations;
 using ItemChanger.Tags;
@@ -974,7 +975,6 @@ internal static class RandoManager
     {
         List<string> viableItems = new();
 
-#if RELEASE
         if (CurseRandomizer.Instance.Settings.MaskShards && generationSettings.PoolSettings.MaskShards)
             viableItems.Add(generationSettings.MiscSettings.MaskShards switch
             {
@@ -1018,7 +1018,6 @@ internal static class RandoManager
             }
         }
 
-#endif
         if (CurseRandomizer.Instance.Settings.Custom)
             foreach (KeyValuePair<string, AbstractItem> item in ReflectionHelper.GetField<Dictionary<string, AbstractItem>>(typeof(Finder), "CustomItems"))
             {

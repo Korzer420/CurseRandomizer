@@ -1,0 +1,25 @@
+﻿using System;
+
+namespace CurseRandomizer;
+
+/// <summary>
+/// Contains data which curses can use ingame and in the menu.
+/// </summary>
+[Serializable]
+public class CurseData
+{
+    /// <summary>
+    /// Gets or sets the amount this curse was casted.
+    /// </summary>
+    public int CastedAmount { get; set; }
+
+    /// <summary>
+    /// Gets or sets the cap of the curse, to determine if it can be casted.
+    /// </summary>
+    public int Cap { get; set; }
+
+    /// <summary>
+    /// Gets or sets an object,
+    /// </summary>
+    public object Data { get; set; }
+}

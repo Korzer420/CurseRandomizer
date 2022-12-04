@@ -1,4 +1,6 @@
-﻿namespace CurseRandomizer.SaveManagment;
+﻿using CurseRandomizer.Randomizer.Settings;
+
+namespace CurseRandomizer.SaveManagment;
 
 public class GlobalSaveData
 {

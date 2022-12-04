@@ -1,4 +1,5 @@
 ﻿using CurseRandomizer.Manager;
+using CurseRandomizer.Randomizer.Settings;
 using CurseRandomizer.SaveManagment;
 using Modding;
 

@@ -1,6 +1,6 @@
 ﻿using MenuChanger.Attributes;
 
-namespace CurseRandomizer;
+namespace CurseRandomizer.Randomizer.Settings;
 
 public class RandoSettings
 {
@@ -17,7 +17,7 @@ public class RandoSettings
 
     public bool UseCurses { get; set; }
 
-    [MenuRange(0,2)]
+    [MenuRange(0, 2)]
     public int CursedVessel { get; set; } = 0;
 
     public bool CursedColo { get; set; }
@@ -87,29 +87,29 @@ public class RandoSettings
 
     #region Caps
 
-    [MenuRange(0,8)]
-    public int PainCap { get; set; }
+    //[MenuRange(0, 8)]
+    //public int PainCap { get; set; }
 
-    [MenuRange(0, 5000)]
-    public int GreedCap { get; set; }
+    //[MenuRange(0, 5000)]
+    //public int GreedCap { get; set; }
 
-    [MenuRange(0, 30)]
-    public int NormalityCap { get; set; }
+    //[MenuRange(0, 30)]
+    //public int NormalityCap { get; set; }
 
-    [MenuRange(0, 11)]
-    public int LostCap { get; set; }
+    //[MenuRange(0, 11)]
+    //public int LostCap { get; set; }
 
-    [MenuRange(1, 8)]
-    public int EmptynessCap { get; set; } = 1;
+    //[MenuRange(1, 8)]
+    //public int EmptynessCap { get; set; } = 1;
 
-    [MenuRange(1, 20)]
-    public int WeaknessCap { get; set; } = 1;
+    //[MenuRange(1, 20)]
+    //public int WeaknessCap { get; set; } = 1;
 
-    [MenuRange(33, 99)]
-    public int StupidityCap { get; set; } = 33;
+    //[MenuRange(33, 99)]
+    //public int StupidityCap { get; set; } = 33;
 
-    [MenuRange(1, 11)]
-    public int ThirstCap { get; set; } = 11;
+    //[MenuRange(1, 11)]
+    //public int ThirstCap { get; set; } = 11;
 
     #endregion
 
