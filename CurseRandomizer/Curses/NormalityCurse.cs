@@ -76,7 +76,7 @@ internal class NormalityCurse : Curse
         for (int i = 1; i < 41; i++)
         {
             // Skip quest charms
-            if (i == 36 || i == 10 || i == 17 || i == 23 || i == 24 || i == 25 || i == 40)
+            if (i == 36 || i == 10 || i == 17 || i == 23 || i == 24 || i == 25 || i == 40 || i == 2)
                 continue;
             if (PlayerData.instance.GetBool($"gotCharm_{i}"))
                 availableCharms.Add(i);

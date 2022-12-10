@@ -2,6 +2,7 @@
 using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer;
 using CurseRandomizer.Randomizer.Settings;
+using FStats;
 using ItemChanger;
 using ItemChanger.Extensions;
 using ItemChanger.Locations;
@@ -10,6 +11,7 @@ using ItemChanger.UIDefs;
 using Modding;
 using RandomizerCore.Logic;
 using RandomizerCore.LogicItems;
+using RandomizerCore.StringLogic;
 using RandomizerMod.Logging;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.RC;
@@ -247,6 +249,9 @@ internal static class RandoManager
 
         if (ModHooks.GetMod("RandoSettingsManager") is Mod)
             HookRandoSettingsManager();
+
+        if (ModHooks.GetMod("FStatsMod") is Mod)
+            HookFStats();
     }
 
     private static void WriteCurseRandoSettings(LogArguments args, TextWriter textWriter)
@@ -262,6 +267,47 @@ internal static class RandoManager
         RandoSettingsManagerMod.Instance.RegisterConnection(new SimpleSettingsProxy<RandoSettings>(CurseRandomizer.Instance,
         RandomizerMenu.Instance.UpdateMenuSettings,
         () => CurseRandomizer.Instance.Settings));
+    }
+
+    private static void HookFStats()
+    {
+        FStats.API.OnGenerateScreen += API_OnGenerateScreen;
+    }
+
+    private static void API_OnGenerateScreen(Action<DisplayInfo> registerPage)
+    {
+        try
+        {
+            DisplayInfo displayInfo = new()
+            {
+                Title = "Curse Stats",
+                MainStat = "Total afflicted curses: " + CurseManager.GetCurses().Select(x => x.Data.CastedAmount).Aggregate((x, y) => x + y),
+                Priority = -4,
+                StatColumns = new()
+            };
+
+            List<Curse> curses = CurseManager.GetCurses();
+            string column = string.Empty;
+            for (int i = 0; i < 8; i++)
+                column += $"{curses[i].Name}: {curses[i].Data.CastedAmount}\n";
+            displayInfo.StatColumns.Add(column);
+
+            column = string.Empty;
+            for (int i = 8; i < 15; i++)
+                column += $"{curses[i].Name}: {curses[i].Data.CastedAmount}\n";
+            if (!curses.Any(x => x.Type == CurseType.Custom))
+                column += "Custom Curses: -";
+            else if (curses.Count(x => x.Type == CurseType.Custom) == 1)
+                column += "Custom Curses: " + curses.First(x => x.Type == CurseType.Custom).Data.CastedAmount;
+            else
+                column += "Custom Curses: " + curses.Where(x => x.Type == CurseType.Custom).Select(x => x.Data.CastedAmount).Aggregate((x, y) => x + y);
+            displayInfo.StatColumns.Add(column);
+            registerPage.Invoke(displayInfo);
+        }
+        catch (Exception exception)
+        {
+            CurseRandomizer.Instance.LogError("An error occured while trying to generate FStat page: " + exception.StackTrace);
+        }
     }
 
     private static int RandoController_OnCalculateHash(RandoController controller, int hashValue)
@@ -723,7 +769,7 @@ internal static class RandoManager
 
             // Iselda charms.
             builder.AddToVanilla(ItemNames.Wayward_Compass, "Iselda_Medium"); //220
-            
+
             // Sly charms.
             builder.AddToVanilla(ItemNames.Gathering_Swarm, "Sly_Medium"); //300
             builder.AddToVanilla(ItemNames.Stalwart_Shell, "Sly_Cheap"); //200
@@ -782,7 +828,7 @@ internal static class RandoManager
         builder.RemoveFromVanilla(LocationNames.Sly_Key);
         builder.RemoveFromVanilla(LocationNames.Leg_Eater);
         builder.RemoveFromVanilla(LocationNames.Salubra);
-        builder.RemoveFromVanilla(LocationNames.Salubra+"_(Requires_Charms)");
+        builder.RemoveFromVanilla(LocationNames.Salubra + "_(Requires_Charms)");
         builder.RemoveFromVanilla(LocationNames.Iselda);
     }
 
@@ -830,7 +876,7 @@ internal static class RandoManager
                 if (settings.Name == CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse)
                     CurseManager.DefaultCurse = curse;
             }
-        
+
 
         if (!_availableCurses.Any())
             throw new Exception("No curses available to place.");
@@ -861,7 +907,7 @@ internal static class RandoManager
 
                 // Just in case no items could be found in the groups.
                 if (availableItems.Length == 0)
-                { 
+                {
                     availablePools.Remove(pickedGroup);
                     amount++;
                     if (!availablePools.Any())
@@ -1130,11 +1176,66 @@ internal static class RandoManager
         if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled)
             return;
         if (CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
-        {
+        { 
             builder.AddItem(new EmptyItem("Fool_Item"));
             builder.AddItem(new SingleItem("Fool_Item_Mocked_Shard", new(builder.GetTerm("MASKSHARDS"), 1)));
             builder.AddItem(new SingleItem("Fool_Item_Two_Mocked_Shards", new(builder.GetTerm("MASKSHARDS"), 2)));
             builder.AddItem(new SingleItem("Fool_Item_Mocked_Mask", new(builder.GetTerm("MASKSHARDS"), 4)));
+
+            builder.GetOrAddTerm("NOCURSE");
+            List<string> skipTerms = new();
+
+            Dictionary<string, bool> curseSettingsLookup = CurseRandomizer.Instance.Settings.CurseSettings.ToDictionary(x => x.Name, x => x.Active);
+            // Since Omen can apply all curses below, we simply disable most of the skip settings.
+            if (curseSettingsLookup["Omen"])
+            {
+                skipTerms.Add("SHADESKIPS");
+                skipTerms.Add("INFECTIONSKIPS");
+                skipTerms.Add("BACKGROUNDPOGOS");
+                skipTerms.Add("PRECISEMOVEMENT");
+                skipTerms.Add("OBSCURESKIPS");
+                skipTerms.Add("ENEMYPOGOS");
+                skipTerms.Add("SPIKETUNNELS");
+                skipTerms.Add("FIREBALLSKIPS");
+                skipTerms.Add("COMPLEXSKIPS");
+                skipTerms.Add("DIFFICULTSKIPS");
+                skipTerms.Add("DAMAGEBOOSTS");
+                skipTerms.Add("DANGEROUSSKIPS");
+            }
+            else
+            {
+                if (curseSettingsLookup["Stupidity"])
+                    skipTerms.Add("FIREBALLSKIPS");
+
+                if (curseSettingsLookup["Diminish"] || curseSettingsLookup["Sloth"])
+                {
+                    skipTerms.Add("SHADESKIPS");
+                    skipTerms.Add("INFECTIONSKIPS");
+                    skipTerms.Add("BACKGROUNDPOGOS");
+                    skipTerms.Add("PRECISEMOVEMENT");
+                    skipTerms.Add("COMPLEXSKIPS");
+                    skipTerms.Add("DIFFICULTSKIPS");
+                    skipTerms.Add("ENEMYPOGOS");
+                    skipTerms.Add("OBSCURESKIPS");
+                    skipTerms.Add("SPIKETUNNELS");
+                }
+
+                if (curseSettingsLookup["Emptiness"])
+                    skipTerms.Add("DAMAGEBOOSTS");
+
+                if (curseSettingsLookup["Normality"])
+                {
+                    skipTerms.Add("Dashmaster");
+                    skipTerms.Add("Sprintmaster");
+                    skipTerms.Add("Mark_of_Pride");
+                    skipTerms.Add("Glowing_Womb");
+                    skipTerms.Add("Weaversong");
+                }    
+            }
+            Dictionary<string, LogicClause> macros =  ReflectionHelper.GetField<LogicProcessor,Dictionary<string, LogicClause>>(builder.LP, "macros");
+            foreach (string term in macros.Keys.ToList())
+                foreach (string skipTerm in skipTerms)
+                    builder.DoSubst(new(term, skipTerm, "NOCURSE"));
         }
 
         if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet)
@@ -1234,11 +1335,8 @@ internal static class RandoManager
                 builder.DoLogicEdit(new("Defeated_Any_Gorb", "(ORIG) + DREAMNAILFRAGMENT"));
                 builder.DoLogicEdit(new("Defeated_Any_Markoth", "(ORIG) + DREAMNAILFRAGMENT"));
 
-                builder.DoLogicEdit(new(LocationNames.Boss_Essence_Failed_Champion, "(ORIG) + DREAMNAILFRAGMENT>1"));
-                builder.DoLogicEdit(new(LocationNames.Boss_Essence_Lost_Kin, "(ORIG) + DREAMNAILFRAGMENT>1"));
-                builder.DoLogicEdit(new(LocationNames.Boss_Essence_Soul_Tyrant, "(ORIG) + DREAMNAILFRAGMENT>1"));
-                builder.DoLogicEdit(new(LocationNames.Boss_Essence_White_Defender, "(ORIG) + DREAMNAILFRAGMENT>1"));
-                builder.DoLogicEdit(new(LocationNames.Boss_Essence_Grey_Prince_Zote, "(ORIG) + DREAMNAILFRAGMENT>1"));
+                builder.DoLogicEdit(new("Defeated_Any_White_Defender", "(ORIG) + DREAMNAILFRAGMENT>1"));
+                builder.DoLogicEdit(new("Defeated_Any_Grey_Prince_Zote", "(ORIG) + DREAMNAILFRAGMENT>1"));
             }
         }
     }

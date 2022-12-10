@@ -61,6 +61,9 @@
 		<Reference Include="Benchwarp">
 		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\Benchwarp\Benchwarp.dll</HintPath>
 		</Reference>
+		<Reference Include="FStats">
+		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\FStats\FStats.dll</HintPath>
+		</Reference>
 		<Reference Include="ItemChanger">
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\ItemChanger\ItemChanger.dll</HintPath>
 		</Reference>

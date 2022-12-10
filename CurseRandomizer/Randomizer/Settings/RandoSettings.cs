@@ -1,5 +1,4 @@
-﻿using MenuChanger.Attributes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CurseRandomizer.Randomizer.Settings;
 
