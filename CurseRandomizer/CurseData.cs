@@ -11,7 +11,7 @@ public class CurseData
     /// <summary>
     /// Gets or sets the amount this curse was casted.
     /// </summary>
-    public int CastedAmount { get; set; }
+    public int CastedAmount { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets the cap of the curse, to determine if it can be casted.
@@ -19,7 +19,7 @@ public class CurseData
     public int Cap { get; set; }
 
     /// <summary>
-    /// Gets or sets an object,
+    /// Gets or sets an object, in which the curse can store additional data.
     /// </summary>
     public object Data { get; set; }
 }

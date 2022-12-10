@@ -2,6 +2,7 @@
 using ItemChanger.Extensions;
 using System;
 using System.Linq;
+using System.Numerics;
 
 namespace CurseRandomizer.Helper;
 

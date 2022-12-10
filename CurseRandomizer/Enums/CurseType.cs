@@ -48,6 +48,36 @@ public enum CurseType
     Thirst,
 
     /// <summary>
+    /// Weakens spell damage by 10% or removes spell upgrade.
+    /// </summary>
+    Amnesia,
+
+    /// <summary>
+    /// Makes the game temporarly darker. Will be stronger after multiple casts.
+    /// </summary>
+    Darkness,
+
+    /// <summary>
+    /// Shortens nail range.
+    /// </summary>
+    Diminish,
+
+    /// <summary>
+    /// Hides health, soul, geo, essence or the map.
+    /// </summary>
+    Unknown,
+
+    /// <summary>
+    /// Increases attack or dash cooldown.
+    /// </summary>
+    Sloth,
+
+    /// <summary>
+    /// Casts another permanent curse upon being hit. Vanishes after killing enough different enemies.
+    /// </summary>
+    Omen,
+
+    /// <summary>
     /// A custom curse implemented by another mod.
     /// </summary>
     Custom

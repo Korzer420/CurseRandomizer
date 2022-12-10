@@ -1,6 +1,9 @@
-﻿using HutongGames.PlayMaker;
+﻿using CurseRandomizer.Enums;
+using HutongGames.PlayMaker;
+using Mono.Cecil.Cil;
 using System;
 using System.Collections;
+using System.Drawing.Design;
 using UnityEngine;
 
 namespace CurseRandomizer;
@@ -12,6 +15,12 @@ public abstract class Curse
 {
     public const string TextColor = "#c034eb";
 
+    #region Members
+
+    private CurseData _data;
+
+    #endregion
+
     #region Constructor
 
     /// <summary>
@@ -19,7 +28,7 @@ public abstract class Curse
     /// <para>Additional curses are automatically marked as <see cref="CurseType.Custom"/>.</para>
     /// </summary>
     public Curse() => CurseManager.AddCurse(this);
-
+    
     #endregion
 
     #region Properties
@@ -35,15 +44,28 @@ public abstract class Curse
     public CurseType Type { get; internal set; } = CurseType.Custom;
 
     /// <summary>
-    /// A numeric limit which should be used (if possible) to allow the player to change how hard a curse can affect them.
-    /// <para/>Use this property in <see cref="CanApplyCurse"/> and/or <see cref="ApplyCurse"/>.
+    /// Gets or sets data about the curse. Includes an object to be stored in the save data.
     /// </summary>
-    public int Cap { get; set; }
+    public CurseData Data
+    {
+        get => _data ??= new CurseData();
+        set => _data = value;
+    }
+
+    /// <summary>
+    /// Gets the cap. (This property exists to not break compability.)
+    /// </summary>
+    public int Cap => Data.Cap;
 
     /// <summary>
     /// Gets the value that indicates if the <see cref="Cap"/> should be used.
     /// </summary>
     public bool UseCap => CurseManager.UseCaps;
+
+    /// <summary>
+    /// Gets the tag of the curse. Default is permanent.
+    /// </summary>
+    public virtual CurseTag Tag => CurseTag.Permanent;
 
     #endregion
 
@@ -58,20 +80,45 @@ public abstract class Curse
     public abstract void ApplyCurse();
 
     /// <summary>
-    /// Parses save data into the save data. Can later be read by <see cref="LoadData(object)"/>.
-    /// </summary>
-    /// <returns></returns>
-    public virtual object ParseData() => null;
-
-    /// <summary>
     /// Allows to load save data into this curse.
     /// </summary>
-    /// <param name="data">The data which got stored by <see cref="ParseData"/>.</param>
-    public virtual void LoadData(object data) { }
+    internal void LoadData(CurseData data) 
+    {
+        if (data != null)
+        {
+            // To prevent null references, if the data is not set, we take the default.
+            data.Data ??= Data.Data;
+            Data = data;
+        }
+    }
+
+    internal void ResetData()
+    {
+        Data.CastedAmount = 0;
+        ResetAdditionalData();
+    }
 
     /// <summary>
-    /// Resets all data for the curse.
+    /// Can be used to reset the data stored in <see cref="CurseData.Data"/>. The <see cref="CurseData.CastedAmount"/> will be reset automatically.
     /// <para>Called when the player starts a new game file.</para>
     /// </summary>
-    public virtual void ResetData() { }
+    public virtual void ResetAdditionalData() { }
+
+    /// <summary>
+    /// Is called, when the cap value of the curse changes in the menu. Use this to establish the boundary of your cap.
+    /// </summary>
+    /// <param name="value">The value the player has entered.</param>
+    /// <returns>The value the cap should actually be set to.</returns>
+    public abstract int SetCap(int value);
+
+    /// <summary>
+    /// Add needed hooks for your curse to work.
+    /// <para>Is called, when the player entered a save file</para>
+    /// </summary>
+    public virtual void ApplyHooks() { }
+
+    /// <summary>
+    /// Remove the hooks set in <see cref="ApplyHooks"/>.
+    /// </summary>
+    public virtual void Unhook() { }
 }

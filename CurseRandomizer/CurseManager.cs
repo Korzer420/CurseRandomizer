@@ -11,15 +11,21 @@ public static class CurseManager
 
     private static List<Curse> _curses = new()
     {
-        new PainCurse() { Name = "Pain", Type = CurseType.Pain, Cap = 1 },
-        new GreedCurse() { Name = "Greed", Type = CurseType.Greed, Cap = 1000 },
-        new EmptinessCurse() { Name = "Emptiness", Type = CurseType.Emptiness, Cap = 3 },
-        new ThirstCurse() { Name = "Thirst", Type = CurseType.Thirst, Cap = 5 },
-        new WeaknessCurse() { Name = "Weakness", Type = CurseType.Weakness, Cap = 3 },
+        new PainCurse() { Name = "Pain", Type = CurseType.Pain, Data = new CurseData() { Cap = 1 }},
+        new GreedCurse() { Name = "Greed", Type = CurseType.Greed, Data = new CurseData() { Cap = 5000 } },
+        new EmptinessCurse() { Name = "Emptiness", Type = CurseType.Emptiness, Data = new CurseData() { Cap = 3 } },
+        new ThirstCurse() { Name = "Thirst", Type = CurseType.Thirst, Data = new CurseData() { Cap = 5 } },
+        new WeaknessCurse() { Name = "Weakness", Type = CurseType.Weakness, Data = new CurseData() { Cap = 3 } },
         new DisorientationCurse() { Name = "Disorientation", Type = CurseType.Disorientation },
-        new LostCurse() { Name = "Lost", Type = CurseType.Lost, Cap = 2 },
-        new NormalityCurse() { Name = "Normality", Type = CurseType.Normality, Cap = 5 },
-        new StupidityCurse() { Name = "Stupidity", Type = CurseType.Stupidity, Cap = 50 }
+        new LostCurse() { Name = "Lost", Type = CurseType.Lost, Data = new CurseData() { Cap = 2 } },
+        new NormalityCurse() { Name = "Normality", Type = CurseType.Normality, Data = new CurseData() { Cap = 5 } },
+        new StupidityCurse() { Name = "Stupidity", Type = CurseType.Stupidity, Data = new CurseData() { Cap = 50 } },
+        new AmnesiaCurse() {Name = "Amnesia", Type = CurseType.Amnesia, Data = new() { Cap = 5 } },
+        new DarknessCurse() {Name = "Darkness", Type = CurseType.Darkness, Data = new() { Cap = 3 } },
+        new DiminishCurse() {Name = "Diminish", Type = CurseType.Diminish, Data = new() { Cap = 3 } },
+        new SlothCurse() {Name = "Sloth", Type = CurseType.Sloth, Data = new() { Cap = 5 } },
+        new UnknownCurse() {Name = "Unknown", Type = CurseType.Unknown, Data = new() { Cap = 3 } },
+        new OmenCurse() {Name = "Omen", Type = CurseType.Omen, Data = new() { Cap = 5 } },
     };
 
     #endregion
@@ -73,10 +79,12 @@ public static class CurseManager
             _curses.Add(curse);
     }
 
-    internal static void ParseSaveData(Dictionary<string, object> curseData)
+    internal static void ParseSaveData(Dictionary<string, CurseData> curseData)
     {
+        CurseRandomizer.Instance.Log("Check if data for curses exists.");
         if (curseData == null)
             return;
+        CurseRandomizer.Instance.Log("Load data for curses.");
         foreach (string curseName in curseData.Keys)
             try
             {
@@ -85,7 +93,7 @@ public static class CurseManager
             }
             catch (System.Exception exception)
             {
-                CurseRandomizer.Instance.LogError(exception.Message + " StackTrace: " + exception.StackTrace);  
+                CurseRandomizer.Instance.LogError(exception.Message + " StackTrace: " + exception.StackTrace);
             }
     }
 }

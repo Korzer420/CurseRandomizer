@@ -54,19 +54,24 @@ public class CurseModule : Module
             if (CurseQueue[0] == "Pain")
             {
                 int painAmount = CurseQueue.RemoveAll(x => x == "Pain");
+                CurseManager.GetCurseByType(CurseType.Pain).Data.CastedAmount += painAmount;
                 PainCurse.DoDamage(painAmount);
             }
             // Casting multiple disorientation curses doesn't serve any purpose which is why the get removed all at once.
             else if (CurseQueue[0] == "Disorientation")
             {
-                CurseQueue.RemoveAll(x => x == "Disorientation");
+                int amount = CurseQueue.RemoveAll(x => x == "Disorientation");
+                CurseManager.GetCurseByType(CurseType.Disorientation).Data.CastedAmount += amount;
                 CurseManager.GetCurseByType(CurseType.Disorientation).ApplyCurse();
             }
             else
             {
                 Curse curse = CurseManager.GetCurseByName(CurseQueue[0]);
                 if (curse != null)
+                {
+                    curse.Data.CastedAmount++;
                     curse.ApplyCurse();
+                }
                 else
                     CurseRandomizer.Instance.LogError("Tried to cast unknown curse: " + CurseQueue[0]);
                 CurseQueue.RemoveAt(0);

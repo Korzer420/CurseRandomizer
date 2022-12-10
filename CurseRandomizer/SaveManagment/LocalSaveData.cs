@@ -4,9 +4,7 @@ namespace CurseRandomizer.SaveManagment;
 
 public class LocalSaveData
 {
-    public Dictionary<string, object> CurseData { get; set; } = new();
-
-    public Dictionary<string, int> CurseCaps { get; set; } = new();
+    public Dictionary<string, CurseData> Data { get; set; }
 
     public int StartGeo { get; set; }
 
@@ -24,7 +22,7 @@ public class LocalSaveData
 
     public bool UseCaps { get; set; }
 
-    public CurseType DefaultCurse { get; set; }
+    public string DefaultCurse { get; set; }
 
     public bool WalletCursed { get; set; }
 

@@ -3,6 +3,7 @@ using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer;
 using CurseRandomizer.Randomizer.Settings;
 using ItemChanger;
+using ItemChanger.Extensions;
 using ItemChanger.Locations;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
@@ -35,6 +36,7 @@ internal static class RandoManager
     public const string Dreamnail_Fragment = "Dreamnail_Fragment";
 
     #endregion
+
     private static List<AbstractItem> _mimicableItems = new();
     private static List<Curse> _availableCurses = new();
     private static Random _generator;
@@ -264,12 +266,12 @@ internal static class RandoManager
 
     private static int RandoController_OnCalculateHash(RandoController controller, int hashValue)
     {
-        if (!CurseRandomizer.Instance.Settings.Enabled || !CurseRandomizer.Instance.Settings.UseCurses)
+        if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled || !CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
             return 0;
         int addition = 0;
-        if (CurseRandomizer.Instance.Settings.PerfectMimics)
+        if (CurseRandomizer.Instance.Settings.CurseControlSettings.PerfectMimics)
             addition += 410;
-        if (CurseRandomizer.Instance.Settings.CapEffects)
+        if (CurseRandomizer.Instance.Settings.CurseControlSettings.CapEffects)
             addition++;
 
         foreach (Curse curse in _availableCurses)
@@ -278,7 +280,7 @@ internal static class RandoManager
             addition += 5 * curse.Cap;
         }
         addition += (int)CurseManager.DefaultCurse.Type * 420;
-        addition += (int)CurseRandomizer.Instance.Settings.DefaultCurse * 777;
+        addition += (CurseManager.GetCurses().Select(x => x.Name).IndexOf(CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse) + 1) * 777;
 
         return 24691 + addition;
     }
@@ -291,7 +293,7 @@ internal static class RandoManager
         AbstractItem itemToMimic = null;
         try
         {
-            if (requestedItemArgs.ItemName.StartsWith("Fool_Item") && CurseRandomizer.Instance.Settings.UseCurses)
+            if (requestedItemArgs.ItemName.StartsWith("Fool_Item") && CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
             {
                 itemToMimic = _mimicableItems[_generator.Next(0, _mimicableItems.Count)];
                 CurseRandomizer.Instance.LogDebug("Try to replicate: " + itemToMimic.name);
@@ -309,7 +311,7 @@ internal static class RandoManager
                 else if (curseItem.UIDef is LoreUIDef lore)
                     lore.lore = new BoxedString("You are a FOOL");
 
-                if (!CurseRandomizer.Instance.Settings.PerfectMimics)
+                if (!CurseRandomizer.Instance.Settings.CurseControlSettings.PerfectMimics)
                 {
                     if (curseItem.UIDef is not MsgUIDef msgUIDef)
                         CurseRandomizer.Instance.LogError("Item " + itemToMimic.name + " couldn't be mimicked correctly. UI Def has to be inhert from MsgUIDef.");
@@ -359,10 +361,10 @@ internal static class RandoManager
     /// <param name="builder"></param>
     private static void ApplySettings(RequestBuilder builder)
     {
-        if (!CurseRandomizer.Instance.Settings.Enabled)
+        if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled)
             return;
         _generator = new(builder.gs.Seed);
-        if (CurseRandomizer.Instance.Settings.CursedWallet)
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet)
         {
             ModManager.IsWalletCursed = true;
             ModManager.WalletAmount = 0;
@@ -609,6 +611,7 @@ internal static class RandoManager
                     });
                 }
             }
+            AddShopDefaultItems(builder);
         }
         else
         {
@@ -616,7 +619,7 @@ internal static class RandoManager
             ModManager.IsWalletCursed = false;
         }
 
-        if (CurseRandomizer.Instance.Settings.CursedColo)
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo)
         {
             ModManager.IsColoCursed = true;
             ModManager.CanAccessBronze = false;
@@ -666,7 +669,7 @@ internal static class RandoManager
             ModManager.IsColoCursed = false;
         }
 
-        if (CurseRandomizer.Instance.Settings.CursedDreamNail)
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedDreamNail)
         {
             ModManager.DreamUpgrade = 0;
             builder.AddItemByName(Dreamnail_Fragment, 2);
@@ -676,15 +679,15 @@ internal static class RandoManager
             ModManager.IsDreamNailCursed = false;
 
         // To not even bother with figuring out with EVERY SINGLE FIREBALL SKIP, we just prevent this setting from working, if fireball skips are on.
-        if (CurseRandomizer.Instance.Settings.CursedVessel != 0 && !builder.gs.SkipSettings.FireballSkips)
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel != 0 && !builder.gs.SkipSettings.FireballSkips)
         {
             ModManager.IsVesselCursed = true;
-            ModManager.SoulVessel = (CurseRandomizer.Instance.Settings.CursedVessel - 2) * -1;
+            ModManager.SoulVessel = (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel - 2) * -1;
             if (builder.gs.MiscSettings.VesselFragments == VesselFragmentType.OneFragmentPerVessel)
-                builder.AddItemByName(ItemNames.Full_Soul_Vessel, CurseRandomizer.Instance.Settings.CursedVessel);
+                builder.AddItemByName(ItemNames.Full_Soul_Vessel, CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel);
             else if (builder.gs.MiscSettings.VesselFragments == VesselFragmentType.TwoFragmentsPerVessel)
             {
-                if (CurseRandomizer.Instance.Settings.CursedVessel == 2)
+                if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel == 2)
                     builder.AddItemByName(ItemNames.Double_Vessel_Fragment, 3);
                 else
                 {
@@ -693,13 +696,94 @@ internal static class RandoManager
                 }
             }
             else
-                builder.AddItemByName(ItemNames.Vessel_Fragment, CurseRandomizer.Instance.Settings.CursedVessel * 3);
+                builder.AddItemByName(ItemNames.Vessel_Fragment, CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel * 3);
         }
         else
         {
             ModManager.IsVesselCursed = false;
             ModManager.SoulVessel = 2;
         }
+    }
+
+    /// <summary>
+    /// Check and add the default items to logic
+    /// </summary>
+    /// <param name="builder"></param>
+    private static void AddShopDefaultItems(RequestBuilder builder)
+    {
+        if (!builder.gs.PoolSettings.Charms)
+        {
+            // Salubra charms.
+            builder.AddToVanilla(ItemNames.Lifeblood_Heart, "Salubra_Medium"); // 250
+            builder.AddToVanilla(ItemNames.Longnail, "Salubra_Medium"); //300
+            builder.AddToVanilla(ItemNames.Steady_Body, "Salubra_Cheap"); // 120
+            builder.AddToVanilla(ItemNames.Shaman_Stone, "Salubra_Medium"); //220
+            builder.AddToVanilla(ItemNames.Quick_Focus, "Salubra_Expensive"); //800
+            builder.AddToVanilla(ItemNames.Salubras_Blessing, "Salubra_Expensive"); // 800
+
+            // Iselda charms.
+            builder.AddToVanilla(ItemNames.Wayward_Compass, "Iselda_Medium"); //220
+            
+            // Sly charms.
+            builder.AddToVanilla(ItemNames.Gathering_Swarm, "Sly_Medium"); //300
+            builder.AddToVanilla(ItemNames.Stalwart_Shell, "Sly_Cheap"); //200
+            builder.AddToVanilla(ItemNames.Heavy_Blow, "Sly_(Key)_Medium"); //350
+            builder.AddToVanilla(ItemNames.Sprintmaster, "Sly_(Key)_Medium"); //400
+
+            // Leg eater charms.
+            builder.AddToVanilla(ItemNames.Fragile_Heart, "Leg_Eater_Medium"); // 350
+            builder.AddToVanilla(ItemNames.Fragile_Heart_Repair, "Leg_Eater_Cheap"); // 200
+            builder.AddToVanilla(ItemNames.Fragile_Greed, "Leg_Eater_Medium"); //250
+            builder.AddToVanilla(ItemNames.Fragile_Greed_Repair, "Leg_Eater_Cheap"); // 150
+            builder.AddToVanilla(ItemNames.Fragile_Strength, "Leg_Eater_Expensive"); // 600
+            builder.AddToVanilla(ItemNames.Fragile_Strength_Repair, "Leg_Eater_Medium"); // 350
+        }
+
+        if (builder.gs.MiscSettings.SalubraNotches == SalubraNotchesSetting.Vanilla)
+        {
+            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_(Requires_Charms)_Cheap");
+            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_(Requires_Charms)_Medium");
+            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_(Requires_Charms)_Expensive");
+            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_(Requires_Charms)_Extreme_Valuable");
+        }
+
+        if (!builder.gs.PoolSettings.Keys)
+        {
+            builder.AddToVanilla(ItemNames.Simple_Key, "Sly_Expensive");
+            builder.AddToVanilla(ItemNames.Elegant_Key, "Sly_(Key)_Expensive");
+        }
+
+        if (!builder.gs.PoolSettings.MaskShards)
+        {
+            builder.AddToVanilla(ItemNames.Mask_Shard, "Sly_Cheap");
+            builder.AddToVanilla(ItemNames.Mask_Shard, "Sly_Medium");
+            builder.AddToVanilla(ItemNames.Mask_Shard, "Sly_(Key)_Expensive");
+            builder.AddToVanilla(ItemNames.Mask_Shard, "Sly_(Key)_Extreme_Valuable");
+        }
+
+        if (!builder.gs.PoolSettings.VesselFragments)
+        {
+            builder.AddToVanilla(ItemNames.Vessel_Fragment, "Sly_Expensive");
+            builder.AddToVanilla(ItemNames.Vessel_Fragment, "Sly_(Key)_Expensive");
+        }
+
+        if (!builder.gs.PoolSettings.Skills)
+        {
+            builder.AddToVanilla(ItemNames.Lumafly_Lantern, "Sly_Extreme_Valuable");
+        }
+
+        if (!builder.gs.PoolSettings.RancidEggs)
+            builder.AddToVanilla(ItemNames.Rancid_Egg, "Sly_Cheap");
+
+        if (!builder.gs.PoolSettings.Maps)
+            builder.AddToVanilla(ItemNames.Quill, "Iselda_Cheap");
+
+        builder.RemoveFromVanilla(LocationNames.Sly);
+        builder.RemoveFromVanilla(LocationNames.Sly_Key);
+        builder.RemoveFromVanilla(LocationNames.Leg_Eater);
+        builder.RemoveFromVanilla(LocationNames.Salubra);
+        builder.RemoveFromVanilla(LocationNames.Salubra+"_(Requires_Charms)");
+        builder.RemoveFromVanilla(LocationNames.Iselda);
     }
 
     /// <summary>
@@ -710,18 +794,20 @@ internal static class RandoManager
     private static void ApplyCurses(RequestBuilder builder)
     {
         ReplacedItems.Clear();
-        if (!CurseRandomizer.Instance.Settings.Enabled || !CurseRandomizer.Instance.Settings.UseCurses)
+        if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled || !CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
             return;
 
         AddCustomMimics(builder.gs);
         // Get all items which can be removed.
         List<string> replacableItems = GetReplaceableItems(builder.gs);
 
+        int totalItemCount = 0;
         // Get all pools, which the items can be removed from.
         List<ItemGroupBuilder> availablePools = new();
         foreach (StageBuilder stage in builder.Stages)
             foreach (ItemGroupBuilder itemGroup in stage.Groups.Where(x => x is ItemGroupBuilder).Select(x => x as ItemGroupBuilder))
             {
+                totalItemCount += itemGroup.Items.GetTotal();
                 if (availablePools.Contains(itemGroup))
                     continue;
                 foreach (string item in itemGroup.Items.EnumerateDistinct())
@@ -732,50 +818,58 @@ internal static class RandoManager
                     }
             }
         _availableCurses.Clear();
-        if (CurseRandomizer.Instance.Settings.CustomCurses && CurseManager.GetCurseByType(CurseType.Custom) != null)
-            _availableCurses.AddRange(CurseManager.GetCurses().Where(x => x.Type == CurseType.Custom));
-        if (CurseRandomizer.Instance.Settings.PainCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Pain));
-        if (CurseRandomizer.Instance.Settings.GreedCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Greed));
-        if (CurseRandomizer.Instance.Settings.StupidityCurse && !builder.gs.SkipSettings.FireballSkips)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Stupidity));
-        if (CurseRandomizer.Instance.Settings.NormalityCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Normality));
-        if (CurseRandomizer.Instance.Settings.DisorientationCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Disorientation));
-        if (CurseRandomizer.Instance.Settings.EmptinessCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Emptiness));
-        if (CurseRandomizer.Instance.Settings.ThirstCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Thirst));
-        if (CurseRandomizer.Instance.Settings.WeaknessCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Weakness));
-        if (CurseRandomizer.Instance.Settings.LostCurse)
-            _availableCurses.Add(CurseManager.GetCurseByType(CurseType.Lost));
-        if (CurseRandomizer.Instance.Settings.CustomCurses && CurseManager.GetCurses().Any(x => x.Type == CurseType.Custom))
-            _availableCurses.AddRange(CurseManager.GetCurses().Where(x => x.Type == CurseType.Custom));
+        CurseManager.DefaultCurse = null;
+        foreach (CurseSettings settings in CurseRandomizer.Instance.Settings.CurseSettings)
+            if (CurseManager.GetCurseByName(settings.Name) is Curse curse && settings.Active)
+            {
+                if (curse.Type != CurseType.Custom || CurseRandomizer.Instance.Settings.CurseControlSettings.CustomCurses)
+                {
+                    curse.Data.Cap = settings.Cap;
+                    _availableCurses.Add(curse);
+                }
+                if (settings.Name == CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse)
+                    CurseManager.DefaultCurse = curse;
+            }
+        
 
         if (!_availableCurses.Any())
             throw new Exception("No curses available to place.");
 
-        int amount = CurseRandomizer.Instance.Settings.CurseAmount switch
+        // If for some reason the default curse is not active, we just select the curse of pain.
+        if (CurseManager.DefaultCurse == null)
+            CurseManager.DefaultCurse = CurseManager.GetCurseByType(CurseType.Pain);
+
+        int amount = CurseRandomizer.Instance.Settings.CurseControlSettings.CurseAmount switch
         {
-            Amount.Few => builder.rng.Next(1, 6),
-            Amount.Some => builder.rng.Next(3, 11),
-            Amount.Medium => builder.rng.Next(5, 16),
-            Amount.Many => builder.rng.Next(7, 21),
-            Amount.OhOh => builder.rng.Next(10, 31),
-            Amount.Custom => CurseRandomizer.Instance.Settings.CurseItems,
+            Amount.Few => builder.rng.Next(Math.Min(3, totalItemCount / 100 * 1), Math.Max(5, totalItemCount / 100 * 3)),
+            Amount.Some => builder.rng.Next(Math.Min(5, totalItemCount / 100 * 4), Math.Max(10, totalItemCount / 100 * 6)),
+            Amount.Medium => builder.rng.Next(Math.Min(10, totalItemCount / 100 * 7), Math.Max(15, totalItemCount / 100 * 9)),
+            Amount.Many => builder.rng.Next(Math.Min(15, totalItemCount / 100 * 10), Math.Max(20, totalItemCount / 100 * 12)),
+            Amount.OhOh => builder.rng.Next(Math.Min(20, totalItemCount / 100 * 13), Math.Max(30, totalItemCount / 100 * 15)),
+            Amount.Custom => CurseRandomizer.Instance.Settings.CurseControlSettings.CurseItems,
             _ => 0
         };
-        if (CurseRandomizer.Instance.Settings.CurseMethod != RequestMethod.Add)
+
+        if (CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod != RequestMethod.Add)
             // Remove the items.
             for (; amount > 0; amount--)
             {
                 if (!availablePools.Any())
                     break;
                 ItemGroupBuilder pickedGroup = availablePools[builder.rng.Next(0, availablePools.Count)];
-                string[] availableItems = pickedGroup.Items.EnumerateDistinct().Where(x => replacableItems.Contains(x)).ToArray();
+                string[] availableItems = pickedGroup.Items.EnumerateDistinct().Where(replacableItems.Contains).ToArray();
+
+                // Just in case no items could be found in the groups.
+                if (availableItems.Length == 0)
+                { 
+                    availablePools.Remove(pickedGroup);
+                    amount++;
+                    if (!availablePools.Any())
+                    {
+                        CurseRandomizer.Instance.LogError("No pools available, couldn't place curses.");
+                        break;
+                    }
+                }
                 string pickedItem = availableItems[builder.rng.Next(0, availableItems.Length)];
                 pickedGroup.Items.Remove(pickedItem, 1);
                 ReplacedItems.Add(pickedItem);
@@ -790,24 +884,17 @@ internal static class RandoManager
                 else
                     builder.AddItemByName("Fool_Item");
                 CurseRandomizer.Instance.LogDebug("Removed " + pickedItem + " for a curse.");
+                if (!availablePools.Any())
+                {
+                    CurseRandomizer.Instance.LogError("No pools available, couldn't place curses.");
+                    break;
+                }
             }
 
-        if (amount > 0 && CurseRandomizer.Instance.Settings.CurseMethod != RequestMethod.ForceReplace)
+        if (amount > 0 && CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod != RequestMethod.ForceReplace)
             builder.AddItemByName("Fool_Item", amount);
-        else if (CurseRandomizer.Instance.Settings.CurseMethod == RequestMethod.ForceReplace && amount > 0)
+        else if (CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod == RequestMethod.ForceReplace && amount > 0)
             CurseRandomizer.Instance.LogWarn("Couldn't replace enough items to satisfy the selected amount. Disposed amount: " + amount);
-
-        // Set the caps
-        CurseManager.GetCurseByType(CurseType.Pain).Cap = CurseRandomizer.Instance.Settings.PainCap;
-        CurseManager.GetCurseByType(CurseType.Stupidity).Cap = CurseRandomizer.Instance.Settings.StupidityCap;
-        CurseManager.GetCurseByType(CurseType.Normality).Cap = CurseRandomizer.Instance.Settings.NormalityCap;
-        CurseManager.GetCurseByType(CurseType.Emptiness).Cap = CurseRandomizer.Instance.Settings.EmptynessCap;
-        CurseManager.GetCurseByType(CurseType.Greed).Cap = CurseRandomizer.Instance.Settings.GreedCap;
-        CurseManager.GetCurseByType(CurseType.Lost).Cap = CurseRandomizer.Instance.Settings.LostCap;
-        CurseManager.GetCurseByType(CurseType.Thirst).Cap = CurseRandomizer.Instance.Settings.ThirstCap;
-        CurseManager.GetCurseByType(CurseType.Weakness).Cap = CurseRandomizer.Instance.Settings.WeaknessCap;
-
-        CurseManager.DefaultCurse = CurseManager.GetCurseByType(CurseRandomizer.Instance.Settings.DefaultCurse);
     }
 
     /// <summary>
@@ -975,39 +1062,39 @@ internal static class RandoManager
     {
         List<string> viableItems = new();
 
-        if (CurseRandomizer.Instance.Settings.MaskShards && generationSettings.PoolSettings.MaskShards)
+        if (CurseRandomizer.Instance.Settings.Pools.MaskShards && generationSettings.PoolSettings.MaskShards)
             viableItems.Add(generationSettings.MiscSettings.MaskShards switch
             {
                 MaskShardType.FourShardsPerMask => ItemNames.Mask_Shard,
                 MaskShardType.TwoShardsPerMask => ItemNames.Double_Mask_Shard,
                 _ => ItemNames.Full_Mask
             });
-        if (CurseRandomizer.Instance.Settings.VesselFragments && generationSettings.PoolSettings.VesselFragments)
+        if (CurseRandomizer.Instance.Settings.Pools.VesselFragments && generationSettings.PoolSettings.VesselFragments)
             viableItems.Add(generationSettings.MiscSettings.VesselFragments switch
             {
                 VesselFragmentType.TwoFragmentsPerVessel => ItemNames.Double_Vessel_Fragment,
                 VesselFragmentType.OneFragmentPerVessel => ItemNames.Full_Soul_Vessel,
                 _ => ItemNames.Vessel_Fragment
             });
-        if (CurseRandomizer.Instance.Settings.PaleOre && generationSettings.PoolSettings.PaleOre)
+        if (CurseRandomizer.Instance.Settings.Pools.PaleOre && generationSettings.PoolSettings.PaleOre)
             viableItems.Add(ItemNames.Pale_Ore);
-        if (CurseRandomizer.Instance.Settings.Notches && generationSettings.PoolSettings.CharmNotches)
+        if (CurseRandomizer.Instance.Settings.Pools.Notches && generationSettings.PoolSettings.CharmNotches)
             viableItems.Add(ItemNames.Charm_Notch);
-        if (CurseRandomizer.Instance.Settings.Relics && generationSettings.PoolSettings.Relics)
+        if (CurseRandomizer.Instance.Settings.Pools.Relics && generationSettings.PoolSettings.Relics)
             viableItems.AddRange(new string[] { ItemNames.Wanderers_Journal, ItemNames.Hallownest_Seal, ItemNames.Kings_Idol, ItemNames.Arcane_Egg });
-        if (CurseRandomizer.Instance.Settings.Rocks && generationSettings.PoolSettings.GeoRocks)
+        if (CurseRandomizer.Instance.Settings.Pools.Rocks && generationSettings.PoolSettings.GeoRocks)
             viableItems.AddRange(new string[] {ItemNames.Geo_Rock_Abyss, ItemNames.Geo_Rock_City, ItemNames.Geo_Rock_Deepnest, ItemNames.Geo_Rock_Default,
             ItemNames.Geo_Rock_Fung01, ItemNames.Geo_Rock_Fung02, ItemNames.Geo_Rock_Grave01, ItemNames.Geo_Rock_Grave02, ItemNames.Geo_Rock_GreenPath01,
             ItemNames.Geo_Rock_GreenPath02, ItemNames.Geo_Rock_Hive, ItemNames.Geo_Rock_Mine, ItemNames.Geo_Rock_Outskirts, ItemNames.Geo_Rock_Outskirts420});
-        if (CurseRandomizer.Instance.Settings.Geo && generationSettings.PoolSettings.GeoChests)
+        if (CurseRandomizer.Instance.Settings.Pools.Geo && generationSettings.PoolSettings.GeoChests)
             viableItems.AddRange(new string[] {ItemNames.Geo_Chest_Crystal_Peak, ItemNames.Geo_Chest_False_Knight, ItemNames.Geo_Chest_Greenpath, ItemNames.Geo_Chest_Junk_Pit_1,
             ItemNames.Geo_Chest_Junk_Pit_2, ItemNames.Geo_Chest_Junk_Pit_3, ItemNames.Geo_Chest_Junk_Pit_5, ItemNames.Geo_Chest_Mantis_Lords, ItemNames.Geo_Chest_Resting_Grounds,
             ItemNames.Geo_Chest_Soul_Master, ItemNames.Geo_Chest_Watcher_Knights, ItemNames.Geo_Chest_Weavers_Den});
-        if (CurseRandomizer.Instance.Settings.Geo && generationSettings.PoolSettings.BossGeo)
+        if (CurseRandomizer.Instance.Settings.Pools.Geo && generationSettings.PoolSettings.BossGeo)
             viableItems.AddRange(new string[] {ItemNames.Boss_Geo_Crystal_Guardian, ItemNames.Boss_Geo_Elegant_Soul_Warrior, ItemNames.Boss_Geo_Enraged_Guardian,
             ItemNames.Boss_Geo_Gorgeous_Husk, ItemNames.Boss_Geo_Gruz_Mother, ItemNames.Boss_Geo_Massive_Moss_Charger, ItemNames.Boss_Geo_Sanctum_Soul_Warrior,
             ItemNames.Boss_Geo_Vengefly_King});
-        if (CurseRandomizer.Instance.Settings.Totems && generationSettings.PoolSettings.SoulTotems)
+        if (CurseRandomizer.Instance.Settings.Pools.Totems && generationSettings.PoolSettings.SoulTotems)
         {
             viableItems.AddRange(new string[] { ItemNames.Soul_Totem_A, ItemNames.Soul_Totem_B, ItemNames.Soul_Totem_C, ItemNames.Soul_Totem_D,
             ItemNames.Soul_Totem_E,ItemNames.Soul_Totem_F,ItemNames.Soul_Totem_G, ItemNames.Soul_Refill});
@@ -1018,7 +1105,7 @@ internal static class RandoManager
             }
         }
 
-        if (CurseRandomizer.Instance.Settings.Custom)
+        if (CurseRandomizer.Instance.Settings.Pools.Custom)
             foreach (KeyValuePair<string, AbstractItem> item in ReflectionHelper.GetField<Dictionary<string, AbstractItem>>(typeof(Finder), "CustomItems"))
             {
                 try
@@ -1040,9 +1127,9 @@ internal static class RandoManager
 
     private static void ModifyLogic(GenerationSettings settings, LogicManagerBuilder builder)
     {
-        if (!CurseRandomizer.Instance.Settings.Enabled)
+        if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled)
             return;
-        if (CurseRandomizer.Instance.Settings.UseCurses)
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
         {
             builder.AddItem(new EmptyItem("Fool_Item"));
             builder.AddItem(new SingleItem("Fool_Item_Mocked_Shard", new(builder.GetTerm("MASKSHARDS"), 1)));
@@ -1050,7 +1137,7 @@ internal static class RandoManager
             builder.AddItem(new SingleItem("Fool_Item_Mocked_Mask", new(builder.GetTerm("MASKSHARDS"), 4)));
         }
 
-        if (CurseRandomizer.Instance.Settings.CursedWallet)
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet)
         {
             Term wallet = builder.GetOrAddTerm("WALLET");
             builder.AddItem(new SingleItem("Geo_Wallet", new(wallet, 1)));
@@ -1099,7 +1186,7 @@ internal static class RandoManager
             }
         }
 
-        if (CurseRandomizer.Instance.Settings.CursedColo)
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo)
         {
             Term term = builder.GetOrAddTerm("BRONZE");
             builder.AddItem(new BoolItem(Bronze_Trial_Ticket, term));
@@ -1116,7 +1203,7 @@ internal static class RandoManager
                 builder.DoLogicEdit(new("Defeated_Colosseum_3", "(ORIG) + GOLD"));
         }
 
-        if (CurseRandomizer.Instance.Settings.CursedDreamNail)
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedDreamNail)
         {
             Term fragment = builder.GetOrAddTerm("DREAMNAILFRAGMENT");
             builder.AddItem(new SingleItem(Dreamnail_Fragment, new(fragment, 1)));

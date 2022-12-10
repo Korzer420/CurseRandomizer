@@ -36,6 +36,7 @@ internal class CurseItem : AbstractItem
             // For the big UI we want to display the FOOL message there, which is why the recent item name is set via a tag.
             (UIDef as MsgUIDef).name = new BoxedString($"<color=#c034eb>Fool!</color>");
             tags.Add(new InteropTag() { Message = "RecentItems", Properties = new() { { "DisplayName", $"<color=#c034eb>{CurseName}</color>" } } });
+            (UIDef as BigUIDef).descOne = new BoxedString("You've been cursed by " + CurseName);
         }
         (UIDef as MsgUIDef).sprite = new CustomSprite("Fool");
 

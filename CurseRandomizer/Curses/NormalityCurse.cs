@@ -9,11 +9,30 @@ namespace CurseRandomizer.Curses;
 
 internal class NormalityCurse : Curse
 {
+    #region Constructors
+
     public NormalityCurse()
     {
-        ModHooks.LanguageGetHook += ShowUselessCharm;
-        CheckFsmStateAction.OnEnter += CheckFsmStateAction_OnEnter;
+        Data.Data = new List<int>();
     }
+
+    #endregion
+
+    #region Properties
+
+    internal List<int> DisabledCharmId 
+    { 
+        get 
+        {
+            if (Data.Data == null)
+                Data.Data = new List<int>();
+            return Data.Data as List<int>;
+        }
+    }
+
+    #endregion
+
+    #region Event handler
 
     private void CheckFsmStateAction_OnEnter(CheckFsmStateAction.orig_OnEnter orig, FSMUtility.CheckFsmStateAction self)
     {
@@ -21,8 +40,6 @@ internal class NormalityCurse : Curse
             self.falseEvent = DisabledCharmId.Contains(int.Parse(self.Fsm.Variables.FindFsmString("Item Num String").Value)) ? self.trueEvent : null;
         orig(self);
     }
-
-    internal List<int> DisabledCharmId { get; set; } = new();
 
     private string ShowUselessCharm(string key, string sheetTitle, string orig)
     {
@@ -33,6 +50,22 @@ internal class NormalityCurse : Curse
                     orig += $"\r\n<color={TextColor}>It seems like this charm has lost it's power.</color>";
         }
         return orig;
+    } 
+
+    #endregion
+
+    #region Control
+
+    public override void ApplyHooks()
+    {
+        ModHooks.LanguageGetHook += ShowUselessCharm;
+        CheckFsmStateAction.OnEnter += CheckFsmStateAction_OnEnter;
+    }
+
+    public override void Unhook()
+    {
+        ModHooks.LanguageGetHook -= ShowUselessCharm;
+        CheckFsmStateAction.OnEnter -= CheckFsmStateAction_OnEnter;
     }
 
     public override bool CanApplyCurse()
@@ -63,10 +96,10 @@ internal class NormalityCurse : Curse
                 availableCharms.Add(i);
         }
         availableCharms = availableCharms.Except(DisabledCharmId).ToList();
-        
+
         int rolledCharm = availableCharms[UnityEngine.Random.Range(0, availableCharms.Count())];
         DisabledCharmId.Add(rolledCharm);
-        if (PlayerData.instance.GetBool("equippedCharm_"+rolledCharm))
+        if (PlayerData.instance.GetBool("equippedCharm_" + rolledCharm))
         {
             PlayerData.instance.SetBool("equippedCharm_" + rolledCharm, false);
             PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).Remove(rolledCharm);
@@ -75,9 +108,9 @@ internal class NormalityCurse : Curse
         }
     }
 
-    public override object ParseData() => DisabledCharmId;
+    public override void ResetAdditionalData() => DisabledCharmId.Clear();
 
-    public override void LoadData(object data) => DisabledCharmId = (List<int>)data;
+    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 30)); 
 
-    public override void ResetData() => DisabledCharmId.Clear();
+    #endregion
 }

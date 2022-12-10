@@ -12,9 +12,9 @@ internal class InternalBoolCheck : IBool
         {
             return ItemNumber switch
             {
-                0 => CurseRandomizer.Instance.Settings.CursedWallet,
-                1 => CurseRandomizer.Instance.Settings.CursedColo,
-                2 => CurseRandomizer.Instance.Settings.CursedDreamNail,
+                0 => CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet,
+                1 => CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo,
+                2 => CurseRandomizer.Instance.Settings.GeneralSettings.CursedDreamNail,
                 _ => false,
             };
         }

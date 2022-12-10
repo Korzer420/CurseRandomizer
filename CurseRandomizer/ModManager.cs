@@ -1,4 +1,5 @@
-﻿using CurseRandomizer.Helper;
+﻿using CurseRandomizer.Enums;
+using CurseRandomizer.Helper;
 using CurseRandomizer.ItemData;
 using HutongGames.PlayMaker.Actions;
 using ItemChanger;
@@ -8,9 +9,13 @@ using ItemChanger.Placements;
 using Modding;
 using MonoMod.Cil;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
+using static RandomizerMod.Settings.MiscSettings;
+using static CurseRandomizer.ItemData.WalletItem;
 
 namespace CurseRandomizer.Manager;
 
@@ -58,17 +63,18 @@ internal static class ModManager
 
     #endregion
 
-    private static System.Collections.IEnumerator UIManager_ReturnToMainMenu(On.UIManager.orig_ReturnToMainMenu orig, UIManager self)
+    private static IEnumerator UIManager_ReturnToMainMenu(On.UIManager.orig_ReturnToMainMenu orig, UIManager self)
     {
-        if (IsWalletCursed)
-        {
-            On.HeroController.AddGeo -= CapGeoByWallet;
-            On.HeroController.AddGeoQuietly -= CapGeoByWallet;
-            On.HeroController.AddGeoToCounter -= CapGeoByWallet;
-            On.GeoCounter.NewSceneRefresh -= AdjustGeoColor;
-            On.HutongGames.PlayMaker.Actions.SetMaterialColor.OnEnter -= SetMaterialColor_OnEnter;
-            ModHooks.LanguageGetHook -= AddWalletDescription;
-        }
+        if (RandomizerMod.RandomizerMod.IsRandoSave)
+            if (IsWalletCursed)
+            {
+                On.HeroController.AddGeo -= CapGeoByWallet;
+                On.HeroController.AddGeoQuietly -= CapGeoByWallet;
+                On.HeroController.AddGeoToCounter -= CapGeoByWallet;
+                On.GeoCounter.NewSceneRefresh -= AdjustGeoColor;
+                On.HutongGames.PlayMaker.Actions.SetMaterialColor.OnEnter -= SetMaterialColor_OnEnter;
+                ModHooks.LanguageGetHook -= AddWalletDescription;
+            }
         if (IsColoCursed)
         {
             On.PlayMakerFSM.OnEnable -= BlockColoAccess;
@@ -83,39 +89,46 @@ internal static class ModManager
             ModHooks.LanguageGetHook -= ShowDreamNailDescription;
         }
         if (IsVesselCursed)
-        { 
+        {
             IL.PlayerData.AddMPCharge -= LimitSoul;
             On.PlayMakerFSM.OnEnable -= AdjustSoulAmount;
             On.HeroController.AddToMaxMPReserve -= HookVesselGain;
             On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= FixVesselEyes;
         }
+
+        foreach (Curse curse in CurseManager.GetCurses())
+            curse.Unhook();
         yield return orig(self);
     }
 
     private static void UIManager_ContinueGame(On.UIManager.orig_ContinueGame orig, UIManager self)
     {
         orig(self);
-        Hook();
+        if (RandomizerMod.RandomizerMod.IsRandoSave)
+            Hook();
     }
 
     private static void UIManager_StartNewGame(On.UIManager.orig_StartNewGame orig, UIManager self, bool permaDeath, bool bossRush)
     {
         orig(self, permaDeath, bossRush);
+        if (!RandomizerMod.RandomizerMod.IsRandoSave)
+            return;
         foreach (Curse curse in CurseManager.GetCurses())
             curse.ResetData();
         Hook();
         // Fix for the shop placement wrap.
         if (IsWalletCursed)
         {
+            AddShopDefaults();
             Dictionary<string, AbstractPlacement> placements = ItemChanger.Internal.Ref.Settings.Placements;
-            if (placements.ContainsKey("Sly_(Key)_Cheap"))
-                (placements["Sly_(Key)_Cheap"] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
-            if (placements.ContainsKey("Sly_(Key)_Medium"))
-                (placements["Sly_(Key)_Medium"] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
-            if (placements.ContainsKey("Sly_(Key)_Expensive"))
-                (placements["Sly_(Key)_Expensive"] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
-            if (placements.ContainsKey("Sly_(Key)_High_Valuable"))
-                (placements["Sly_(Key)_High_Valuable"] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
+            if (placements.ContainsKey(Sly_Key_Cheap))
+                (placements[Sly_Key_Cheap] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
+            if (placements.ContainsKey(Sly_Key_Medium))
+                (placements[Sly_Key_Medium] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
+            if (placements.ContainsKey(Sly_Key_Expensive))
+                (placements[Sly_Key_Expensive] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
+            if (placements.ContainsKey(Sly_Key_Extreme_Valuable))
+                (placements[Sly_Key_Extreme_Valuable] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
         }
     }
 
@@ -129,7 +142,7 @@ internal static class ModManager
             On.GeoCounter.NewSceneRefresh += AdjustGeoColor;
             On.HutongGames.PlayMaker.Actions.SetMaterialColor.OnEnter += SetMaterialColor_OnEnter;
             ModHooks.LanguageGetHook += AddWalletDescription;
-            
+
         }
         if (IsColoCursed)
         {
@@ -145,22 +158,21 @@ internal static class ModManager
             ModHooks.LanguageGetHook += ShowDreamNailDescription;
         }
         if (IsVesselCursed)
-        { 
+        {
             IL.PlayerData.AddMPCharge += LimitSoul;
             On.PlayMakerFSM.OnEnable += AdjustSoulAmount;
             On.HeroController.AddToMaxMPReserve += HookVesselGain;
             On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += FixVesselEyes;
         }
-
-        CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
-        if (module.CurseQueue.Any())
-            CurseManager.Handler.StartCoroutine(module.WaitForControl());
+        foreach (Curse curse in CurseManager.GetCurses())
+            curse.ApplyHooks();
+        CurseManager.Handler.StartCoroutine(WaitForHC());
     }
 
     private static string ShowDreamNailDescription(string key, string sheetTitle, string orig)
     {
         if (key == "INV_DESC_DREAMNAIL_A" || key == "INV_DESC_DREAMNAIL_B")
-        { 
+        {
             orig += "\r\n";
             if (DreamUpgrade == 0)
                 orig += "It's not strong enough yet to fight the strong warriors from the past.";
@@ -181,16 +193,19 @@ internal static class ModManager
         if (self.IsCorrectContext("Fader", "Add Text", "Down") && self.Fsm.GameObject.transform.parent?.name == "Geo Counter")
         {
             int playerGeo = PlayerData.instance.GetInt(nameof(PlayerData.instance.geo));
-            switch (WalletAmount)
-            {
-                case 0 when playerGeo == 200:
-                case 1 when playerGeo == 500:
-                case 2 when playerGeo == 1000:
-                case 3 when playerGeo == 5000:
-                case 4 when playerGeo == 9999999:
-                    HeroController.instance.geoCounter.geoTextMesh.text = "<color=#68ff57>" + HeroController.instance.geoCounter.geoTextMesh.text + "</color>";
-                    break;
-            }
+            if (((List<AffectedVisual>)CurseManager.GetCurseByType(CurseType.Unknown).Data.Data).Contains(AffectedVisual.Geo))
+                HeroController.instance.geoCounter.geoTextMesh.text = "???";
+            else
+                switch (WalletAmount)
+                {
+                    case 0 when playerGeo == 200:
+                    case 1 when playerGeo == 500:
+                    case 2 when playerGeo == 1000:
+                    case 3 when playerGeo == 5000:
+                    case 4 when playerGeo == 9999999:
+                        HeroController.instance.geoCounter.geoTextMesh.text = "<color=#68ff57>" + HeroController.instance.geoCounter.geoTextMesh.text + "</color>";
+                        break;
+                }
         }
     }
 
@@ -277,7 +292,7 @@ internal static class ModManager
             if (self.FsmName == "Conversation Control" && self.gameObject.name.EndsWith("Trial Board"))
             {
                 PlayMakerFSM referenceBoard = GameObject.Find("Gold Trial Board").LocateMyFSM("Conversation Control");
-                
+
                 string board = self.gameObject.name.StartsWith("Bronze")
                     ? "Bronze"
                     : (self.gameObject.name.StartsWith("Silver")
@@ -287,9 +302,9 @@ internal static class ModManager
                 self.AddState(new HutongGames.PlayMaker.FsmState(self.Fsm)
                 {
                     Name = "Has Ticket?",
-                    Actions = new HutongGames.PlayMaker.FsmStateAction[] 
+                    Actions = new HutongGames.PlayMaker.FsmStateAction[]
                     {
-                        new Lambda(() => 
+                        new Lambda(() =>
                         {
                             if (board == "Bronze")
                                 self.SendEvent(CanAccessBronze ? "OPEN" : "FINISHED");
@@ -310,7 +325,7 @@ internal static class ModManager
                     Name = "Unworthy",
                     Actions = new HutongGames.PlayMaker.FsmStateAction[]
                     {
-                        new Lambda(() => 
+                        new Lambda(() =>
                         {
                             actionReference.gameObject.GameObject.Value.GetComponent<DialogueBox>().StartConversation($"Unworthy ({board})", "Minor_NPC");
                         })
@@ -382,7 +397,7 @@ internal static class ModManager
             || self.IsCorrectContext("Conversation Control", "Ghost Warrior NPC", "Init")) && DreamUpgrade == 0)
             self.isTrue = self.isFalse;
         else if (DreamUpgrade < 2 && self.boolName.Value == "hasDreamNail" && self.IsCorrectContext("Control", null, "Check") &&
-            (self.Fsm.GameObject.name == "FK Corpse" || self.Fsm.GameObject.name == "IK Remains" 
+            (self.Fsm.GameObject.name == "FK Corpse" || self.Fsm.GameObject.name == "IK Remains"
             || self.Fsm.GameObject.name == "Mage Lord Remains"))
             self.isTrue = self.isFalse;
         orig(self);
@@ -453,7 +468,7 @@ internal static class ModManager
                 SoulVessel++;
                 PlayMakerFSM fsm = GameObject.Find("_GameCameras").transform.Find("HudCamera/Hud Canvas/Soul Orb").gameObject.LocateMyFSM("Soul Orb Control");
                 if (fsm != null)
-                { 
+                {
                     fsm.FsmVariables.FindFsmFloat("Liquid Y Per MP").Value = SoulVessel == 1 ? 0.02736f : 0.0171f;
                     PlayerData.instance.SetInt(nameof(PlayerData.instance.maxMP), SoulVessel == 1 ? 66 : 99);
                 }
@@ -481,4 +496,297 @@ internal static class ModManager
     }
 
     #endregion
+
+    private static void AddShopDefaults()
+    {
+        Dictionary<string, AbstractPlacement> placements = ItemChanger.Internal.Ref.Settings.Placements;
+        List<AbstractPlacement> placementsToAdd = new();
+        if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Charms)
+        {
+            AbstractPlacement currentPlacement;
+
+            // Salubra charms.
+            if (!placements.ContainsKey(Salubra_Cheap))
+            {
+                currentPlacement = Finder.GetLocation(Salubra_Cheap).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Salubra_Cheap];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Steady_Body));
+
+            if (!placements.ContainsKey(Salubra_Medium))
+            {
+                currentPlacement = Finder.GetLocation(Salubra_Medium).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Salubra_Medium];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Lifeblood_Heart));
+            currentPlacement.Add(Finder.GetItem(ItemNames.Longnail));
+            currentPlacement.Add(Finder.GetItem(ItemNames.Shaman_Stone));
+
+            if (!placements.ContainsKey(Salubra_Expensive))
+            {
+                currentPlacement = Finder.GetLocation(Salubra_Expensive).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Salubra_Expensive];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Quick_Focus));
+            currentPlacement.Add(Finder.GetItem(ItemNames.Salubras_Blessing));
+
+            // Iselda charms
+            if (!placements.ContainsKey(Iselda_Medium))
+            {
+                currentPlacement = Finder.GetLocation(Iselda_Medium).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Iselda_Medium];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Wayward_Compass));
+
+            // Sly charms.
+            if (!placements.ContainsKey(Sly_Cheap))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Cheap).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Cheap];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Stalwart_Shell));
+
+            if (!placements.ContainsKey(Sly_Medium))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Medium).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Medium];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Gathering_Swarm));
+
+            if (!placements.ContainsKey(Sly_Key_Medium))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Key_Medium).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Key_Medium];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Heavy_Blow));
+            currentPlacement.Add(Finder.GetItem(ItemNames.Sprintmaster));
+
+            // Leg eater
+            if (!placements.ContainsKey(Leg_Eater_Cheap))
+            {
+                currentPlacement = Finder.GetLocation(Leg_Eater_Cheap).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Leg_Eater_Cheap];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Heart_Repair));
+            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Greed_Repair));
+
+            if (!placements.ContainsKey(Leg_Eater_Medium))
+            {
+                currentPlacement = Finder.GetLocation(Leg_Eater_Medium).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Leg_Eater_Medium];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Heart));
+            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Greed));
+            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Strength_Repair));
+
+            if (!placements.ContainsKey(Leg_Eater_Expensive))
+            {
+                currentPlacement = Finder.GetLocation(Leg_Eater_Expensive).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Leg_Eater_Expensive];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Strength));
+        }
+
+        if (RandomizerMod.RandomizerMod.RS.GenerationSettings.MiscSettings.SalubraNotches == SalubraNotchesSetting.Vanilla)
+        {
+            AbstractPlacement currentPlacement;
+
+            // Salubra charms.
+            if (!placements.ContainsKey(Salubra_Charms_Cheap))
+            {
+                currentPlacement = Finder.GetLocation(Salubra_Charms_Cheap).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Salubra_Charms_Medium];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Charm_Notch));
+
+            if (!placements.ContainsKey(Salubra_Charms_Medium))
+            {
+                currentPlacement = Finder.GetLocation(Salubra_Charms_Medium).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Salubra_Charms_Medium];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Charm_Notch));
+
+            if (!placements.ContainsKey(Salubra_Charms_Expensive))
+            {
+                currentPlacement = Finder.GetLocation(Salubra_Charms_Expensive).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Salubra_Charms_Expensive];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Charm_Notch));
+
+            if (!placements.ContainsKey(Salubra_Charms_Extreme_Valuable))
+            {
+                currentPlacement = Finder.GetLocation(Salubra_Charms_Extreme_Valuable).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Salubra_Charms_Extreme_Valuable];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Charm_Notch));
+        }
+
+        if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Keys)
+        {
+            AbstractPlacement currentPlacement;
+
+            if (!placements.ContainsKey(Sly_Expensive) && placementsToAdd.Select(x => x.Name).Contains(Sly_Expensive))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Expensive).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Expensive];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Simple_Key));
+
+            if (!placements.ContainsKey(Sly_Key_Expensive) && placementsToAdd.Select(x => x.Name).Contains(Sly_Key_Expensive))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Key_Expensive).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Expensive];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Elegant_Key));
+        }
+
+        if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.MaskShards)
+        {
+            AbstractPlacement currentPlacement;
+            
+            if (!placements.ContainsKey(Sly_Cheap) && placementsToAdd.Select(x => x.Name).Contains(Sly_Cheap))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Cheap).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Cheap];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Mask_Shard));
+
+            if (!placements.ContainsKey(Sly_Medium) && placementsToAdd.Select(x => x.Name).Contains(Sly_Medium))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Medium).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Medium];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Mask_Shard));
+
+            if (!placements.ContainsKey(Sly_Key_Expensive) && placementsToAdd.Select(x => x.Name).Contains(Sly_Key_Expensive))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Key_Expensive).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Key_Expensive];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Mask_Shard));
+
+            if (!placements.ContainsKey(Sly_Key_Extreme_Valuable) && placementsToAdd.Select(x => x.Name).Contains(Sly_Key_Extreme_Valuable))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Key_Extreme_Valuable).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Key_Extreme_Valuable];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Mask_Shard));
+        }
+
+        if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.VesselFragments)
+        {
+            AbstractPlacement currentPlacement;
+
+            if (!placements.ContainsKey(Sly_Expensive) && placementsToAdd.Select(x => x.Name).Contains(Sly_Expensive))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Expensive).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Expensive];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Vessel_Fragment));
+
+            if (!placements.ContainsKey(Sly_Key_Expensive) && placementsToAdd.Select(x => x.Name).Contains(Sly_Key_Expensive))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Key_Expensive).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Key_Expensive];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Vessel_Fragment));
+        }
+
+        if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Skills)
+        {
+            AbstractPlacement currentPlacement;
+
+            if (!placements.ContainsKey(Sly_Extreme_Valuable) && placementsToAdd.Select(x => x.Name).Contains(Sly_Key_Extreme_Valuable))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Extreme_Valuable).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Extreme_Valuable];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Lumafly_Lantern));
+        }
+
+        if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.RancidEggs)
+        {
+            AbstractPlacement currentPlacement;
+
+            if (!placements.ContainsKey(Sly_Cheap) && placementsToAdd.Select(x => x.Name).Contains(Sly_Cheap))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Cheap).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Cheap];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Rancid_Egg));
+        }
+
+        if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Maps)
+        {
+            AbstractPlacement currentPlacement;
+
+            if (!placements.ContainsKey(Sly_Cheap) && placementsToAdd.Select(x => x.Name).Contains(Sly_Cheap))
+            {
+                currentPlacement = Finder.GetLocation(Sly_Cheap).Wrap();
+                placementsToAdd.Add(currentPlacement);
+            }
+            else
+                currentPlacement = placements[Sly_Cheap];
+            currentPlacement.Add(Finder.GetItem(ItemNames.Quill));
+        }
+
+        if (placementsToAdd.Any())
+            ItemChangerMod.AddPlacements(placementsToAdd);
+    }
+
+    private static IEnumerator WaitForHC()
+    {
+        yield return new WaitUntil(() => HeroController.instance != null);
+        CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
+        if (module.CurseQueue.Any())
+            CurseManager.Handler.StartCoroutine(module.WaitForControl());
+    }
 }

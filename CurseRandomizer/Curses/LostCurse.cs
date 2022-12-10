@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using HutongGames.PlayMaker;
+using System;
+using System.Collections.Generic;
 
 namespace CurseRandomizer.Curses;
 
@@ -40,6 +41,21 @@ internal class LostCurse : Curse
         
         PlayerData.instance.DecrementInt(rolledConsumable);
         if (rolledConsumable == "charmSlots")
+        {
             HeroController.instance.CharmUpdate();
+            PlayMakerFSM playMakerFSM = PlayMakerFSM.FindFsmOnGameObject(FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value, "Display");
+            playMakerFSM.FsmVariables.GetFsmInt("Convo Amount").Value = 1;
+            playMakerFSM.FsmVariables.GetFsmString("Convo Title").Value = "CR_Fool_Notch";
+            playMakerFSM.SendEvent("DISPLAY ENEMY DREAM");
+        }
+        else
+        {
+            PlayMakerFSM playMakerFSM = PlayMakerFSM.FindFsmOnGameObject(FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value, "Display");
+            playMakerFSM.FsmVariables.GetFsmInt("Convo Amount").Value = 1;
+            playMakerFSM.FsmVariables.GetFsmString("Convo Title").Value = "CR_Fool_Relic";
+            playMakerFSM.SendEvent("DISPLAY ENEMY DREAM");
+        }
     }
+
+    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 11));
 }

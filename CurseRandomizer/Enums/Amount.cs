@@ -3,27 +3,27 @@
 public enum Amount
 {
     /// <summary>
-    /// Up to 5 will be placed.
+    /// 1 to 3% will be cursed items.
     /// </summary>
     Few,
 
     /// <summary>
-    /// Up to 10 will be placed.
+    /// 4 to 6% will be cursed items.
     /// </summary>
     Some,
 
     /// <summary>
-    /// Up to 15 will be placed.
+    /// 7 to 9% will be cursed items.
     /// </summary>
     Medium,
 
     /// <summary>
-    /// Up to 20 will be placed.
+    /// 10 to 12% will be cursed items.
     /// </summary>
     Many,
 
     /// <summary>
-    /// Up to 30 will be placed.
+    /// 13 to 15% will be cursed items.
     /// </summary>
     OhOh,
 

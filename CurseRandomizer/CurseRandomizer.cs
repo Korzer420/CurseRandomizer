@@ -2,6 +2,8 @@
 using CurseRandomizer.Randomizer.Settings;
 using CurseRandomizer.SaveManagment;
 using Modding;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CurseRandomizer;
 
@@ -31,6 +33,19 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
     {
         if (key == "Curse_Randomizer_Fool_1")
             orig = "FOOL";
+        else if (key == "CR_Fool_Notch_1")
+            orig = "FOOL (You lost a charm notch)";
+        else if (key == "CR_Fool_Relic_1")
+            orig = "FOOL (You lost a relic)";
+        else if (key == "Curse_Randomizer_Remove_Darkness_1")
+            orig = "The curse of darkness vanished";
+        else if (key == "Curse_Randomizer_Remove_Omen_1")
+            orig = "The omen has been vanished";
+        else if (key.StartsWith("Curse_Randomizer_Omen_Affect_"))
+        {
+            key = key.Substring("Curse_Randomizer_Omen_Affect_".Length);
+            orig = $"The curse of <color={Curse.TextColor}>{ key.Split(new string[] {"_1"}, System.StringSplitOptions.RemoveEmptyEntries)[0]}</color> was layed upon you!";
+        }    
         return orig;
     }
 
@@ -42,11 +57,10 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
     {
         try
         {
-            CurseManager.ParseSaveData(saveData?.CurseData);
-            CurseRandomizer.Instance.Log("Save data");
+            Log("Load local data");
             if (saveData == null)
                 return;
-            CurseRandomizer.Instance.Log("Start geo is: "+saveData.StartGeo);
+            CurseManager.ParseSaveData(saveData.Data);
             ModManager.StartGeo = saveData.StartGeo;
             ModManager.CanAccessBronze = saveData.BronzeAccess;
             ModManager.CanAccessSilver = saveData.SilverAccess;
@@ -59,10 +73,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             ModManager.IsVesselCursed = saveData.VesselCursed;
             ModManager.IsColoCursed = saveData.ColoCursed;
             ModManager.IsDreamNailCursed = saveData.DreamNailCursed;
-            CurseManager.DefaultCurse = CurseManager.GetCurseByType(saveData.DefaultCurse);
-            foreach (Curse curse in CurseManager.GetCurses())
-                if (saveData.CurseCaps.ContainsKey(curse.Name))
-                    curse.Cap = saveData.CurseCaps[curse.Name];
+            CurseManager.DefaultCurse = CurseManager.GetCurseByName(saveData.DefaultCurse);
         }
         catch (System.Exception exception)
         {
@@ -74,10 +85,14 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public LocalSaveData OnSaveLocal()
     {
+        Log("Save local data");
+        Dictionary<string, CurseData> curseData = new();
+        foreach (Curse curse in CurseManager.GetCurses())
+            curseData.Add(curse.Name, curse.Data);
+        
         LocalSaveData saveData = new()
         {
-            CurseData = new(),
-            CurseCaps = new(),
+            Data = curseData,
             BronzeAccess = ModManager.CanAccessBronze,
             SilverAccess = ModManager.CanAccessSilver,
             GoldAccess = ModManager.CanAccessGold,
@@ -86,19 +101,12 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             SoulVessels = ModManager.SoulVessel,
             DreamNailFragments = ModManager.DreamUpgrade,
             UseCaps = CurseManager.UseCaps,
-            DefaultCurse = CurseManager.DefaultCurse == null ? CurseType.Pain :CurseManager.DefaultCurse.Type,
+            DefaultCurse = CurseManager.DefaultCurse == null ? "Pain" :CurseManager.DefaultCurse.Name,
             ColoCursed = ModManager.IsColoCursed,
             VesselCursed = ModManager.IsVesselCursed,
             WalletCursed = ModManager.IsWalletCursed,
             DreamNailCursed = ModManager.IsDreamNailCursed
         };
-        foreach (Curse curse in CurseManager.GetCurses())
-        {
-            object data = curse.ParseData();
-            if (data != null)
-                saveData.CurseData.Add(curse.Name, data);
-            saveData.CurseCaps.Add(curse.Name, curse.Cap);
-        }
 	    return saveData;
     }
 

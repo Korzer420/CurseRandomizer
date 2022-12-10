@@ -1,27 +1,28 @@
 ﻿using Modding;
+using System;
 using UnityEngine;
 
 namespace CurseRandomizer.Curses;
 
 internal class ThirstCurse : Curse
 {
-    public ThirstCurse() => ModHooks.SoulGainHook += ModHooks_SoulGainHook;
-    
-    private int ModHooks_SoulGainHook(int soulGain) => Mathf.Max(1, soulGain - Stacks);
-    
-    public int Stacks { get; set; }
+    #region Event handler
 
-    public override bool CanApplyCurse()
-    {
-        int cap = UseCap ? Cap : 1;
-        return 11 - Stacks > cap;
-    }
+    private int ModHooks_SoulGainHook(int soulGain) => Mathf.Max(1, soulGain - Data.CastedAmount);
 
-    public override void ApplyCurse() => Stacks++;
+    #endregion
 
-    public override object ParseData() => Stacks;
+    #region Control
 
-    public override void LoadData(object data) => Stacks = int.Parse(data.ToString());
+    public override void ApplyHooks() => ModHooks.SoulGainHook += ModHooks_SoulGainHook;
 
-    public override void ResetData() => Stacks = 0;
+    public override void Unhook() => ModHooks.SoulGainHook -= ModHooks_SoulGainHook;
+
+    public override bool CanApplyCurse() => 11 - Data.CastedAmount > (UseCap ? Cap : 1);
+
+    public override void ApplyCurse() { }
+
+    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 10)); 
+
+    #endregion
 }
