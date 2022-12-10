@@ -16,6 +16,8 @@ using System.Reflection;
 using UnityEngine;
 using static RandomizerMod.Settings.MiscSettings;
 using static CurseRandomizer.ItemData.WalletItem;
+using RandomizerMod.RC;
+using ItemChanger.Tags;
 
 namespace CurseRandomizer.Manager;
 
@@ -24,6 +26,12 @@ namespace CurseRandomizer.Manager;
 /// </summary>
 internal static class ModManager
 {
+    #region Members
+
+    private static List<AbstractPlacement> _placementsToAdd = new();
+
+    #endregion
+
     static ModManager()
     {
         On.UIManager.StartNewGame += UIManager_StartNewGame;
@@ -499,287 +507,143 @@ internal static class ModManager
 
     private static void AddShopDefaults()
     {
-        Dictionary<string, AbstractPlacement> placements = ItemChanger.Internal.Ref.Settings.Placements;
-        List<AbstractPlacement> placementsToAdd = new();
+        _placementsToAdd.Clear();
+
         if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Charms)
         {
-            AbstractPlacement currentPlacement;
-
             // Salubra charms.
-            if (!placements.ContainsKey(Salubra_Cheap))
-            {
-                currentPlacement = Finder.GetLocation(Salubra_Cheap).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Salubra_Cheap];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Steady_Body));
-
-            if (!placements.ContainsKey(Salubra_Medium))
-            {
-                currentPlacement = Finder.GetLocation(Salubra_Medium).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Salubra_Medium];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Lifeblood_Heart));
-            currentPlacement.Add(Finder.GetItem(ItemNames.Longnail));
-            currentPlacement.Add(Finder.GetItem(ItemNames.Shaman_Stone));
-
-            if (!placements.ContainsKey(Salubra_Expensive))
-            {
-                currentPlacement = Finder.GetLocation(Salubra_Expensive).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Salubra_Expensive];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Quick_Focus));
-            currentPlacement.Add(Finder.GetItem(ItemNames.Salubras_Blessing));
+            AddDefaultItemToShop(Salubra_Cheap, ItemNames.Steady_Body, 150);
+            AddDefaultItemToShop(Salubra_Medium, ItemNames.Lifeblood_Heart, 250);
+            AddDefaultItemToShop(Salubra_Medium, ItemNames.Longnail, 300);
+            AddDefaultItemToShop(Salubra_Medium, ItemNames.Shaman_Stone, 220);
+            AddDefaultItemToShop(Salubra_Expensive, ItemNames.Quick_Focus, 800);
+            AddDefaultItemToShop(Salubra_Expensive, ItemNames.Salubras_Blessing, 800, 40);
 
             // Iselda charms
-            if (!placements.ContainsKey(Iselda_Medium))
-            {
-                currentPlacement = Finder.GetLocation(Iselda_Medium).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Iselda_Medium];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Wayward_Compass));
+            AddDefaultItemToShop(Iselda_Medium, ItemNames.Wayward_Compass, 220);
 
             // Sly charms.
-            if (!placements.ContainsKey(Sly_Cheap))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Cheap).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Cheap];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Stalwart_Shell));
-
-            if (!placements.ContainsKey(Sly_Medium))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Medium).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Medium];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Gathering_Swarm));
-
-            if (!placements.ContainsKey(Sly_Key_Medium))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Key_Medium).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Key_Medium];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Heavy_Blow));
-            currentPlacement.Add(Finder.GetItem(ItemNames.Sprintmaster));
+            AddDefaultItemToShop(Sly_Cheap, ItemNames.Stalwart_Shell, 200);
+            AddDefaultItemToShop(Sly_Medium, ItemNames.Gathering_Swarm, 300);
+            AddDefaultItemToShop(Sly_Key_Medium, ItemNames.Heavy_Blow, 369);
+            AddDefaultItemToShop(Sly_Key_Medium, ItemNames.Sprintmaster, 420);
 
             // Leg eater
-            if (!placements.ContainsKey(Leg_Eater_Cheap))
+            AddDefaultItemToShop(Leg_Eater_Medium, ItemNames.Fragile_Heart, 350);
+            AddDefaultItemToShop(Leg_Eater_Medium, ItemNames.Fragile_Greed, 250);
+            AddDefaultItemToShop(Leg_Eater_Expensive, ItemNames.Fragile_Strength, 600);
+
+            // Repairable charms
+            Dictionary<string, AbstractPlacement> placements = ItemChanger.Internal.Ref.Settings.Placements;
+            AbstractPlacement currentPlacement;
+            AbstractItem currentItem = Finder.GetItem(ItemNames.Fragile_Heart_Repair);
+            currentItem.tags ??= new();
+            currentItem.AddTag(new CostTag() { Cost = new GeoCost(200)});
+            currentItem.AddTag(new PDBoolShopReqTag() { reqVal = true, fieldName = nameof(PlayerData.instance.brokenCharm_23) });
+            if (!placements.ContainsKey(Leg_Eater_Cheap) && !_placementsToAdd.Select(x => x.Name).Contains(Leg_Eater_Cheap))
             {
                 currentPlacement = Finder.GetLocation(Leg_Eater_Cheap).Wrap();
-                placementsToAdd.Add(currentPlacement);
+                _placementsToAdd.Add(currentPlacement);
             }
+            else if (!placements.ContainsKey(Leg_Eater_Cheap))
+                currentPlacement = _placementsToAdd.First(x => x.Name == Leg_Eater_Cheap);
             else
                 currentPlacement = placements[Leg_Eater_Cheap];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Heart_Repair));
-            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Greed_Repair));
+            currentPlacement.Add(currentItem);
 
-            if (!placements.ContainsKey(Leg_Eater_Medium))
+            // Greed
+            currentItem = Finder.GetItem(ItemNames.Fragile_Greed_Repair);
+            currentItem.tags ??= new();
+            currentItem.AddTag(new CostTag() { Cost = new GeoCost(150) });
+            currentItem.AddTag(new PDBoolShopReqTag() { reqVal = true, fieldName = nameof(PlayerData.instance.brokenCharm_24) });
+            currentPlacement.Add(currentItem);
+
+            // Strength
+            currentItem = Finder.GetItem(ItemNames.Fragile_Strength_Repair);
+            currentItem.tags ??= new();
+            currentItem.AddTag(new CostTag() { Cost = new GeoCost(350) });
+            currentItem.AddTag(new PDBoolShopReqTag() { reqVal = true, fieldName = nameof(PlayerData.instance.brokenCharm_25) });
+            if (!placements.ContainsKey(Leg_Eater_Medium) && !_placementsToAdd.Select(x => x.Name).Contains(Leg_Eater_Medium))
             {
                 currentPlacement = Finder.GetLocation(Leg_Eater_Medium).Wrap();
-                placementsToAdd.Add(currentPlacement);
+                _placementsToAdd.Add(currentPlacement);
             }
+            else if (!placements.ContainsKey(Leg_Eater_Medium))
+                currentPlacement = _placementsToAdd.First(x => x.Name == Leg_Eater_Medium);
             else
                 currentPlacement = placements[Leg_Eater_Medium];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Heart));
-            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Greed));
-            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Strength_Repair));
-
-            if (!placements.ContainsKey(Leg_Eater_Expensive))
-            {
-                currentPlacement = Finder.GetLocation(Leg_Eater_Expensive).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Leg_Eater_Expensive];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Fragile_Strength));
+            currentPlacement.Add(currentItem);
         }
 
         if (RandomizerMod.RandomizerMod.RS.GenerationSettings.MiscSettings.SalubraNotches == SalubraNotchesSetting.Vanilla)
         {
-            AbstractPlacement currentPlacement;
-
             // Salubra charms.
-            if (!placements.ContainsKey(Salubra_Charms_Cheap))
-            {
-                currentPlacement = Finder.GetLocation(Salubra_Charms_Cheap).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Salubra_Charms_Medium];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Charm_Notch));
-
-            if (!placements.ContainsKey(Salubra_Charms_Medium))
-            {
-                currentPlacement = Finder.GetLocation(Salubra_Charms_Medium).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Salubra_Charms_Medium];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Charm_Notch));
-
-            if (!placements.ContainsKey(Salubra_Charms_Expensive))
-            {
-                currentPlacement = Finder.GetLocation(Salubra_Charms_Expensive).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Salubra_Charms_Expensive];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Charm_Notch));
-
-            if (!placements.ContainsKey(Salubra_Charms_Extreme_Valuable))
-            {
-                currentPlacement = Finder.GetLocation(Salubra_Charms_Extreme_Valuable).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Salubra_Charms_Extreme_Valuable];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Charm_Notch));
+            AddDefaultItemToShop(Salubra_Cheap, ItemNames.Charm_Notch, 150, 5);
+            AddDefaultItemToShop(Salubra_Medium, ItemNames.Charm_Notch, 500, 10);
+            AddDefaultItemToShop(Salubra_Expensive, ItemNames.Charm_Notch, 900, 18);
+            AddDefaultItemToShop(Salubra_Extreme_Valuable, ItemNames.Charm_Notch, 1400, 25);
         }
 
         if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Keys)
         {
-            AbstractPlacement currentPlacement;
-
-            if (!placements.ContainsKey(Sly_Expensive) && placementsToAdd.Select(x => x.Name).Contains(Sly_Expensive))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Expensive).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Expensive];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Simple_Key));
-
-            if (!placements.ContainsKey(Sly_Key_Expensive) && placementsToAdd.Select(x => x.Name).Contains(Sly_Key_Expensive))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Key_Expensive).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Expensive];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Elegant_Key));
+            AddDefaultItemToShop(Sly_Expensive, ItemNames.Simple_Key, 950);
+            AddDefaultItemToShop(Sly_Key_Expensive, ItemNames.Elegant_Key, 800);
         }
 
         if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.MaskShards)
         {
-            AbstractPlacement currentPlacement;
-            
-            if (!placements.ContainsKey(Sly_Cheap) && placementsToAdd.Select(x => x.Name).Contains(Sly_Cheap))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Cheap).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Cheap];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Mask_Shard));
-
-            if (!placements.ContainsKey(Sly_Medium) && placementsToAdd.Select(x => x.Name).Contains(Sly_Medium))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Medium).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Medium];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Mask_Shard));
-
-            if (!placements.ContainsKey(Sly_Key_Expensive) && placementsToAdd.Select(x => x.Name).Contains(Sly_Key_Expensive))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Key_Expensive).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Key_Expensive];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Mask_Shard));
-
-            if (!placements.ContainsKey(Sly_Key_Extreme_Valuable) && placementsToAdd.Select(x => x.Name).Contains(Sly_Key_Extreme_Valuable))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Key_Extreme_Valuable).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Key_Extreme_Valuable];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Mask_Shard));
+            AddDefaultItemToShop(Sly_Cheap, ItemNames.Mask_Shard, 150);
+            AddDefaultItemToShop(Sly_Medium, ItemNames.Mask_Shard, 500);
+            AddDefaultItemToShop(Sly_Key_Expensive, ItemNames.Mask_Shard, 800);
+            AddDefaultItemToShop(Sly_Key_Extreme_Valuable, ItemNames.Mask_Shard, 1500);
         }
 
         if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.VesselFragments)
         {
-            AbstractPlacement currentPlacement;
-
-            if (!placements.ContainsKey(Sly_Expensive) && placementsToAdd.Select(x => x.Name).Contains(Sly_Expensive))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Expensive).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Expensive];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Vessel_Fragment));
-
-            if (!placements.ContainsKey(Sly_Key_Expensive) && placementsToAdd.Select(x => x.Name).Contains(Sly_Key_Expensive))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Key_Expensive).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Key_Expensive];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Vessel_Fragment));
+            AddDefaultItemToShop(Sly_Expensive, ItemNames.Vessel_Fragment, 550);
+            AddDefaultItemToShop(Sly_Key_Expensive, ItemNames.Vessel_Fragment, 900);
         }
 
         if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Skills)
-        {
-            AbstractPlacement currentPlacement;
-
-            if (!placements.ContainsKey(Sly_Extreme_Valuable) && placementsToAdd.Select(x => x.Name).Contains(Sly_Key_Extreme_Valuable))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Extreme_Valuable).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Extreme_Valuable];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Lumafly_Lantern));
-        }
+            AddDefaultItemToShop(Sly_Extreme_Valuable, ItemNames.Lumafly_Lantern, 1800);
 
         if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.RancidEggs)
-        {
-            AbstractPlacement currentPlacement;
-
-            if (!placements.ContainsKey(Sly_Cheap) && placementsToAdd.Select(x => x.Name).Contains(Sly_Cheap))
-            {
-                currentPlacement = Finder.GetLocation(Sly_Cheap).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Cheap];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Rancid_Egg));
-        }
+            AddDefaultItemToShop(Sly_Cheap, ItemNames.Rancid_Egg, 69);
 
         if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Maps)
-        {
-            AbstractPlacement currentPlacement;
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Quill, 120);
 
-            if (!placements.ContainsKey(Sly_Cheap) && placementsToAdd.Select(x => x.Name).Contains(Sly_Cheap))
+        if (_placementsToAdd.Any())
+            ItemChangerMod.AddPlacements(_placementsToAdd);
+    }
+
+    private static void AddDefaultItemToShop(string locationName, string itemName, int geoCost, int charmCost = -1)
+    {
+        Dictionary<string, AbstractPlacement> placements = ItemChanger.Internal.Ref.Settings.Placements;
+        AbstractPlacement currentPlacement;
+        AbstractItem currentItem = Finder.GetItem(itemName);
+        currentItem.tags ??= new();
+        if (charmCost == -1)
+            currentItem.AddTag(new CostTag() { Cost = new GeoCost(geoCost) });
+
+        else
+            currentItem.AddTag(new CostTag()
             {
-                currentPlacement = Finder.GetLocation(Sly_Cheap).Wrap();
-                placementsToAdd.Add(currentPlacement);
-            }
-            else
-                currentPlacement = placements[Sly_Cheap];
-            currentPlacement.Add(Finder.GetItem(ItemNames.Quill));
-        }
+                Cost = new MultiCost(
+                new GeoCost(geoCost),
+                new PDIntCost(charmCost, nameof(PlayerData.instance.charmsOwned), $"You need to have {charmCost} charms to buy this."))
+            });
 
-        if (placementsToAdd.Any())
-            ItemChangerMod.AddPlacements(placementsToAdd);
+        if (!placements.ContainsKey(locationName) && !_placementsToAdd.Select(x => x.Name).Contains(locationName))
+        {
+            currentPlacement = Finder.GetLocation(locationName).Wrap();
+            _placementsToAdd.Add(currentPlacement);
+        }
+        else if (!placements.ContainsKey(locationName))
+            currentPlacement = _placementsToAdd.First(x => x.Name == locationName);
+        else
+            currentPlacement = placements[locationName];
+        currentPlacement.Add(currentItem);
     }
 
     private static IEnumerator WaitForHC()

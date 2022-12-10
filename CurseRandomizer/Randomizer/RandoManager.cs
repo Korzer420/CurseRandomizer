@@ -732,19 +732,19 @@ internal static class RandoManager
 
             // Leg eater charms.
             builder.AddToVanilla(ItemNames.Fragile_Heart, "Leg_Eater_Medium"); // 350
-            builder.AddToVanilla(ItemNames.Fragile_Heart_Repair, "Leg_Eater_Cheap"); // 200
+            //builder.AddToVanilla(ItemNames.Fragile_Heart_Repair, "Leg_Eater_Cheap"); // 200
             builder.AddToVanilla(ItemNames.Fragile_Greed, "Leg_Eater_Medium"); //250
-            builder.AddToVanilla(ItemNames.Fragile_Greed_Repair, "Leg_Eater_Cheap"); // 150
+            //builder.AddToVanilla(ItemNames.Fragile_Greed_Repair, "Leg_Eater_Cheap"); // 150
             builder.AddToVanilla(ItemNames.Fragile_Strength, "Leg_Eater_Expensive"); // 600
-            builder.AddToVanilla(ItemNames.Fragile_Strength_Repair, "Leg_Eater_Medium"); // 350
+            //builder.AddToVanilla(ItemNames.Fragile_Strength_Repair, "Leg_Eater_Medium"); // 350
         }
 
         if (builder.gs.MiscSettings.SalubraNotches == SalubraNotchesSetting.Vanilla)
         {
-            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_(Requires_Charms)_Cheap");
-            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_(Requires_Charms)_Medium");
-            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_(Requires_Charms)_Expensive");
-            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_(Requires_Charms)_Extreme_Valuable");
+            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_Cheap");
+            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_Medium");
+            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_Expensive");
+            builder.AddToVanilla(ItemNames.Charm_Notch, "Salubra_Extreme_Valuable");
         }
 
         if (!builder.gs.PoolSettings.Keys)
