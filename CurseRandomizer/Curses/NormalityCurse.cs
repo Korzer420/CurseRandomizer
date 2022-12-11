@@ -13,7 +13,7 @@ internal class NormalityCurse : Curse
 
     public NormalityCurse()
     {
-        Data.Data = new List<int>();
+        Data.AdditionalData = new List<int>();
     }
 
     #endregion
@@ -24,9 +24,9 @@ internal class NormalityCurse : Curse
     { 
         get 
         {
-            if (Data.Data == null)
-                Data.Data = new List<int>();
-            return Data.Data as List<int>;
+            if (Data.AdditionalData == null)
+                Data.AdditionalData = new List<int>();
+            return Data.AdditionalData as List<int>;
         }
     }
 

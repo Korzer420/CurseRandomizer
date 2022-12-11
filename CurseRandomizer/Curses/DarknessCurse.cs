@@ -28,7 +28,7 @@ internal class DarknessCurse : Curse
 
     public DarknessCurse()
     {
-        Data.Data = new List<string>() { "Inactive" };
+        Data.AdditionalData = new List<string>() { "Inactive" };
     }
 
     #endregion
@@ -41,9 +41,9 @@ internal class DarknessCurse : Curse
     { 
         get
         {
-            if (Data.Data == null)
-                Data.Data = new List<string>() { "Inactive" };
-            return Data.Data as List<string>;
+            if (Data.AdditionalData == null)
+                Data.AdditionalData = new List<string>() { "Inactive" };
+            return Data.AdditionalData as List<string>;
         }
     }
 

@@ -3,12 +3,14 @@ using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer;
 using CurseRandomizer.Randomizer.Settings;
 using FStats;
+using HutongGames.PlayMaker.Actions;
 using ItemChanger;
 using ItemChanger.Extensions;
 using ItemChanger.Locations;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
 using Modding;
+using RandomizerCore;
 using RandomizerCore.Logic;
 using RandomizerCore.LogicItems;
 using RandomizerCore.StringLogic;
@@ -22,6 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using Unity.Collections.LowLevel.Unsafe;
 using static RandomizerMod.RC.RequestBuilder;
 using static RandomizerMod.Settings.MiscSettings;
 
@@ -39,7 +43,7 @@ internal static class RandoManager
 
     #endregion
 
-    private static List<AbstractItem> _mimicableItems = new();
+    private static List<(string, float)> _mimicableItems = new();
     private static List<Curse> _availableCurses = new();
     private static Random _generator;
 
@@ -51,7 +55,7 @@ internal static class RandoManager
     {
         Finder.DefineCustomItem(new CurseItem()
         {
-            name = "Fool_Item",
+            name = CurseItem.CursePrefix,
             tags = new()
         });
 
@@ -67,7 +71,7 @@ internal static class RandoManager
                      Properties = new()
                      {
                          {"MimicNames", new string[] {"Wallet", "Moneybag", "Ge0 Wallet"} },
-                         {"CanMimic",  new InternalBoolCheck(){ ItemNumber = 0 } }
+                         {"CanMimic",  new BoxedBool(CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet) }
                      }
                 },
                 new InteropTag()
@@ -121,7 +125,7 @@ internal static class RandoManager
                      Properties = new()
                      {
                          {"MimicNames", new string[] {"Colo 1 Access", "Warrior Trial Ticket", "Bronce Trial Ticket"} },
-                         {"CanMimic", new InternalBoolCheck() { ItemNumber = 1 } }
+                         {"CanMimic", new BoxedBool(CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo) }
                      }
                 },
                 new InteropTag()
@@ -154,7 +158,7 @@ internal static class RandoManager
                      Properties = new()
                      {
                          {"MimicNames", new string[] {"Colo 2 Access", "Silver Trial Pass", "Silwer Trial Ticket"} },
-                         {"CanMimic", new InternalBoolCheck() { ItemNumber = 1 } }
+                         {"CanMimic", new BoxedBool(CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo) }
                      }
                 },
                 new InteropTag()
@@ -187,7 +191,7 @@ internal static class RandoManager
                      Properties = new()
                      {
                          {"MimicNames", new string[] {"Colo 3 Access", "Fool Trial Ticket", "Golt Trial Ticket"} },
-                         {"CanMimic", new InternalBoolCheck() { ItemNumber = 1 } }
+                         {"CanMimic", new BoxedBool(CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo) }
                      }
                 },
                 new InteropTag()
@@ -214,7 +218,7 @@ internal static class RandoManager
                      Properties = new()
                      {
                          {"MimicNames", new string[] {"Dreem Nail Fragment", "Dream Nayl Fragment", "Dream Nai1 Fragment"} },
-                         {"CanMimic", new InternalBoolCheck() { ItemNumber = 2 } }
+                         {"CanMimic", new BoxedBool(CurseRandomizer.Instance.Settings.GeneralSettings.CursedDreamNail) }
                      }
                 },
                 new InteropTag()
@@ -239,6 +243,7 @@ internal static class RandoManager
     internal static void HookRando()
     {
         DefineItemChangerData();
+        OnUpdate.Subscribe(-400f, CreateMatcher);
         OnUpdate.Subscribe(40f, ApplySettings);
         OnUpdate.Subscribe(9999f, ApplyCurses);
         Finder.GetItemOverride += TranformCurseItems;
@@ -339,13 +344,18 @@ internal static class RandoManager
         AbstractItem itemToMimic = null;
         try
         {
-            if (requestedItemArgs.ItemName.StartsWith("Fool_Item") && CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
+            if (requestedItemArgs.ItemName.StartsWith(CurseItem.CursePrefix) && CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
             {
-                itemToMimic = _mimicableItems[_generator.Next(0, _mimicableItems.Count)];
+                itemToMimic = Finder.GetItem(requestedItemArgs.ItemName.Substring(CurseItem.CursePrefix.Length));
+                if (itemToMimic == null)
+                {
+                    CurseRandomizer.Instance.LogError("Tried to replicate unknown item: " + requestedItemArgs.ItemName);
+                    return;
+                }
                 CurseRandomizer.Instance.LogDebug("Try to replicate: " + itemToMimic.name);
                 CurseItem curseItem = new()
                 {
-                    name = requestedItemArgs.ItemName.StartsWith("Fool_Item_") ? requestedItemArgs.ItemName : "Fake_" + itemToMimic.name,
+                    name = requestedItemArgs.ItemName,
                     UIDef = itemToMimic.GetResolvedUIDef().Clone()
                 };
                 if (curseItem.UIDef is BigUIDef bigScreen)
@@ -383,7 +393,7 @@ internal static class RandoManager
                             Properties = new()
                             {
                                 {"IsMajorItem", true },
-                                {"MajorItemName", "Fake_"+itemToMimic.name }
+                                {"MajorItemName", requestedItemArgs.ItemName }
                             }
                         });
                 }
@@ -399,6 +409,46 @@ internal static class RandoManager
         {
             CurseRandomizer.Instance.LogError($"Couldn't transform curse item: {itemToMimic?.name}" + exception.StackTrace);
         }
+    }
+
+    /// <summary>
+    /// Managed the logic items for curse items.
+    /// </summary>
+    /// <param name="builder"></param>
+    private static void CreateMatcher(RequestBuilder builder)
+    {
+        bool TryMatch(string name, out ItemRequestInfo info)
+        {
+            if (name.StartsWith(CurseItem.CursePrefix))
+            {
+                string innerItem = name.Substring(CurseItem.CursePrefix.Length);
+                info = new ItemRequestInfo
+                {
+                    randoItemCreator = factory => new RandoModItem() { item = new EmptyItem(name) },
+                    getItemDef = () => builder.TryGetItemDef(innerItem, out ItemDef def) ? def : null,
+                };
+                return true;
+            }
+            else
+            {
+                info = default;
+                return false;
+            }
+        }
+        builder.ItemMatchers.Add(TryMatch);
+
+        builder.OnGetGroupFor.Subscribe(150f, MimickGroupResolve);
+    }
+
+    private static bool MimickGroupResolve(RequestBuilder builder, string item, ElementType elementType, out GroupBuilder groupBuilder)
+    {
+        if ((elementType == ElementType.Item || elementType == ElementType.Unknown) && item.StartsWith(CurseItem.CursePrefix))
+        {
+            groupBuilder = builder.GetItemGroupFor(item.Substring(CurseItem.CursePrefix.Length));
+            return true;
+        }
+        groupBuilder = default;
+        return false;
     }
 
     /// <summary>
@@ -813,10 +863,8 @@ internal static class RandoManager
             builder.AddToVanilla(ItemNames.Vessel_Fragment, "Sly_(Key)_Expensive");
         }
 
-        if (!builder.gs.PoolSettings.Skills)
-        {
+        if (!builder.gs.PoolSettings.Keys)
             builder.AddToVanilla(ItemNames.Lumafly_Lantern, "Sly_Extreme_Valuable");
-        }
 
         if (!builder.gs.PoolSettings.RancidEggs)
             builder.AddToVanilla(ItemNames.Rancid_Egg, "Sly_Cheap");
@@ -843,12 +891,10 @@ internal static class RandoManager
         if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled || !CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
             return;
 
-        AddCustomMimics(builder.gs);
         // Get all items which can be removed.
+        // Also check the total amount of items.
         List<string> replacableItems = GetReplaceableItems(builder.gs);
-
         int totalItemCount = 0;
-        // Get all pools, which the items can be removed from.
         List<ItemGroupBuilder> availablePools = new();
         foreach (StageBuilder stage in builder.Stages)
             foreach (ItemGroupBuilder itemGroup in stage.Groups.Where(x => x is ItemGroupBuilder).Select(x => x as ItemGroupBuilder))
@@ -863,17 +909,21 @@ internal static class RandoManager
                         break;
                     }
             }
+
+        // Check all curses that can be used.
         _availableCurses.Clear();
         CurseManager.DefaultCurse = null;
         foreach (CurseSettings settings in CurseRandomizer.Instance.Settings.CurseSettings)
-            if (CurseManager.GetCurseByName(settings.Name) is Curse curse && settings.Active)
+            if (CurseManager.GetCurseByName(settings.Name) is Curse curse)
             {
                 if (curse.Type != CurseType.Custom || CurseRandomizer.Instance.Settings.CurseControlSettings.CustomCurses)
                 {
+                    curse.Data.Active = settings.Active;
                     curse.Data.Cap = settings.Cap;
-                    _availableCurses.Add(curse);
+                    if (settings.Active)
+                        _availableCurses.Add(curse);
                 }
-                if (settings.Name == CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse)
+                if (settings.Name == CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse && settings.Active)
                     CurseManager.DefaultCurse = curse;
             }
 
@@ -882,9 +932,10 @@ internal static class RandoManager
             throw new Exception("No curses available to place.");
 
         // If for some reason the default curse is not active, we just select the curse of pain.
-        if (CurseManager.DefaultCurse == null)
-            CurseManager.DefaultCurse = CurseManager.GetCurseByType(CurseType.Pain);
+        CurseManager.DefaultCurse ??= CurseManager.GetCurseByType(CurseType.Pain);
 
+        CurseRandomizer.Instance.LogDebug("Total amount of items is: " + totalItemCount);
+        // Get the amount of curses to be placed.
         int amount = CurseRandomizer.Instance.Settings.CurseControlSettings.CurseAmount switch
         {
             Amount.Few => builder.rng.Next(Math.Min(3, totalItemCount / 100 * 1), Math.Max(5, totalItemCount / 100 * 3)),
@@ -895,6 +946,13 @@ internal static class RandoManager
             Amount.Custom => CurseRandomizer.Instance.Settings.CurseControlSettings.CurseItems,
             _ => 0
         };
+        CurseRandomizer.Instance.LogDebug("Amount of curses is: " + amount);
+
+        AddMimickableItems(builder);
+
+        // Since system random doesn't support float values (above 1) we manipulate the random seed of unity to ensure all players have the same mimics.
+        UnityEngine.Random.State state = UnityEngine.Random.state;
+        UnityEngine.Random.InitState(builder.gs.Seed);
 
         if (CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod != RequestMethod.Add)
             // Remove the items.
@@ -921,26 +979,27 @@ internal static class RandoManager
                 ReplacedItems.Add(pickedItem);
                 if (availableItems.Length == 0)
                     availablePools.Remove(pickedGroup);
-                if (pickedItem == ItemNames.Mask_Shard)
-                    builder.AddItemByName("Fool_Item_Mocked_Shard");
-                else if (pickedItem == ItemNames.Double_Mask_Shard)
-                    builder.AddItemByName("Fool_Item_Two_Mocked_Shards");
-                else if (pickedItem == ItemNames.Full_Mask)
-                    builder.AddItemByName("Fool_Item_Mocked_Mask");
-                else
-                    builder.AddItemByName("Fool_Item");
+                string itemToMimic = RollMimic();
+                //if (pickedItem == ItemNames.Mask_Shard)
+                //    builder.AddItemByName("Fool_Item_Mocked_Shard");
+                //else if (pickedItem == ItemNames.Double_Mask_Shard)
+                //    builder.AddItemByName("Fool_Item_Two_Mocked_Shards");
+                //else if (pickedItem == ItemNames.Full_Mask)
+                //    builder.AddItemByName("Fool_Item_Mocked_Mask");
+                //else
+                builder.AddItemByName(CurseItem.CursePrefix + itemToMimic);
                 CurseRandomizer.Instance.LogDebug("Removed " + pickedItem + " for a curse.");
-                if (!availablePools.Any())
-                {
-                    CurseRandomizer.Instance.LogError("No pools available, couldn't place curses.");
-                    break;
-                }
             }
 
         if (amount > 0 && CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod != RequestMethod.ForceReplace)
-            builder.AddItemByName("Fool_Item", amount);
+            for (; amount > 0; amount--)
+                builder.AddItemByName(CurseItem.CursePrefix + RollMimic());
+
         else if (CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod == RequestMethod.ForceReplace && amount > 0)
             CurseRandomizer.Instance.LogWarn("Couldn't replace enough items to satisfy the selected amount. Disposed amount: " + amount);
+
+        // Reset the unity random state.
+        UnityEngine.Random.state = state;
     }
 
     /// <summary>
@@ -951,200 +1010,223 @@ internal static class RandoManager
     {
         if (settings.PoolSettings.Skills)
         {
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Monarch_Wings));
             // Claw
             if (settings.NoveltySettings.SplitClaw)
             {
-                _mimicableItems.Add(Finder.GetItem(ItemNames.Left_Mantis_Claw));
-                _mimicableItems.Add(Finder.GetItem(ItemNames.Right_Mantis_Claw));
+                _mimicableItems.Add(new(ItemNames.Left_Mantis_Claw, 1f));
+                _mimicableItems.Add(new(ItemNames.Right_Mantis_Claw, 1f));
             }
             else
-                _mimicableItems.Add(Finder.GetItem(ItemNames.Mantis_Claw));
+                _mimicableItems.Add(new(ItemNames.Mantis_Claw, 1f));
 
             // Dash
             if (settings.NoveltySettings.SplitCloak)
             {
-                _mimicableItems.Add(Finder.GetItem(ItemNames.Left_Mothwing_Cloak));
-                _mimicableItems.Add(Finder.GetItem(ItemNames.Right_Mothwing_Cloak));
+                _mimicableItems.Add(new(ItemNames.Left_Mothwing_Cloak, 1f));
+                _mimicableItems.Add(new(ItemNames.Right_Mothwing_Cloak, 1f));
             }
             else
-                _mimicableItems.Add(Finder.GetItem(ItemNames.Mothwing_Cloak));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Shade_Cloak));
+                _mimicableItems.Add(new(ItemNames.Mothwing_Cloak, 1f));
+            _mimicableItems.Add(new(ItemNames.Shade_Cloak, 1f));
 
             // Crystal Dash
             if (settings.NoveltySettings.SplitSuperdash)
             {
-                _mimicableItems.Add(Finder.GetItem(ItemNames.Left_Crystal_Heart));
-                _mimicableItems.Add(Finder.GetItem(ItemNames.Right_Crystal_Heart));
+                _mimicableItems.Add(new(ItemNames.Left_Crystal_Heart, 1f));
+                _mimicableItems.Add(new(ItemNames.Right_Crystal_Heart, 1f));
             }
             else
-                _mimicableItems.Add(Finder.GetItem(ItemNames.Crystal_Heart));
+                _mimicableItems.Add(new(ItemNames.Crystal_Heart, 1f));
 
             // Spells
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Howling_Wraiths));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Descending_Dark));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Vengeful_Spirit));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Shade_Soul));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Desolate_Dive));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Abyss_Shriek));
+            _mimicableItems.Add(new(ItemNames.Howling_Wraiths, 1f));
+            _mimicableItems.Add(new(ItemNames.Descending_Dark, 1f));
+            _mimicableItems.Add(new(ItemNames.Vengeful_Spirit, 1f));
+            _mimicableItems.Add(new(ItemNames.Shade_Soul, 1f));
+            _mimicableItems.Add(new(ItemNames.Desolate_Dive, 1f));
+            _mimicableItems.Add(new(ItemNames.Abyss_Shriek, 1f));
 
             // Nail arts
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Great_Slash));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Cyclone_Slash));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Dash_Slash));
+            _mimicableItems.Add(new(ItemNames.Great_Slash, 1f));
+            _mimicableItems.Add(new(ItemNames.Cyclone_Slash, 1f));
+            _mimicableItems.Add(new(ItemNames.Dash_Slash, 1f));
 
             // Misc
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Dream_Nail));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Dream_Gate));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Awoken_Dream_Nail));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Ismas_Tear));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Monarch_Wings));
+            _mimicableItems.Add(new(ItemNames.Dream_Nail, 1f));
+            _mimicableItems.Add(new(ItemNames.Dream_Gate, 1f));
+            _mimicableItems.Add(new(ItemNames.Awoken_Dream_Nail, 1f));
+            _mimicableItems.Add(new(ItemNames.Ismas_Tear, 1f));
+            _mimicableItems.Add(new(ItemNames.Monarch_Wings, 1f));
         }
 
         if (settings.PoolSettings.Keys)
         {
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Tram_Pass));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Simple_Key));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Elegant_Key));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Love_Key));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Kings_Brand));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Lumafly_Lantern));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.City_Crest));
+            _mimicableItems.Add(new(ItemNames.Tram_Pass, 1f));
+            _mimicableItems.Add(new(ItemNames.Simple_Key, .5f));
+            _mimicableItems.Add(new(ItemNames.Elegant_Key, 1f));
+            _mimicableItems.Add(new(ItemNames.Love_Key, 1f));
+            _mimicableItems.Add(new(ItemNames.Kings_Brand, 1f));
+            _mimicableItems.Add(new(ItemNames.Lumafly_Lantern, 1f));
+            _mimicableItems.Add(new(ItemNames.City_Crest, .5f));
         }
 
         if (settings.PoolSettings.Charms)
             foreach (string charmName in MimicNames.Mimics.SkipWhile(x => x.Key != ItemNames.Awoken_Dream_Nail).Skip(1).TakeWhile(x => x.Key != ItemNames.Void_Heart).Take(1).Select(x => x.Key))
-                _mimicableItems.Add(Finder.GetItem(charmName));
+                _mimicableItems.Add(new(charmName, .75f));
 
         if (settings.PoolSettings.Dreamers)
         {
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Monomon));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Lurien));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Herrah));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.World_Sense));
+            _mimicableItems.Add(new(ItemNames.Monomon, 2f));
+            _mimicableItems.Add(new(ItemNames.Lurien, 2f));
+            _mimicableItems.Add(new(ItemNames.Herrah, 2f));
+            _mimicableItems.Add(new(ItemNames.World_Sense, .25f));
         }
 
         if (settings.PoolSettings.Relics)
         {
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Wanderers_Journal));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Hallownest_Seal));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Kings_Idol));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Arcane_Egg));
+            _mimicableItems.Add(new(ItemNames.Wanderers_Journal, .25f));
+            _mimicableItems.Add(new(ItemNames.Hallownest_Seal, .25f));
+            _mimicableItems.Add(new(ItemNames.Kings_Idol, .25f));
+            _mimicableItems.Add(new(ItemNames.Arcane_Egg, .25f));
         }
 
         if (settings.PoolSettings.Stags)
         {
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Stag_Nest_Stag));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.City_Storerooms_Stag));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Crossroads_Stag));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Dirtmouth_Stag));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Distant_Village_Stag));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Greenpath_Stag));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Hidden_Station_Stag));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Kings_Station_Stag));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Queens_Gardens_Stag));
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Queens_Station_Stag));
+            _mimicableItems.Add(new(ItemNames.Stag_Nest_Stag, .25f));
+            _mimicableItems.Add(new(ItemNames.City_Storerooms_Stag, .25f));
+            _mimicableItems.Add(new(ItemNames.Crossroads_Stag, .25f));
+            _mimicableItems.Add(new(ItemNames.Dirtmouth_Stag, .25f));
+            _mimicableItems.Add(new(ItemNames.Distant_Village_Stag, .25f));
+            _mimicableItems.Add(new(ItemNames.Greenpath_Stag, .25f));
+            _mimicableItems.Add(new(ItemNames.Hidden_Station_Stag, .25f));
+            _mimicableItems.Add(new(ItemNames.Kings_Station_Stag, .25f));
+            _mimicableItems.Add(new(ItemNames.Queens_Gardens_Stag, .25f));
+            _mimicableItems.Add(new(ItemNames.Queens_Station_Stag, .25f));
         }
 
         if (settings.PoolSettings.PaleOre)
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Pale_Ore));
+            _mimicableItems.Add(new(ItemNames.Pale_Ore, 1f));
 
         if (settings.PoolSettings.MaskShards)
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Mask_Shard));
+            _mimicableItems.Add(new(ItemNames.Mask_Shard, .75f));
 
         if (settings.PoolSettings.VesselFragments)
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Vessel_Fragment));
+            _mimicableItems.Add(new(ItemNames.Vessel_Fragment, .75f));
 
         if (settings.PoolSettings.Grubs)
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Grub));
+            _mimicableItems.Add(new(ItemNames.Grub, .25f));
 
         if (settings.PoolSettings.RancidEggs)
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Rancid_Egg));
+            _mimicableItems.Add(new(ItemNames.Rancid_Egg, .15f));
 
         if (settings.NoveltySettings.RandomizeFocus)
-            _mimicableItems.Add(Finder.GetItem(ItemNames.Focus));
+            _mimicableItems.Add(new(ItemNames.Focus, 2f));
     }
 
     /// <summary>
     /// Check if other connection want to place their own mimics and add them, if possible.
     /// </summary>
-    private static void AddCustomMimics(GenerationSettings settings)
+    private static void AddMimickableItems(RequestBuilder requestBuilder)
     {
         _mimicableItems.Clear();
 #if RELEASE
-        AddBaseMimics(settings);
+        AddBaseMimics(requestBuilder.gs);
 #endif
-        foreach (KeyValuePair<string, AbstractItem> item in ReflectionHelper.GetField<Dictionary<string, AbstractItem>>(typeof(Finder), "CustomItems"))
-        {
-            if (_mimicableItems.Contains(item.Value))
-                continue;
-            // Other connections can add mimics via an interop tag, here we get all items which are eligatible to be mimicked.
-            try
-            {
-                if (item.Value.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseTag)
+        CurseRandomizer.Instance.LogDebug("Check for additional mimicks");
+        // Check for additional mimickable items, like from other connections.
+        List<string> mimickableItemNames = _mimicableItems.Select(x => x.Item1).ToList();
+        foreach (StageBuilder stage in requestBuilder.Stages)
+            foreach (ItemGroupBuilder itemGroup in stage.Groups.Where(x => x is ItemGroupBuilder).Select(x => x as ItemGroupBuilder))
+                foreach (string itemName in itemGroup.Items.EnumerateDistinct())
                 {
-                    CurseRandomizer.Instance.LogDebug("Found " + item.Key + " with a viable tag.");
-                    if (curseTag.TryGetProperty("CanMimic", out IBool check) && check.Value)
+                    if (Finder.GetItem(itemName) is not AbstractItem item || mimickableItemNames.Contains(item.name))
+                        continue;
+                    try
                     {
-                        CurseRandomizer.Instance.LogDebug("Added " + item.Key + " as a viable mimic.");
-                        _mimicableItems.Add(item.Value);
+                        if (item.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseTag)
+                        {
+                            CurseRandomizer.Instance.LogDebug("Found " + item.name + " with a viable tag.");
+                            if (curseTag.TryGetProperty("CanMimic", out IBool check) && check.Value)
+                            {
+                                mimickableItemNames.Add(item.name);
+                                if (curseTag.TryGetProperty("Weight", out float weight))
+                                    _mimicableItems.Add(new(item.name, Math.Min(1, weight)));
+                                else
+                                    _mimicableItems.Add(new(item.name, 1f));
+                                CurseRandomizer.Instance.LogDebug("Added " + item.name + " as a viable mimic.");
+                            }
+                            else
+                                CurseRandomizer.Instance.LogDebug("Couldn't find a CanMimic property or didn't pass the check");
+                        }
                     }
-                    else
-                        CurseRandomizer.Instance.LogDebug("Couldn't find a CanMimic property or didn't pass the check");
+                    catch (Exception exception)
+                    {
+                        CurseRandomizer.Instance.LogError("Couldn't add mimics for item " + item?.name + ": " + exception.Message);
+                        CurseRandomizer.Instance.LogError("At: " + exception.StackTrace);
+                    }
                 }
-            }
-            catch (Exception exception)
-            {
-                CurseRandomizer.Instance.LogError("Couldn't add mimics for item " + item.Key + ": " + exception.Message);
-                CurseRandomizer.Instance.LogError(exception.StackTrace);
-            }
+    }
+
+    private static string RollMimic()
+    {
+        float totalWeigth = 0f;
+        foreach ((string, float) mimick in _mimicableItems)
+            totalWeigth += mimick.Item2;
+
+        float rolled = UnityEngine.Random.Range(0, totalWeigth);
+        for (int index = 0; index < _mimicableItems.Count; index++)
+        {
+            if (rolled < _mimicableItems[index].Item2)
+                return _mimicableItems[index].Item1;
+            rolled -= _mimicableItems[index].Item2;
         }
+        return null;
     }
 
     /// <summary>
     /// Get all items which this mod can replace with curses.
     /// </summary>
-    private static List<string> GetReplaceableItems(GenerationSettings generationSettings)
+    private static List<string> GetReplaceableItems(RequestBuilder builder)
     {
         List<string> viableItems = new();
 
-        if (CurseRandomizer.Instance.Settings.Pools.MaskShards && generationSettings.PoolSettings.MaskShards)
-            viableItems.Add(generationSettings.MiscSettings.MaskShards switch
+        if (CurseRandomizer.Instance.Settings.Pools.MaskShards && builder.gs.PoolSettings.MaskShards)
+            viableItems.Add(builder.gs.MiscSettings.MaskShards switch
             {
                 MaskShardType.FourShardsPerMask => ItemNames.Mask_Shard,
                 MaskShardType.TwoShardsPerMask => ItemNames.Double_Mask_Shard,
                 _ => ItemNames.Full_Mask
             });
-        if (CurseRandomizer.Instance.Settings.Pools.VesselFragments && generationSettings.PoolSettings.VesselFragments)
-            viableItems.Add(generationSettings.MiscSettings.VesselFragments switch
+        if (CurseRandomizer.Instance.Settings.Pools.VesselFragments && builder.gs.PoolSettings.VesselFragments)
+            viableItems.Add(builder.gs.MiscSettings.VesselFragments switch
             {
                 VesselFragmentType.TwoFragmentsPerVessel => ItemNames.Double_Vessel_Fragment,
                 VesselFragmentType.OneFragmentPerVessel => ItemNames.Full_Soul_Vessel,
                 _ => ItemNames.Vessel_Fragment
             });
-        if (CurseRandomizer.Instance.Settings.Pools.PaleOre && generationSettings.PoolSettings.PaleOre)
+        if (CurseRandomizer.Instance.Settings.Pools.PaleOre && builder.gs.PoolSettings.PaleOre)
             viableItems.Add(ItemNames.Pale_Ore);
-        if (CurseRandomizer.Instance.Settings.Pools.Notches && generationSettings.PoolSettings.CharmNotches)
+        if (CurseRandomizer.Instance.Settings.Pools.Notches && builder.gs.PoolSettings.CharmNotches)
             viableItems.Add(ItemNames.Charm_Notch);
-        if (CurseRandomizer.Instance.Settings.Pools.Relics && generationSettings.PoolSettings.Relics)
+        if (CurseRandomizer.Instance.Settings.Pools.Relics && builder.gs.PoolSettings.Relics)
             viableItems.AddRange(new string[] { ItemNames.Wanderers_Journal, ItemNames.Hallownest_Seal, ItemNames.Kings_Idol, ItemNames.Arcane_Egg });
-        if (CurseRandomizer.Instance.Settings.Pools.Rocks && generationSettings.PoolSettings.GeoRocks)
+        if (CurseRandomizer.Instance.Settings.Pools.Rocks && builder.gs.PoolSettings.GeoRocks)
             viableItems.AddRange(new string[] {ItemNames.Geo_Rock_Abyss, ItemNames.Geo_Rock_City, ItemNames.Geo_Rock_Deepnest, ItemNames.Geo_Rock_Default,
             ItemNames.Geo_Rock_Fung01, ItemNames.Geo_Rock_Fung02, ItemNames.Geo_Rock_Grave01, ItemNames.Geo_Rock_Grave02, ItemNames.Geo_Rock_GreenPath01,
             ItemNames.Geo_Rock_GreenPath02, ItemNames.Geo_Rock_Hive, ItemNames.Geo_Rock_Mine, ItemNames.Geo_Rock_Outskirts, ItemNames.Geo_Rock_Outskirts420});
-        if (CurseRandomizer.Instance.Settings.Pools.Geo && generationSettings.PoolSettings.GeoChests)
+        if (CurseRandomizer.Instance.Settings.Pools.Geo && builder.gs.PoolSettings.GeoChests)
             viableItems.AddRange(new string[] {ItemNames.Geo_Chest_Crystal_Peak, ItemNames.Geo_Chest_False_Knight, ItemNames.Geo_Chest_Greenpath, ItemNames.Geo_Chest_Junk_Pit_1,
             ItemNames.Geo_Chest_Junk_Pit_2, ItemNames.Geo_Chest_Junk_Pit_3, ItemNames.Geo_Chest_Junk_Pit_5, ItemNames.Geo_Chest_Mantis_Lords, ItemNames.Geo_Chest_Resting_Grounds,
             ItemNames.Geo_Chest_Soul_Master, ItemNames.Geo_Chest_Watcher_Knights, ItemNames.Geo_Chest_Weavers_Den});
-        if (CurseRandomizer.Instance.Settings.Pools.Geo && generationSettings.PoolSettings.BossGeo)
+        if (CurseRandomizer.Instance.Settings.Pools.Geo && builder.gs.PoolSettings.BossGeo)
             viableItems.AddRange(new string[] {ItemNames.Boss_Geo_Crystal_Guardian, ItemNames.Boss_Geo_Elegant_Soul_Warrior, ItemNames.Boss_Geo_Enraged_Guardian,
             ItemNames.Boss_Geo_Gorgeous_Husk, ItemNames.Boss_Geo_Gruz_Mother, ItemNames.Boss_Geo_Massive_Moss_Charger, ItemNames.Boss_Geo_Sanctum_Soul_Warrior,
             ItemNames.Boss_Geo_Vengefly_King});
-        if (CurseRandomizer.Instance.Settings.Pools.Totems && generationSettings.PoolSettings.SoulTotems)
+        if (CurseRandomizer.Instance.Settings.Pools.Totems && builder.gs.PoolSettings.SoulTotems)
         {
             viableItems.AddRange(new string[] { ItemNames.Soul_Totem_A, ItemNames.Soul_Totem_B, ItemNames.Soul_Totem_C, ItemNames.Soul_Totem_D,
             ItemNames.Soul_Totem_E,ItemNames.Soul_Totem_F,ItemNames.Soul_Totem_G, ItemNames.Soul_Refill});
-            if (generationSettings.LongLocationSettings.WhitePalaceRando != LongLocationSettings.WPSetting.ExcludeWhitePalace)
+            if (builder.gs.LongLocationSettings.WhitePalaceRando != LongLocationSettings.WPSetting.ExcludeWhitePalace)
             {
                 viableItems.Add(ItemNames.Soul_Totem_Palace);
                 viableItems.Add(ItemNames.Soul_Totem_Path_of_Pain);
@@ -1152,22 +1234,24 @@ internal static class RandoManager
         }
 
         if (CurseRandomizer.Instance.Settings.Pools.Custom)
-            foreach (KeyValuePair<string, AbstractItem> item in ReflectionHelper.GetField<Dictionary<string, AbstractItem>>(typeof(Finder), "CustomItems"))
-            {
-                try
-                {
-                    if (viableItems.Contains(item.Key))
-                        continue;
-                    if (item.Value.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseData)
-                        if (curseData.TryGetProperty("CanReplace", out IBool canReplace) && canReplace.Value)
-                            viableItems.Add(item.Key);
-                }
-                catch (Exception exception)
-                {
-                    throw new Exception($"Couldn't determine if item {item.Key} can be replaced: " + exception.Message + " StackTrace: " + exception.StackTrace);
-                }
-            }
-
+            foreach (StageBuilder stage in builder.Stages)
+                foreach (ItemGroupBuilder itemGroup in stage.Groups.Where(x => x is ItemGroupBuilder).Select(x => x as ItemGroupBuilder))
+                    foreach (string itemName in itemGroup.Items.EnumerateDistinct())
+                        try
+                        {
+                            if (Finder.GetItem(itemName) is not AbstractItem item || viableItems.Contains(item.name))
+                                continue;
+                            if (item.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseData)
+                                if (curseData.TryGetProperty("CanReplace", out IBool canReplace) && canReplace.Value)
+                                { 
+                                    viableItems.Add(item.name);
+                                    CurseRandomizer.Instance.LogDebug("Added " + item.name + " as a replaceable item.");
+                                }
+                        }
+                        catch (Exception exception)
+                        {
+                            CurseRandomizer.Instance.LogError("Error while trying to check for CanReplace tag." + exception.Message + " ;\nAt: " + exception.StackTrace);
+                        }
         return viableItems;
     }
 
@@ -1176,8 +1260,7 @@ internal static class RandoManager
         if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled)
             return;
         if (CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
-        { 
-            builder.AddItem(new EmptyItem("Fool_Item"));
+        {
             builder.AddItem(new SingleItem("Fool_Item_Mocked_Shard", new(builder.GetTerm("MASKSHARDS"), 1)));
             builder.AddItem(new SingleItem("Fool_Item_Two_Mocked_Shards", new(builder.GetTerm("MASKSHARDS"), 2)));
             builder.AddItem(new SingleItem("Fool_Item_Mocked_Mask", new(builder.GetTerm("MASKSHARDS"), 4)));
@@ -1230,9 +1313,9 @@ internal static class RandoManager
                     skipTerms.Add("Mark_of_Pride");
                     skipTerms.Add("Glowing_Womb");
                     skipTerms.Add("Weaversong");
-                }    
+                }
             }
-            Dictionary<string, LogicClause> macros =  ReflectionHelper.GetField<LogicProcessor,Dictionary<string, LogicClause>>(builder.LP, "macros");
+            Dictionary<string, LogicClause> macros = ReflectionHelper.GetField<LogicProcessor, Dictionary<string, LogicClause>>(builder.LP, "macros");
             foreach (string term in macros.Keys.ToList())
                 foreach (string skipTerm in skipTerms)
                     builder.DoSubst(new(term, skipTerm, "NOCURSE"));

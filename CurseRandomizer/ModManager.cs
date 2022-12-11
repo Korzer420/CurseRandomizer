@@ -201,7 +201,7 @@ internal static class ModManager
         if (self.IsCorrectContext("Fader", "Add Text", "Down") && self.Fsm.GameObject.transform.parent?.name == "Geo Counter")
         {
             int playerGeo = PlayerData.instance.GetInt(nameof(PlayerData.instance.geo));
-            if (((List<AffectedVisual>)CurseManager.GetCurseByType(CurseType.Unknown).Data.Data).Contains(AffectedVisual.Geo))
+            if (((List<AffectedVisual>)CurseManager.GetCurseByType(CurseType.Unknown).Data.AdditionalData).Contains(AffectedVisual.Geo))
                 HeroController.instance.geoCounter.geoTextMesh.text = "???";
             else
                 switch (WalletAmount)
@@ -463,7 +463,7 @@ internal static class ModManager
         }
         catch (Exception exception)
         {
-            CurseRandomizer.Instance.Log(exception.StackTrace);
+            CurseRandomizer.Instance.LogError("An error occured while trying to modify soul limit at: "+exception.StackTrace);
         }
     }
 
@@ -604,7 +604,7 @@ internal static class ModManager
             AddDefaultItemToShop(Sly_Key_Expensive, ItemNames.Vessel_Fragment, 900);
         }
 
-        if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Skills)
+        if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Keys)
             AddDefaultItemToShop(Sly_Extreme_Valuable, ItemNames.Lumafly_Lantern, 1800);
 
         if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.RancidEggs)

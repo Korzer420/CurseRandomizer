@@ -22,7 +22,7 @@ internal class UnknownCurse : Curse
 
     public UnknownCurse()
     {
-        Data.Data = new List<AffectedVisual>();
+        Data.AdditionalData = new List<AffectedVisual>();
     }
 
     #endregion
@@ -33,9 +33,9 @@ internal class UnknownCurse : Curse
     {
         get
         {
-            if (Data.Data == null)
-                Data.Data = new List<AffectedVisual>();
-            return Data.Data as List<AffectedVisual>;
+            if (Data.AdditionalData == null)
+                Data.AdditionalData = new List<AffectedVisual>();
+            return Data.AdditionalData as List<AffectedVisual>;
         }
     }
 

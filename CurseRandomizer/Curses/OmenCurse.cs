@@ -29,9 +29,9 @@ internal class OmenCurse : Curse
     {
         get
         {
-            if (Data.Data == null)
-                Data.Data = new List<string>() { "Inactive" };
-            return Data.Data as List<string>;
+            if (Data.AdditionalData == null)
+                Data.AdditionalData = new List<string>() { "Inactive" };
+            return Data.AdditionalData as List<string>;
         }
     }
 
@@ -70,7 +70,7 @@ internal class OmenCurse : Curse
     {
         if (damageAmount > 0 && damageAmount < 420 && !KilledEnemies.Contains("Inactive"))
         {
-            List<Curse> availableCurses = CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Permanent && x.CanApplyCurse()).ToList();
+            List<Curse> availableCurses = CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Permanent && x.CanApplyCurse() && x.Data.Active).ToList();
             if (!availableCurses.Any())
                 damageAmount = 999;
             else
@@ -114,7 +114,6 @@ internal class OmenCurse : Curse
         currentCounter.text = $"{KilledEnemies.Count} / {NeededEnemyKills}";
         if (KilledEnemies.Count < NeededEnemyKills)
             return;
-        CurseRandomizer.Instance.Log("Needed enemy kills: " + NeededEnemyKills + " Killed enemies: " + KilledEnemies.Count);
         KilledEnemies.Clear();
         KilledEnemies.Add("Inactive");
         PlayMakerFSM playMakerFSM = PlayMakerFSM.FindFsmOnGameObject(FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value, "Display");
@@ -169,7 +168,7 @@ internal class OmenCurse : Curse
     public override int SetCap(int value)
     => Math.Max(5, Math.Min(value, 50));
 
-    public override void ResetAdditionalData() => Data.Data = new List<string>() { "Inactive" };
+    public override void ResetAdditionalData() => Data.AdditionalData = new List<string>() { "Inactive" };
 
     #endregion
 }

@@ -9,6 +9,11 @@ namespace CurseRandomizer;
 public class CurseData
 {
     /// <summary>
+    /// Gets or sets if this curse is active.
+    /// </summary>
+    public bool Active { get; set; }
+
+    /// <summary>
     /// Gets or sets the amount this curse was casted.
     /// </summary>
     public int CastedAmount { get; set; } = 0;
@@ -21,5 +26,5 @@ public class CurseData
     /// <summary>
     /// Gets or sets an object, in which the curse can store additional data.
     /// </summary>
-    public object Data { get; set; }
+    public object AdditionalData { get; set; }
 }

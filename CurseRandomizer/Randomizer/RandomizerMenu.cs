@@ -1,16 +1,12 @@
 ﻿using CurseRandomizer.Randomizer.Settings;
-using ItemChanger.Extensions;
 using MenuChanger;
-using MenuChanger.Attributes;
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
 using Modding;
 using RandomizerMod.Menu;
-using RandomizerMod.Settings;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using PoolSettings = CurseRandomizer.Randomizer.Settings.PoolSettings;
 
 namespace CurseRandomizer.Randomizer;
@@ -89,7 +85,7 @@ internal class RandomizerMenu
         };
         _controlFactory.ElementLookup["CurseAmount"].SelfChanged += (self) =>
         {
-            if ((Amount)self.Value == Amount.Custom)
+            if ((Amount)self.Value == Amount.Custom && CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
                 _controlFactory.ElementLookup["CurseItems"].Show();
             else
                 _controlFactory.ElementLookup["CurseItems"].Hide();
@@ -168,7 +164,12 @@ internal class RandomizerMenu
                     curseCap.Hide();
                 // Only allow active curses to be default. (Except pain curse)
                 if (CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse == curseEnable.Name)
-                    defaultCurse.MoveNext();
+                {
+                    if (CurseRandomizer.Instance.Settings.CurseSettings.Any(x => x.Active))
+                        defaultCurse.MoveNext();
+                    else
+                        defaultCurse.SetValue("Pain");
+                }
             };
             curseEnable.Bind(settings, ReflectionHelper.GetPropertyInfo(typeof(CurseSettings), "Active"));
 

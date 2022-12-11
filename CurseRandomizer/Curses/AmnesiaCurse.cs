@@ -19,7 +19,7 @@ internal class AmnesiaCurse : Curse
     public AmnesiaCurse()
     {
         // Data is stacks for the damage debuff.
-        Data.Data = 0;
+        Data.AdditionalData = 0;
     }
 
     #endregion
@@ -30,11 +30,11 @@ internal class AmnesiaCurse : Curse
     {
         get
         {
-            if (Data.Data == null)
-                Data.Data = 0;
-            return Convert.ToInt32(Data.Data);
+            if (Data.AdditionalData == null)
+                Data.AdditionalData = 0;
+            return Convert.ToInt32(Data.AdditionalData);
         }
-        set => Data.Data = value;   
+        set => Data.AdditionalData = value;   
     }
 
     #endregion

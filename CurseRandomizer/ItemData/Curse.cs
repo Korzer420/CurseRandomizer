@@ -87,7 +87,7 @@ public abstract class Curse
         if (data != null)
         {
             // To prevent null references, if the data is not set, we take the default.
-            data.Data ??= Data.Data;
+            data.AdditionalData ??= Data.AdditionalData;
             Data = data;
         }
     }
@@ -99,7 +99,7 @@ public abstract class Curse
     }
 
     /// <summary>
-    /// Can be used to reset the data stored in <see cref="CurseData.Data"/>. The <see cref="CurseData.CastedAmount"/> will be reset automatically.
+    /// Can be used to reset the data stored in <see cref="CurseData.AdditionalData"/>. The <see cref="CurseData.CastedAmount"/> will be reset automatically.
     /// <para>Called when the player starts a new game file.</para>
     /// </summary>
     public virtual void ResetAdditionalData() { }
