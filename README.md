@@ -31,6 +31,8 @@ Here's a list of available curses:
 - Weakness: Reduce your base nail damage by 1.
 - Custom: Allows all curses which are created from other mods to be viable options. They will appear in the menu to manually setting them yourself.
 
+**Choosing certain curses will override the logic to remove skip logic, since they may break specific skips. The application of the curses takes priority! Be aware of that.**
+
 ### Main Settings
 
 #### Perfect Mimics
