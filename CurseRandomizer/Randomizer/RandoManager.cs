@@ -893,7 +893,7 @@ internal static class RandoManager
 
         // Get all items which can be removed.
         // Also check the total amount of items.
-        List<string> replacableItems = GetReplaceableItems(builder.gs);
+        List<string> replacableItems = GetReplaceableItems(builder);
         int totalItemCount = 0;
         List<ItemGroupBuilder> availablePools = new();
         foreach (StageBuilder stage in builder.Stages)
