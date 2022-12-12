@@ -151,7 +151,7 @@ internal class AmnesiaCurse : Curse
         return Stacks < cap;
     }
 
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 12)); 
+    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 9)); 
 
     #endregion
 }

@@ -57,5 +57,5 @@ internal class LostCurse : Curse
         }
     }
 
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 11));
+    public override int SetCap(int value) => Math.Max(0, Math.Min(value, 11));
 }

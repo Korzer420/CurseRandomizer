@@ -71,9 +71,9 @@ internal class SlothCurse : Curse
 
     public override void ApplyCurse() { }
 
-    public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Cap : 10);
+    public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Cap : 30);
 
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 10));
+    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 30));
 
     #endregion
 }
