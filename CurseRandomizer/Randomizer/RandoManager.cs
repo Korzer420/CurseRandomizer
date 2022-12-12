@@ -14,6 +14,7 @@ using RandomizerCore;
 using RandomizerCore.Logic;
 using RandomizerCore.LogicItems;
 using RandomizerCore.StringLogic;
+using RandomizerMod;
 using RandomizerMod.Logging;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.RC;
@@ -56,7 +57,7 @@ internal static class RandoManager
     /// <summary>
     /// Contains all items which the curse randomizer replaced
     /// </summary>
-    public static List<string> ReplacedItems { get; set; } = new(); 
+    public static List<string> ReplacedItems { get; set; } = new();
 
     #endregion
 
@@ -262,12 +263,19 @@ internal static class RandoManager
         RandoController.OnCalculateHash += RandoController_OnCalculateHash;
         RandomizerMenu.AttachMenu();
         SettingsLog.AfterLogSettings += WriteCurseRandoSettings;
+        RandomizerMod.RC.ProgressionInitializer.OnCreateProgressionInitializer += SetupVesselTerm;
 
         if (ModHooks.GetMod("RandoSettingsManager") is Mod)
             HookRandoSettingsManager();
 
         if (ModHooks.GetMod("FStatsMod") is Mod)
             HookFStats();
+    }
+
+    private static void SetupVesselTerm(LogicManager logicManager, GenerationSettings generationSettings, ProgressionInitializer progressionInitializer)
+    {
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel > 0)
+            progressionInitializer.Increments.Add(new(logicManager.GetTerm("VESSELFRAGMENTS"), 6 - CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel * 3));
     }
 
     private static void WriteCurseRandoSettings(LogArguments args, TextWriter textWriter)
@@ -785,8 +793,7 @@ internal static class RandoManager
         else
             ModManager.IsDreamNailCursed = false;
 
-        // To not even bother with figuring out with EVERY SINGLE FIREBALL SKIP, we just prevent this setting from working, if fireball skips are on.
-        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel != 0 && !builder.gs.SkipSettings.FireballSkips)
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel != 0)
         {
             ModManager.IsVesselCursed = true;
             ModManager.SoulVessel = (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel - 2) * -1;
@@ -1254,7 +1261,7 @@ internal static class RandoManager
                                 continue;
                             if (item.tags?.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is IInteropTag curseData)
                                 if (curseData.TryGetProperty("CanReplace", out IBool canReplace) && canReplace.Value)
-                                { 
+                                {
                                     viableItems.Add(item.name);
                                     CurseRandomizer.Instance.LogDebug("Added " + item.name + " as a replaceable item.");
                                 }
@@ -1270,6 +1277,7 @@ internal static class RandoManager
     {
         if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled)
             return;
+
         if (CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
         {
             builder.AddItem(new SingleItem("Fool_Item_Mocked_Shard", new(builder.GetTerm("MASKSHARDS"), 1)));
@@ -1432,6 +1440,13 @@ internal static class RandoManager
                 builder.DoLogicEdit(new("Defeated_Any_White_Defender", "(ORIG) + DREAMNAILFRAGMENT>1"));
                 builder.DoLogicEdit(new("Defeated_Any_Grey_Prince_Zote", "(ORIG) + DREAMNAILFRAGMENT>1"));
             }
+        }
+
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel > 0)
+        {
+            Dictionary<string, LogicClause> macros = ReflectionHelper.GetField<LogicProcessor, Dictionary<string, LogicClause>>(builder.LP, "macros");
+            foreach (string term in macros.Keys.ToList())
+                builder.DoSubst(new(term, "FIREBALLSKIPS", "(FIREBALLSKIPS + VESSELFRAGMENTS>5)"));
         }
     }
 

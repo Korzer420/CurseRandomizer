@@ -234,18 +234,6 @@ internal class UnknownCurse : Curse
         else if (chosen == AffectedVisual.Soul)
              HeroController.instance.AddMPCharge(200);
 #endif
-#if DEBUG
-        HeroController.instance.AddMPCharge(200);
-        Affected.AddRange(Enum.GetValues(typeof(AffectedVisual)) as AffectedVisual[]);
-        if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
-            GameCameras.instance.hudCanvas.gameObject.SetActive(true);
-        else
-        {
-            GameCameras.instance.hudCanvas.gameObject.SetActive(false);
-            GameCameras.instance.hudCanvas.gameObject.SetActive(true);
-        }
-
-#endif
     }
 
     public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Data.Cap : 5);
