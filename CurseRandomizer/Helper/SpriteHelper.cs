@@ -18,7 +18,7 @@ public static class SpriteHelper
     {
         if (!_cachedSprites.ContainsKey(spriteName))
         {
-            string imageFile = Path.Combine(Path.GetDirectoryName(typeof(CurseRandomizer).Assembly.Location), "Resources\\" + (spriteName + extension));
+            string imageFile = Path.Combine(Path.GetDirectoryName(typeof(CurseRandomizer).Assembly.Location), "Resources/" + (spriteName + extension));
             byte[] imageData = File.ReadAllBytes(imageFile);
             Texture2D tex = new(1, 1, TextureFormat.RGBA32, false);
             ImageConversion.LoadImage(tex, imageData, true);

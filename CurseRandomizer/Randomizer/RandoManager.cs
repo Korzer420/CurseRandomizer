@@ -43,11 +43,22 @@ internal static class RandoManager
 
     #endregion
 
+    #region Members
+
     private static List<(string, float)> _mimicableItems = new();
     private static List<Curse> _availableCurses = new();
     private static Random _generator;
 
-    public static List<string> ReplacedItems { get; set; } = new();
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    /// Contains all items which the curse randomizer replaced
+    /// </summary>
+    public static List<string> ReplacedItems { get; set; } = new(); 
+
+    #endregion
 
     #region Setup
 
