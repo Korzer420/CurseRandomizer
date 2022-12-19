@@ -74,6 +74,7 @@ internal static class ModManager
     private static IEnumerator UIManager_ReturnToMainMenu(On.UIManager.orig_ReturnToMainMenu orig, UIManager self)
     {
         if (RandomizerMod.RandomizerMod.IsRandoSave)
+        {
             if (IsWalletCursed)
             {
                 On.HeroController.AddGeo -= CapGeoByWallet;
@@ -83,29 +84,30 @@ internal static class ModManager
                 On.HutongGames.PlayMaker.Actions.SetMaterialColor.OnEnter -= SetMaterialColor_OnEnter;
                 ModHooks.LanguageGetHook -= AddWalletDescription;
             }
-        if (IsColoCursed)
-        {
-            On.PlayMakerFSM.OnEnable -= BlockColoAccess;
-            ModHooks.LanguageGetHook -= ShowColoPreview;
-            ModHooks.SetPlayerBoolHook -= ActivatePasses;
-        }
-        if (IsDreamNailCursed)
-        {
-            On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter -= PreventDreamBosses;
-            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= PreventGreyPrinceZote;
-            On.PlayMakerFSM.OnEnable -= PreventWhiteDefender;
-            ModHooks.LanguageGetHook -= ShowDreamNailDescription;
-        }
-        if (IsVesselCursed)
-        {
-            IL.PlayerData.AddMPCharge -= LimitSoul;
-            On.PlayMakerFSM.OnEnable -= AdjustSoulAmount;
-            On.HeroController.AddToMaxMPReserve -= HookVesselGain;
-            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= FixVesselEyes;
-        }
+            if (IsColoCursed)
+            {
+                On.PlayMakerFSM.OnEnable -= BlockColoAccess;
+                ModHooks.LanguageGetHook -= ShowColoPreview;
+                ModHooks.SetPlayerBoolHook -= ActivatePasses;
+            }
+            if (IsDreamNailCursed)
+            {
+                On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter -= PreventDreamBosses;
+                On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= PreventGreyPrinceZote;
+                On.PlayMakerFSM.OnEnable -= PreventWhiteDefender;
+                ModHooks.LanguageGetHook -= ShowDreamNailDescription;
+            }
+            if (IsVesselCursed)
+            {
+                IL.PlayerData.AddMPCharge -= LimitSoul;
+                On.PlayMakerFSM.OnEnable -= AdjustSoulAmount;
+                On.HeroController.AddToMaxMPReserve -= HookVesselGain;
+                On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= FixVesselEyes;
+            }
 
-        foreach (Curse curse in CurseManager.GetCurses())
-            curse.Unhook();
+            foreach (Curse curse in CurseManager.GetCurses())
+                curse.Unhook();
+        }
         yield return orig(self);
     }
 
