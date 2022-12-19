@@ -2,19 +2,15 @@
 using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer;
 using CurseRandomizer.Randomizer.Settings;
-using FStats;
-using HutongGames.PlayMaker.Actions;
 using ItemChanger;
 using ItemChanger.Extensions;
 using ItemChanger.Locations;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
 using Modding;
-using RandomizerCore;
 using RandomizerCore.Logic;
 using RandomizerCore.LogicItems;
 using RandomizerCore.StringLogic;
-using RandomizerMod;
 using RandomizerMod.Logging;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.RC;
@@ -25,8 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using Unity.Collections.LowLevel.Unsafe;
 using static RandomizerMod.RC.RequestBuilder;
 using static RandomizerMod.Settings.MiscSettings;
 
@@ -293,46 +287,7 @@ internal static class RandoManager
         () => CurseRandomizer.Instance.Settings));
     }
 
-    private static void HookFStats()
-    {
-        FStats.API.OnGenerateScreen += API_OnGenerateScreen;
-    }
-
-    private static void API_OnGenerateScreen(Action<DisplayInfo> registerPage)
-    {
-        try
-        {
-            DisplayInfo displayInfo = new()
-            {
-                Title = "Curse Stats",
-                MainStat = "Total afflicted curses: " + CurseManager.GetCurses().Select(x => x.Data.CastedAmount).Aggregate((x, y) => x + y),
-                Priority = -4,
-                StatColumns = new()
-            };
-
-            List<Curse> curses = CurseManager.GetCurses();
-            string column = string.Empty;
-            for (int i = 0; i < 8; i++)
-                column += $"{curses[i].Name}: {curses[i].Data.CastedAmount}\n";
-            displayInfo.StatColumns.Add(column);
-
-            column = string.Empty;
-            for (int i = 8; i < 15; i++)
-                column += $"{curses[i].Name}: {curses[i].Data.CastedAmount}\n";
-            if (!curses.Any(x => x.Type == CurseType.Custom))
-                column += "Custom Curses: -";
-            else if (curses.Count(x => x.Type == CurseType.Custom) == 1)
-                column += "Custom Curses: " + curses.First(x => x.Type == CurseType.Custom).Data.CastedAmount;
-            else
-                column += "Custom Curses: " + curses.Where(x => x.Type == CurseType.Custom).Select(x => x.Data.CastedAmount).Aggregate((x, y) => x + y);
-            displayInfo.StatColumns.Add(column);
-            registerPage.Invoke(displayInfo);
-        }
-        catch (Exception exception)
-        {
-            CurseRandomizer.Instance.LogError("An error occured while trying to generate FStat page: " + exception.StackTrace);
-        }
-    }
+    private static void HookFStats() => CurseStats.HookFStats();
 
     private static int RandoController_OnCalculateHash(RandoController controller, int hashValue)
     {

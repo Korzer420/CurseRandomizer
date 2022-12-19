@@ -18,6 +18,12 @@ namespace CurseRandomizer.Curses;
 /// </summary>
 internal class UnknownCurse : Curse
 {
+    #region Members
+
+    private bool _bingoUIUsed = false;
+
+    #endregion
+
     #region Constructors
 
     public UnknownCurse()
@@ -54,7 +60,17 @@ internal class UnknownCurse : Curse
     {
         orig(self);
         if (Affected.Contains(AffectedVisual.Geo))
-            self.geoTextMesh.text = "???";
+        { 
+            if (!_bingoUIUsed)
+                self.geoTextMesh.text = "???";
+            else
+            {
+                int bingoIndex = 0;
+                while (bingoIndex < self.geoTextMesh.text.Length && self.geoTextMesh.text[bingoIndex] != '(')
+                    bingoIndex++;
+                self.geoTextMesh.text = "??? "+self.geoTextMesh.text.Substring(bingoIndex);
+            }
+        }
     }
 
     private void DisplayItemAmount_OnEnable(On.DisplayItemAmount.orig_OnEnable orig, DisplayItemAmount self)
@@ -194,6 +210,7 @@ internal class UnknownCurse : Curse
         On.HutongGames.PlayMaker.Actions.SetPosition.OnEnter += SetPosition_OnEnter;
 
         ModHooks.GetPlayerBoolHook += ModHooks_GetPlayerBoolHook;
+        _bingoUIUsed = ModHooks.GetMod("BingoUI") is Mod;
     }
 
     public override void Unhook()

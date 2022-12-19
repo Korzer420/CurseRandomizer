@@ -142,39 +142,46 @@ internal static class ModManager
 
     private static void Hook()
     {
-        if (IsWalletCursed)
+        try
         {
-            On.HeroController.AddGeo += CapGeoByWallet;
-            On.HeroController.AddGeoQuietly += CapGeoByWallet;
-            On.HeroController.AddGeoToCounter += CapGeoByWallet;
-            On.GeoCounter.NewSceneRefresh += AdjustGeoColor;
-            On.HutongGames.PlayMaker.Actions.SetMaterialColor.OnEnter += SetMaterialColor_OnEnter;
-            ModHooks.LanguageGetHook += AddWalletDescription;
+            if (IsWalletCursed)
+            {
+                On.HeroController.AddGeo += CapGeoByWallet;
+                On.HeroController.AddGeoQuietly += CapGeoByWallet;
+                On.HeroController.AddGeoToCounter += CapGeoByWallet;
+                On.GeoCounter.NewSceneRefresh += AdjustGeoColor;
+                On.HutongGames.PlayMaker.Actions.SetMaterialColor.OnEnter += SetMaterialColor_OnEnter;
+                ModHooks.LanguageGetHook += AddWalletDescription;
 
+            }
+            if (IsColoCursed)
+            {
+                On.PlayMakerFSM.OnEnable += BlockColoAccess;
+                ModHooks.LanguageGetHook += ShowColoPreview;
+                ModHooks.SetPlayerBoolHook += ActivatePasses;
+            }
+            if (IsDreamNailCursed)
+            {
+                On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter += PreventDreamBosses;
+                On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += PreventGreyPrinceZote;
+                On.PlayMakerFSM.OnEnable += PreventWhiteDefender;
+                ModHooks.LanguageGetHook += ShowDreamNailDescription;
+            }
+            if (IsVesselCursed)
+            {
+                IL.PlayerData.AddMPCharge += LimitSoul;
+                On.PlayMakerFSM.OnEnable += AdjustSoulAmount;
+                On.HeroController.AddToMaxMPReserve += HookVesselGain;
+                On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += FixVesselEyes;
+            }
+            foreach (Curse curse in CurseManager.GetCurses())
+                curse.ApplyHooks();
+            CurseManager.Handler.StartCoroutine(WaitForHC());
         }
-        if (IsColoCursed)
+        catch (Exception exception)
         {
-            On.PlayMakerFSM.OnEnable += BlockColoAccess;
-            ModHooks.LanguageGetHook += ShowColoPreview;
-            ModHooks.SetPlayerBoolHook += ActivatePasses;
+            CurseRandomizer.Instance.LogError("An error occured while setting up the hooks: " + exception.Message + " at " + exception.StackTrace);
         }
-        if (IsDreamNailCursed)
-        {
-            On.HutongGames.PlayMaker.Actions.PlayerDataBoolTest.OnEnter += PreventDreamBosses;
-            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += PreventGreyPrinceZote;
-            On.PlayMakerFSM.OnEnable += PreventWhiteDefender;
-            ModHooks.LanguageGetHook += ShowDreamNailDescription;
-        }
-        if (IsVesselCursed)
-        {
-            IL.PlayerData.AddMPCharge += LimitSoul;
-            On.PlayMakerFSM.OnEnable += AdjustSoulAmount;
-            On.HeroController.AddToMaxMPReserve += HookVesselGain;
-            On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += FixVesselEyes;
-        }
-        foreach (Curse curse in CurseManager.GetCurses())
-            curse.ApplyHooks();
-        CurseManager.Handler.StartCoroutine(WaitForHC());
     }
 
     private static string ShowDreamNailDescription(string key, string sheetTitle, string orig)

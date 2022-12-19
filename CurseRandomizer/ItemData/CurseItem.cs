@@ -11,6 +11,7 @@ namespace CurseRandomizer;
 internal class CurseItem : AbstractItem
 {
     public const string CursePrefix = "Fool_Item-";
+
     public string CurseName { get; set; }
 
     public override void GiveImmediate(GiveInfo info)
