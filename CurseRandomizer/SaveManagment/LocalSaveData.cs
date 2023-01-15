@@ -20,6 +20,8 @@ public class LocalSaveData
 
     public int SoulVessels { get; set; }
 
+    public bool UseCurses { get; set; }
+
     public bool UseCaps { get; set; }
 
     public string DefaultCurse { get; set; }
@@ -31,4 +33,6 @@ public class LocalSaveData
     public bool DreamNailCursed { get; set; }
 
     public bool VesselCursed { get; set; }
+
+    public bool OmenMode { get; set; }
 }

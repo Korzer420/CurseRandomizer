@@ -17,6 +17,12 @@ internal class CurseItem : AbstractItem
     public override void GiveImmediate(GiveInfo info)
     {
         Curse curse = CurseManager.GetCurseByName(CurseName);
+        if (curse == null)
+        {
+            CurseRandomizer.Instance.LogError("Couldn't find curse " + CurseName+". Default to Disorientation");
+            curse = CurseManager.GetCurseByType(CurseType.Disorientation);
+            CurseName = "Disorientation";
+        }
         CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
         if (curse.CanApplyCurse())
             module.QueueCurse(CurseName);

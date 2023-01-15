@@ -18,6 +18,7 @@ using static RandomizerMod.Settings.MiscSettings;
 using static CurseRandomizer.ItemData.WalletItem;
 using RandomizerMod.RC;
 using ItemChanger.Tags;
+using CurseRandomizer.Curses;
 
 namespace CurseRandomizer.Manager;
 
@@ -40,6 +41,8 @@ internal static class ModManager
     }
 
     #region Properties
+
+    public static bool UseCurses { get; set; }
 
     /// <summary>
     /// Gets or sets the current wallet size.
@@ -105,8 +108,9 @@ internal static class ModManager
                 On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter -= FixVesselEyes;
             }
 
-            foreach (Curse curse in CurseManager.GetCurses())
-                curse.Unhook();
+            if (UseCurses)
+                foreach (Curse curse in CurseManager.GetCurses())
+                    curse.Unhook();
         }
         yield return orig(self);
     }
@@ -123,8 +127,7 @@ internal static class ModManager
         orig(self, permaDeath, bossRush);
         if (!RandomizerMod.RandomizerMod.IsRandoSave)
             return;
-        foreach (Curse curse in CurseManager.GetCurses())
-            curse.ResetData();
+        
         Hook();
         // Fix for the shop placement wrap.
         if (IsWalletCursed)
@@ -139,6 +142,43 @@ internal static class ModManager
                 (placements[Sly_Key_Expensive] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
             if (placements.ContainsKey(Sly_Key_Extreme_Valuable))
                 (placements[Sly_Key_Extreme_Valuable] as ShopPlacement).requiredPlayerDataBool = nameof(PlayerData.instance.gaveSlykey);
+        }
+
+        if (UseCurses)
+        {
+            foreach (Curse curse in CurseManager.GetCurses())
+                curse.ResetData();
+            if (ItemChanger.Internal.Ref.Settings.Placements.ContainsKey(LocationNames.Iselda))
+                ItemChanger.Internal.Ref.Settings.Placements[LocationNames.Iselda].Add(Finder.GetItem("Generosity"));
+            else if (ItemChanger.Internal.Ref.Settings.Placements.ContainsKey(Iselda_Cheap))
+                ItemChanger.Internal.Ref.Settings.Placements[Iselda_Cheap].Add(Finder.GetItem("Generosity"));
+            else
+            {
+                AbstractPlacement placement = Finder.GetLocation(LocationNames.Iselda).Wrap();
+                placement.Add(Finder.GetItem("Generosity"));
+
+                if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Charms)
+                    placement.Add(Finder.GetItem(ItemNames.Wayward_Compass));
+
+                if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Maps)
+                {
+                    placement.Add(Finder.GetItem(ItemNames.Ancient_Basin_Map));
+                    placement.Add(Finder.GetItem(ItemNames.City_of_Tears_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Crossroads_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Crystal_Peak_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Deepnest_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Fog_Canyon_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Fungal_Wastes_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Greenpath_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Howling_Cliffs_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Kingdoms_Edge_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Queens_Gardens_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Resting_Grounds_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Royal_Waterways_Map));
+                    placement.Add(Finder.GetItem(ItemNames.Quill));
+                }
+                ItemChangerMod.AddPlacements(new List<AbstractPlacement>() { placement });
+            }
         }
     }
 
@@ -176,9 +216,12 @@ internal static class ModManager
                 On.HeroController.AddToMaxMPReserve += HookVesselGain;
                 On.HutongGames.PlayMaker.Actions.IntCompare.OnEnter += FixVesselEyes;
             }
-            foreach (Curse curse in CurseManager.GetCurses())
-                curse.ApplyHooks();
-            CurseManager.Handler.StartCoroutine(WaitForHC());
+            if (UseCurses)
+            {
+                foreach (Curse curse in CurseManager.GetCurses())
+                    curse.ApplyHooks();
+                CurseManager.Handler.StartCoroutine(WaitForHC());
+            }
         }
         catch (Exception exception)
         {
@@ -472,7 +515,7 @@ internal static class ModManager
         }
         catch (Exception exception)
         {
-            CurseRandomizer.Instance.LogError("An error occured while trying to modify soul limit at: "+exception.StackTrace);
+            CurseRandomizer.Instance.LogError("An error occured while trying to modify soul limit at: " + exception.StackTrace);
         }
     }
 
@@ -547,7 +590,7 @@ internal static class ModManager
             AbstractPlacement currentPlacement;
             AbstractItem currentItem = Finder.GetItem(ItemNames.Fragile_Heart_Repair);
             currentItem.tags ??= new();
-            currentItem.AddTag(new CostTag() { Cost = new GeoCost(200)});
+            currentItem.AddTag(new CostTag() { Cost = new GeoCost(200) });
             currentItem.AddTag(new PDBoolShopReqTag() { reqVal = true, fieldName = nameof(PlayerData.instance.brokenCharm_23) });
             if (!placements.ContainsKey(Leg_Eater_Cheap) && !_placementsToAdd.Select(x => x.Name).Contains(Leg_Eater_Cheap))
             {
@@ -620,7 +663,22 @@ internal static class ModManager
             AddDefaultItemToShop(Sly_Cheap, ItemNames.Rancid_Egg, 69);
 
         if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Maps)
+        { 
             AddDefaultItemToShop(Iselda_Cheap, ItemNames.Quill, 120);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Ancient_Basin_Map, 112);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.City_of_Tears_Map, 90);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Crossroads_Map, 30);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Crystal_Peak_Map, 112);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Deepnest_Map, 38);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Fog_Canyon_Map, 150);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Fungal_Wastes_Map, 75);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Greenpath_Map, 60);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Howling_Cliffs_Map, 75);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Kingdoms_Edge_Map, 112);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Queens_Gardens_Map, 150);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Resting_Grounds_Map, 69);
+            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Royal_Waterways_Map, 75);
+        }
 
         if (_placementsToAdd.Any())
             ItemChangerMod.AddPlacements(_placementsToAdd);
@@ -634,7 +692,6 @@ internal static class ModManager
         currentItem.tags ??= new();
         if (charmCost == -1)
             currentItem.AddTag(new CostTag() { Cost = new GeoCost(geoCost) });
-
         else
             currentItem.AddTag(new CostTag()
             {
@@ -647,6 +704,10 @@ internal static class ModManager
         {
             currentPlacement = Finder.GetLocation(locationName).Wrap();
             _placementsToAdd.Add(currentPlacement);
+
+            // Add item to remove regret curse.
+            if (locationName == Iselda_Cheap && UseCurses && !currentPlacement.Items.Contains(Finder.GetItem("Generosity")))
+                currentPlacement.Add(Finder.GetItem("Generosity"));
         }
         else if (!placements.ContainsKey(locationName))
             currentPlacement = _placementsToAdd.First(x => x.Name == locationName);

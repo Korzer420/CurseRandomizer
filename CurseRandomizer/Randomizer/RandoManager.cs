@@ -1,9 +1,11 @@
-﻿using CurseRandomizer.ItemData;
+﻿using CurseRandomizer.Curses;
+using CurseRandomizer.ItemData;
 using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer;
 using CurseRandomizer.Randomizer.Settings;
 using ItemChanger;
 using ItemChanger.Extensions;
+using ItemChanger.Items;
 using ItemChanger.Locations;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
@@ -244,6 +246,39 @@ internal static class RandoManager
                 sprite = (Finder.GetItem(ItemNames.Dream_Nail).UIDef as MsgUIDef).sprite
             }
         });
+
+        // Data for regret curse
+        Finder.DefineCustomItem(new IntItem()
+        {
+            name = "Generosity",
+            amount = 1,
+            fieldName = "Generosity",
+            tags = new()
+            {
+                new PDBoolShopRemoveTag()
+                {
+                    fieldName = "HasRegrets",
+                    removeVal = false
+                },
+                new CostTag()
+                {
+                    Cost = new GeoCost(200)
+                    {
+                        Recurring = true
+                    }
+                },
+                new PersistentItemTag()
+                {
+                    Persistence = Persistence.Persistent
+                }
+            },
+            UIDef = new MsgUIDef()
+            {
+                name = new BoxedString("Generosity"),
+                shopDesc = new BoxedString("If this does cleanse you from your past regrets is beyond me. But I wouldn't mind having more geo."),
+                sprite = new BoxedSprite(Finder.GetItem(ItemNames.One_Geo).GetResolvedUIDef().GetSprite())
+            }
+        });
     }
 
     internal static void HookRando()
@@ -257,7 +292,7 @@ internal static class RandoManager
         RandoController.OnCalculateHash += RandoController_OnCalculateHash;
         RandomizerMenu.AttachMenu();
         SettingsLog.AfterLogSettings += WriteCurseRandoSettings;
-        RandomizerMod.RC.ProgressionInitializer.OnCreateProgressionInitializer += SetupVesselTerm;
+        ProgressionInitializer.OnCreateProgressionInitializer += SetupVesselTerm;
 
         if (ModHooks.GetMod("RandoSettingsManager") is Mod)
             HookRandoSettingsManager();
@@ -284,7 +319,7 @@ internal static class RandoManager
     {
         RandoSettingsManagerMod.Instance.RegisterConnection(new SimpleSettingsProxy<RandoSettings>(CurseRandomizer.Instance,
         RandomizerMenu.Instance.UpdateMenuSettings,
-        () => CurseRandomizer.Instance.Settings));
+        () => CurseRandomizer.Instance.Settings.GeneralSettings.Enabled ? CurseRandomizer.Instance.Settings : null));
     }
 
     private static void HookFStats() => CurseStats.HookFStats();
@@ -432,7 +467,18 @@ internal static class RandoManager
     private static void ApplySettings(RequestBuilder builder)
     {
         if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled)
+        {
+            ModManager.WalletAmount = 4;
+            ModManager.IsWalletCursed = false;
+            ModManager.CanAccessBronze = true;
+            ModManager.CanAccessSilver = true;
+            ModManager.CanAccessGold = true;
+            ModManager.IsColoCursed = false;
+            ModManager.IsDreamNailCursed = false;
+            ModManager.IsVesselCursed = false;
+            ModManager.SoulVessel = 2;
             return;
+        }
         _generator = new(builder.gs.Seed);
         if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet)
         {
@@ -862,7 +908,13 @@ internal static class RandoManager
     {
         ReplacedItems.Clear();
         if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled || !CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
+        {
+            ModManager.UseCurses = false;
+            OmenCurse.OmenMode = false;
             return;
+        }
+        ModManager.UseCurses = true;
+        OmenCurse.OmenMode = false; // CurseRandomizer.Instance.Settings.CurseControlSettings.OmenMode;
 
         // Get all items which can be removed.
         // Also check the total amount of items.
@@ -1138,6 +1190,9 @@ internal static class RandoManager
                         CurseRandomizer.Instance.LogError("At: " + exception.StackTrace);
                     }
                 }
+
+        if (!_mimicableItems.Any())
+            _mimicableItems.Add((ItemNames.Mothwing_Cloak, 1f));
     }
 
     private static string RollMimic()
@@ -1235,60 +1290,29 @@ internal static class RandoManager
 
         if (CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
         {
+            //VariableResolver resolver = builder.VariableResolver;
+            //builder.VariableResolver = new CurseVariableResolver() { Inner = resolver };
             builder.AddItem(new SingleItem("Fool_Item_Mocked_Shard", new(builder.GetTerm("MASKSHARDS"), 1)));
             builder.AddItem(new SingleItem("Fool_Item_Two_Mocked_Shards", new(builder.GetTerm("MASKSHARDS"), 2)));
             builder.AddItem(new SingleItem("Fool_Item_Mocked_Mask", new(builder.GetTerm("MASKSHARDS"), 4)));
 
             builder.GetOrAddTerm("NOCURSE");
-            List<string> skipTerms = new();
-
-            Dictionary<string, bool> curseSettingsLookup = CurseRandomizer.Instance.Settings.CurseSettings.ToDictionary(x => x.Name, x => x.Active);
-            // Since Omen can apply all curses below, we simply disable most of the skip settings.
-            if (curseSettingsLookup["Omen"])
+            List<string> skipTerms = new()
             {
-                skipTerms.Add("SHADESKIPS");
-                skipTerms.Add("INFECTIONSKIPS");
-                skipTerms.Add("BACKGROUNDPOGOS");
-                skipTerms.Add("PRECISEMOVEMENT");
-                skipTerms.Add("OBSCURESKIPS");
-                skipTerms.Add("ENEMYPOGOS");
-                skipTerms.Add("SPIKETUNNELS");
-                skipTerms.Add("FIREBALLSKIPS");
-                skipTerms.Add("COMPLEXSKIPS");
-                skipTerms.Add("DIFFICULTSKIPS");
-                skipTerms.Add("DAMAGEBOOSTS");
-                skipTerms.Add("DANGEROUSSKIPS");
-            }
-            else
-            {
-                if (curseSettingsLookup["Stupidity"])
-                    skipTerms.Add("FIREBALLSKIPS");
+                "SHADESKIPS",
+                "INFECTIONSKIPS",
+                "BACKGROUNDPOGOS",
+                "PRECISEMOVEMENT",
+                "OBSCURESKIPS",
+                "ENEMYPOGOS",
+                "SPIKETUNNELS",
+                "FIREBALLSKIPS",
+                "COMPLEXSKIPS",
+                "DIFFICULTSKIPS",
+                "DAMAGEBOOSTS",
+                "DANGEROUSSKIPS"
+            };
 
-                if (curseSettingsLookup["Diminish"] || curseSettingsLookup["Sloth"])
-                {
-                    skipTerms.Add("SHADESKIPS");
-                    skipTerms.Add("INFECTIONSKIPS");
-                    skipTerms.Add("BACKGROUNDPOGOS");
-                    skipTerms.Add("PRECISEMOVEMENT");
-                    skipTerms.Add("COMPLEXSKIPS");
-                    skipTerms.Add("DIFFICULTSKIPS");
-                    skipTerms.Add("ENEMYPOGOS");
-                    skipTerms.Add("OBSCURESKIPS");
-                    skipTerms.Add("SPIKETUNNELS");
-                }
-
-                if (curseSettingsLookup["Emptiness"])
-                    skipTerms.Add("DAMAGEBOOSTS");
-
-                if (curseSettingsLookup["Normality"])
-                {
-                    skipTerms.Add("Dashmaster");
-                    skipTerms.Add("Sprintmaster");
-                    skipTerms.Add("Mark_of_Pride");
-                    skipTerms.Add("Glowing_Womb");
-                    skipTerms.Add("Weaversong");
-                }
-            }
             Dictionary<string, LogicClause> macros = ReflectionHelper.GetField<LogicProcessor, Dictionary<string, LogicClause>>(builder.LP, "macros");
             foreach (string term in macros.Keys.ToList())
                 foreach (string skipTerm in skipTerms)
@@ -1347,13 +1371,13 @@ internal static class RandoManager
         if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo)
         {
             Term term = builder.GetOrAddTerm("BRONZE");
-            builder.AddItem(new BoolItem(Bronze_Trial_Ticket, term));
+            builder.AddItem(new RandomizerCore.LogicItems.BoolItem(Bronze_Trial_Ticket, term));
 
             term = builder.GetOrAddTerm("SILVER");
-            builder.AddItem(new BoolItem(Silver_Trial_Ticket, term));
+            builder.AddItem(new RandomizerCore.LogicItems.BoolItem(Silver_Trial_Ticket, term));
 
             term = builder.GetOrAddTerm("GOLD");
-            builder.AddItem(new BoolItem(Gold_Trial_Ticket, term));
+            builder.AddItem(new RandomizerCore.LogicItems.BoolItem(Gold_Trial_Ticket, term));
 
             builder.DoLogicEdit(new("Defeated_Colosseum_1", "(ORIG) + BRONZE"));
             builder.DoLogicEdit(new("Defeated_Colosseum_2", "(ORIG) + SILVER"));

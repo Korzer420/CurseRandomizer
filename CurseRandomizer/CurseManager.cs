@@ -26,6 +26,11 @@ public static class CurseManager
         new SlothCurse() {Name = "Sloth", Type = CurseType.Sloth, Data = new() { Cap = 5 } },
         new UnknownCurse() {Name = "Unknown", Type = CurseType.Unknown, Data = new() { Cap = 3 } },
         new OmenCurse() {Name = "Omen", Type = CurseType.Omen, Data = new() { Cap = 5 } },
+        new DoubtCurse() { Name = "Doubt", Type = CurseType.Doubt, Data = new() {Cap = 5} },
+        new ConfusionCurse() { Name = "Confusion", Type = CurseType.Confusion, Data = new() {Cap = 15} },
+        new RegretCurse() { Name = "Regret", Type = CurseType.Regret, Data = new() {Cap = 5} },
+        new MazeCurse() { Name = "Maze", Type = CurseType.Maze, Data = new() {Cap = 2} },
+        new DespairCurse() { Name = "Despair", Type = CurseType.Despair, Data = new() {Cap = 4} }
     };
 
     #endregion
@@ -81,10 +86,10 @@ public static class CurseManager
 
     internal static void ParseSaveData(Dictionary<string, CurseData> curseData)
     {
-        CurseRandomizer.Instance.Log("Check if data for curses exists.");
+        CurseRandomizer.Instance.LogDebug("Check if data for curses exists.");
         if (curseData == null)
             return;
-        CurseRandomizer.Instance.Log("Load data for curses.");
+        CurseRandomizer.Instance.LogDebug("Load data for curses.");
         foreach (string curseName in curseData.Keys)
             try
             {

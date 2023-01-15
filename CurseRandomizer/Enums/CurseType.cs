@@ -78,6 +78,31 @@ public enum CurseType
     Omen,
 
     /// <summary>
+    /// Killing an enemy has a chance to apply an instant curse.
+    /// </summary>
+    Regret,
+
+    /// <summary>
+    /// Randomizes the key bindings until vanished.
+    /// </summary>
+    Confusion,
+
+    /// <summary>
+    /// Entering a room has a chance to teleport you to a known room.
+    /// </summary>
+    Maze,
+
+    /// <summary>
+    /// Removes all equipped charms and redistributes their cost (with 1 additional cost).
+    /// </summary>
+    Doubt,
+
+    /// <summary>
+    /// Prevent temporarly curses from further progression. Slowly drains soul over time and healing does nothing. Kills you on vanish.
+    /// </summary>
+    Despair,
+
+    /// <summary>
     /// A custom curse implemented by another mod.
     /// </summary>
     Custom

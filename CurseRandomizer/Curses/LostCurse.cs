@@ -1,4 +1,5 @@
-﻿using HutongGames.PlayMaker;
+﻿using CurseRandomizer.Enums;
+using HutongGames.PlayMaker;
 using System;
 using System.Collections.Generic;
 
@@ -6,6 +7,8 @@ namespace CurseRandomizer.Curses;
 
 internal class LostCurse : Curse
 {
+    public override CurseTag Tag => CurseTag.Instant;
+
     public override bool CanApplyCurse()
     {
         int cap = UseCap ? Cap : 0;

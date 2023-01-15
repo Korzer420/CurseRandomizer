@@ -1,6 +1,4 @@
-﻿using CurseRandomizer.Enums;
-using CurseRandomizer.Helper;
-using ItemChanger;
+﻿using CurseRandomizer.Helper;
 using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
 using System;

@@ -1,13 +1,11 @@
 ﻿using CurseRandomizer.Enums;
 using CurseRandomizer.Helper;
 using HutongGames.PlayMaker;
-using IL.TMPro;
 using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
 using Modding;
 using MonoMod.Cil;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,6 +37,7 @@ internal class UnknownCurse : Curse
     {
         get
         {
+            Data ??= new();
             if (Data.AdditionalData == null)
                 Data.AdditionalData = new List<AffectedVisual>();
             return Data.AdditionalData as List<AffectedVisual>;
@@ -60,7 +59,7 @@ internal class UnknownCurse : Curse
     {
         orig(self);
         if (Affected.Contains(AffectedVisual.Geo))
-        { 
+        {
             if (!_bingoUIUsed)
                 self.geoTextMesh.text = "???";
             else
@@ -68,7 +67,7 @@ internal class UnknownCurse : Curse
                 int bingoIndex = 0;
                 while (bingoIndex < self.geoTextMesh.text.Length && self.geoTextMesh.text[bingoIndex] != '(')
                     bingoIndex++;
-                self.geoTextMesh.text = "??? "+self.geoTextMesh.text.Substring(bingoIndex);
+                self.geoTextMesh.text = "??? " + self.geoTextMesh.text.Substring(bingoIndex);
             }
         }
     }
@@ -234,7 +233,7 @@ internal class UnknownCurse : Curse
     public override void ApplyCurse()
     {
         List<AffectedVisual> viableVisuals = (Enum.GetValues(typeof(AffectedVisual)) as AffectedVisual[]).Except(Affected).ToList();
-#if RELEASE
+        viableVisuals.Remove(AffectedVisual.Map);
         AffectedVisual chosen = viableVisuals[UnityEngine.Random.Range(0, viableVisuals.Count)];
         Affected.Add(chosen);
         if (chosen == AffectedVisual.Health)
@@ -247,17 +246,25 @@ internal class UnknownCurse : Curse
                 GameCameras.instance.hudCanvas.gameObject.SetActive(false);
                 GameCameras.instance.hudCanvas.gameObject.SetActive(true);
             }
-        } 
+        }
         else if (chosen == AffectedVisual.Soul)
-             HeroController.instance.AddMPCharge(200);
-#endif
+            HeroController.instance.AddMPCharge(200);
     }
 
-    public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Data.Cap : 5);
+    public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Data.Cap : 4);
 
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 5));
+    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 4));
 
     public override void ResetAdditionalData() => Affected.Clear();
+
+    #endregion
+
+    #region Methods
+
+    public void ForceMapDark()
+    {
+       
+    }
 
     #endregion
 }

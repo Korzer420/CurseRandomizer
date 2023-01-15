@@ -1,12 +1,18 @@
-﻿using CurseRandomizer.Manager;
+﻿using CurseRandomizer.Curses;
+using CurseRandomizer.Enums;
+using CurseRandomizer.ItemData;
+using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer.Settings;
 using CurseRandomizer.SaveManagment;
 using Modding;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 
 namespace CurseRandomizer;
 
-public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSettings<LocalSaveData>
+public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSettings<LocalSaveData>, IMenuMod
 {
     private RandoSettings _settings;
 
@@ -17,9 +23,11 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public static CurseRandomizer Instance { get; set; }
 
-    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "2.0.2.0";
+    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "3.0.0.0";
 
     public RandoSettings Settings => _settings ??= new();
+
+    public bool ToggleButtonInsideMenu => false;
 
     public override void Initialize()
     {
@@ -37,27 +45,51 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             orig = "FOOL (You lost a charm notch)";
         else if (key == "CR_Fool_Relic_1")
             orig = "FOOL (You lost a relic)";
-        else if (key == "Curse_Randomizer_Remove_Darkness_1")
-            orig = "The curse of darkness vanished";
-        else if (key == "Curse_Randomizer_Remove_Omen_1")
-            orig = "The omen has been vanished";
-        else if (key.StartsWith("Curse_Randomizer_Omen_Affect_"))
+        else if (key == "Curse_Randomizer_Darkness_Vanish_1")
+            orig = "The curse of darkness vanished!";
+        else if (key == "Curse_Randomizer_Omen_Vanish_1")
+            orig = "The omen vanished!";
+        else if (key == "Curse_Randomizer_Confusion_Vanish_1")
+            orig = "The confusion vanished!";
+        else if (key == "Curse_Randomizer_Maze_Vanish_1")
+            orig = "The curse of maze vanished";
+        else if (key == "Curse_Randomizer_Regret_Vanish_1")
+            orig = "You have no regrets left.";
+        else if (key == "Curse_Randomizer_Despair_Vanish_1")
+            orig = "There is no hope... but no time for despair either.";
+        else if (key == "Curse_Randomizer_Maze_Teleported_1")
+            orig = "???";
+        else if (key.StartsWith("Curse_Randomizer_Omen_Casted"))
         {
-            key = key.Substring("Curse_Randomizer_Omen_Affect_".Length);
-            orig = $"The curse of <color={Curse.TextColor}>{ key.Split(new string[] {"_1"}, System.StringSplitOptions.RemoveEmptyEntries)[0]}</color> was layed upon you!";
-        }    
+            key = key.Substring("Curse_Randomizer_Omen_Casted_".Length);
+            orig = $"The curse of <color={Curse.TextColor}>{key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0]}</color> was layed upon you!";
+        }
+        else if (key.StartsWith("Curse_Randomizer_Regret_Casted_"))
+        {
+            key = key.Substring("Curse_Randomizer_Regret_Casted_".Length);
+            orig = $"The sins of <color={Curse.TextColor}>{key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0]}</color> are crawling on your back!";
+        }
+        else if (key.StartsWith("Curse_Randomizer_Despair_Afflicted_"))
+        {
+            key = key.Substring("Curse_Randomizer_Despair_Casted_".Length);
+            orig = $"Your hopelessness formed <color={Curse.TextColor}>{key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0]}</color>!";
+        }
         return orig;
     }
 
     #region Save Data control
 
-    public void OnLoadGlobal(GlobalSaveData randoSettings) => _settings = randoSettings.Settings;
+    public void OnLoadGlobal(GlobalSaveData randoSettings)
+    {
+        _settings = randoSettings.Settings;
+        TemporaryCurse.Position = randoSettings.CounterPosition;
+    }
 
-    public void OnLoadLocal(LocalSaveData saveData) 
+    public void OnLoadLocal(LocalSaveData saveData)
     {
         try
         {
-            Log("Load local data");
+            LogDebug("Load local data");
             if (saveData == null)
                 return;
             CurseManager.ParseSaveData(saveData.Data);
@@ -73,6 +105,8 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             ModManager.IsVesselCursed = saveData.VesselCursed;
             ModManager.IsColoCursed = saveData.ColoCursed;
             ModManager.IsDreamNailCursed = saveData.DreamNailCursed;
+            ModManager.UseCurses = saveData.UseCurses;
+            OmenCurse.OmenMode = saveData.OmenMode;
             CurseManager.DefaultCurse = CurseManager.GetCurseByName(saveData.DefaultCurse);
         }
         catch (System.Exception exception)
@@ -81,18 +115,19 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         }
     }
 
-    public GlobalSaveData OnSaveGlobal() => new() { Settings = Settings };
+    public GlobalSaveData OnSaveGlobal() => new() { Settings = Settings, CounterPosition = TemporaryCurse.Position };
 
     public LocalSaveData OnSaveLocal()
     {
-        Log("Save local data");
+        LogDebug("Save local data");
         Dictionary<string, CurseData> curseData = new();
         foreach (Curse curse in CurseManager.GetCurses())
             curseData.Add(curse.Name, curse.Data);
-        
+
         LocalSaveData saveData = new()
         {
             Data = curseData,
+            UseCurses = ModManager.UseCurses,
             BronzeAccess = ModManager.CanAccessBronze,
             SilverAccess = ModManager.CanAccessSilver,
             GoldAccess = ModManager.CanAccessGold,
@@ -101,13 +136,30 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             SoulVessels = ModManager.SoulVessel,
             DreamNailFragments = ModManager.DreamUpgrade,
             UseCaps = CurseManager.UseCaps,
-            DefaultCurse = CurseManager.DefaultCurse == null ? "Pain" :CurseManager.DefaultCurse.Name,
+            DefaultCurse = CurseManager.DefaultCurse == null ? "Pain" : CurseManager.DefaultCurse.Name,
             ColoCursed = ModManager.IsColoCursed,
             VesselCursed = ModManager.IsVesselCursed,
             WalletCursed = ModManager.IsWalletCursed,
-            DreamNailCursed = ModManager.IsDreamNailCursed
+            DreamNailCursed = ModManager.IsDreamNailCursed,
+            OmenMode = OmenCurse.OmenMode
         };
-	    return saveData;
+        return saveData;
+    }
+
+    public List<IMenuMod.MenuEntry> GetMenuData(IMenuMod.MenuEntry? toggleButtonEntry)
+    {
+        return new()
+        {
+            new IMenuMod.MenuEntry("Counter Position", Enum.GetNames(typeof(CurseCounterPosition)), "Determines the position where the counter appear.",
+            index =>
+            {
+                TemporaryCurse.Position = (CurseCounterPosition)index;
+                if (GameManager.instance != null && GameManager.instance.IsGameplayScene())
+                    foreach (TemporaryCurse curse in CurseManager.GetCurses().Where(x => x is TemporaryCurse))
+                        curse.RepositionTracker();
+            },
+            () => (int)TemporaryCurse.Position)
+        };
     }
 
     #endregion

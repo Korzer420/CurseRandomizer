@@ -1,16 +1,12 @@
-﻿
-using MenuChanger.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MenuChanger.Attributes;
 
 namespace CurseRandomizer.Randomizer.Settings;
 
 public class CurseControlSettings
 {
     public bool PerfectMimics { get; set; }
+
+    //public bool OmenMode { get; set; }
 
     public RequestMethod CurseMethod { get; set; }
 
@@ -19,7 +15,7 @@ public class CurseControlSettings
     [MenuRange(0, 200)]
     public int CurseItems { get; set; }
 
-    // These properties will be only the curse page, which is why we bind them manually.
+    // These properties will only be in the curse page, which is why we bind them manually.
     [MenuIgnore]
     public string DefaultCurse { get; set; }
 

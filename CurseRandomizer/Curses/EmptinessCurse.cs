@@ -26,22 +26,29 @@ internal class EmptinessCurse : Curse
     public override bool CanApplyCurse()
     {
         int cap = UseCap ? Cap : 1;
-        return PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > cap;
+        return PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > cap || PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) >= cap;
     }
 
-    public override void ApplyCurse() 
-    { 
-        HeroController.instance.AddToMaxHealth(-1);
-        if (!PlayerData.instance.GetBool(nameof(PlayerData.instance.equippedCharm_27)))
+    public override void ApplyCurse()
+    {
+        int cap = UseCap ? Cap : 1;
+        if (PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > cap)
         {
-            // To force the UI to update to amount of masks.
-            if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
-                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+            if (PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) >= cap && UnityEngine.Random.Range(0, 10) < 3)
+                HeroController.instance.AddToMaxHealth(-1);
             else
-            {
-                GameCameras.instance.hudCanvas.gameObject.SetActive(false);
-                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
-            }
+                HeroController.instance.AddToMaxMPReserve(-1);
+        }
+        else
+            HeroController.instance.AddToMaxMPReserve(-1);
+
+        // To force the UI to update to amount of masks.
+        if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
+            GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+        else
+        {
+            GameCameras.instance.hudCanvas.gameObject.SetActive(false);
+            GameCameras.instance.hudCanvas.gameObject.SetActive(true);
         }
     }
 

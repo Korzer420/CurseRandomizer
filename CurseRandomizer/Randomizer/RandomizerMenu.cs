@@ -195,7 +195,7 @@ internal class RandomizerMenu
         if (!customCursePanel.Items.Any())
         {
             MenuLabel label = new(_cursePage, "No custom curses available.", MenuLabel.Style.Title);
-            label.MoveTo(new(0f, -300f));
+            label.MoveTo(new(0f, -400f));
         }
 
         ToggleButton customCurses = new(_cursePage, "Custom Curses");
@@ -208,7 +208,7 @@ internal class RandomizerMenu
                 customCursePanel.Hide();
         };
         customCurses.SetValue(CurseRandomizer.Instance.Settings.CurseControlSettings.CustomCurses);
-        customCurses.MoveTo(new(0f, -100f));
+        customCurses.MoveTo(new(0f, -250f));
 
         _additionalElements[0] = capEffects;
         _additionalElements[1] = defaultCurse;
@@ -219,8 +219,8 @@ internal class RandomizerMenu
     {
         SmallButton button = new(previousPage, "Curse Randomizer");
         button.AddHideAndShowEvent(previousPage, _mainPage);
-        _mainPage.BeforeGoBack += () => button.Text.color = !CurseRandomizer.Instance.Settings.GeneralSettings.Enabled ? Colors.FALSE_COLOR : Colors.TRUE_COLOR;
-        button.Text.color = !CurseRandomizer.Instance.Settings.GeneralSettings.Enabled ? Colors.FALSE_COLOR : Colors.TRUE_COLOR;
+        _mainPage.BeforeGoBack += () => button.Text.color = !CurseRandomizer.Instance.Settings.GeneralSettings.Enabled ? Colors.DEFAULT_COLOR : Colors.TRUE_COLOR;
+        button.Text.color = !CurseRandomizer.Instance.Settings.GeneralSettings.Enabled ? Colors.DEFAULT_COLOR : Colors.TRUE_COLOR;
         connectionButton = button;
         return true;
     }
