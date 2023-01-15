@@ -27,7 +27,7 @@ Here's a list of available curses:
 - Sloth (Permanent): Add a 0.1 seconds cooldown to your dash and nail swing.
 - Stupidity (Permanent): Spells cost 3 more soul. Also applies to focus. (Since focus works different, the extra amount is taken after the cast is finished.)
 - Thirst (Permanent): Hits on enemies grant 1 soul less.
-- Unknown (Permanent): Disables the health, soul, geo, essence or map display.
+- Unknown (Permanent): Disables the health, soul, geo, essence or map display. (Map is currently unused)
 - Weakness (Permanent): Reduce your base nail damage by 1.
 - Doubt (Instant): Unequippes all charms that you're wearing. Also shuffles the cost of all charms that you have OBTAINED. The total cost is increased by one. For example: If you have Dashmaster (3) and Compass (5), a possible final cost could be Dashmaster (6) and Compass (3) (from 8 total to 9). Charms can never cost more than 7 notches.
 - Confusion (Temporarly): Switches all 8 player actions (nail, spell, dream nail etc.) with each other. Vanishes after picking up 5 items. The needed item amount is increased by 5 each time this curse is casted. Note: Respawnable items like Lifeblood only count once!
