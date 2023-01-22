@@ -241,9 +241,9 @@ internal class UnknownCurse : Curse
             HeroController.instance.AddMPCharge(200);
     }
 
-    public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Data.Cap : 4);
+    public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Data.Cap : 5);
 
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 4));
+    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 5));
 
     public override void ResetAdditionalData() => Affected.Clear();
 
