@@ -14,21 +14,26 @@ With this method it is ensured, that a curse is applied regardless of the contex
 
 ### Curses
 Here's a list of available curses:
-- Amnesia: Lowers the damage of your spells by 10% or takes away a spell upgrade (20% chance).
-- Darkness: Lowers the vision range by 15% until you traverse 10 different rooms ("Traverse" as in you need to exit left if you entered right etc.). Repeated cast increase the vision range penalty by 15% each (up to 90% if not capped). The needed room amount stays the same.
-- Diminish: Lowers your nail range by 0.1. For perspective, your base nail range is around 1.4. Do the math yourself :c
-- Disorientation: Warps you back to your bench.
-- Emptiness: Removes a mask. (Lowers you max hp)
-- Greed: Takes 50% of you geo.
-- Lost: Remove a relic or notch (It is ensured, that you have at least one notch to equip quest charms)
-- Normality: Makes a charm useless, removing all it's effect, but it heals you to full health. This curse cannot be applied to quest charms. 
-- Omen: Upon taking a hit, apply a random permanent curse onto you. The curse vanishes after killing 5 different TYPES of enemies. With each cast, 5 additional enemies types are needed (up to 50 if uncapped). Taking a hit reduces the needed kill amount by 10. If you have less 10 ten kills remaining, it sets you to 1 instead. If no permanent curse can be applied, you'll be killed instantly instead. Permanent curses include all besides: Pain, Greed, Disorientation, Darkness and Omen.
-- Pain: Take 1 to 3 damage. (60% for 1, 30% for 2 and 10% for 3 damage)
-- Sloth: Add a 0.1 seconds cooldown to your dash and nail swing.
-- Stupidity: Spells cost 3 more soul. Also applies to focus. (Since focus works different, the extra amount is taken after the cast is finished.)
-- Thirst: Hits on enemies grant 1 soul less.
-- Unknown: Disables the health, soul, geo, essence or map display.
-- Weakness: Reduce your base nail damage by 1.
+- Amnesia (Permanent): Lowers the damage of your spells by 10% or takes away a spell upgrade (20% chance).
+- Darkness (Temporarly): Lowers the vision range by 30% until you traverse 10 different rooms ("Traverse" as in you need to exit left if you entered right etc.). Repeated cast increase the vision range penalty by 15% each (up to 90% if not capped). The needed room amount increases by 5 each time as well.
+- Diminish (Permanent): Lowers your nail range by 0.1. For perspective, your base nail range is around 1.4. Do the math yourself :c
+- Disorientation (Instant): Warps you back to your bench.
+- Emptiness (Permanent): Removes a mask. (Lowers you max hp) Also has a 30% chance to remove a soul vessel instead.
+- Greed (Instant): Takes 50% of you geo.
+- Lost (Instant): Remove a relic or notch (It is ensured, that you have at least one notch to equip quest charms)
+- Normality (Permanent): Makes a charm useless, removing all it's effect, but it heals you to full health. This curse cannot be applied to quest charms. 
+- Omen (Temporarly): Upon taking a hit, apply a random permanent curse onto you. This curse vanishes after killing 5 different TYPES of enemies (although the casted curses through "Omen" remain). With each cast, 5 additional enemies types are needed (up to 50 if uncapped). Taking a hit reduces the needed kill amount by 10. If you have less 10 ten kills remaining, it sets you to 1 instead. If no permanent curse can be applied, you'll be killed instantly instead.
+- Pain (Instant): Take 1 to 3 damage. (60% for 1, 30% for 2 and 10% for 3 damage)
+- Sloth (Permanent): Add a 0.1 seconds cooldown to your dash and nail swing.
+- Stupidity (Permanent): Spells cost 3 more soul. Also applies to focus. (Since focus works different, the extra amount is taken after the cast is finished.)
+- Thirst (Permanent): Hits on enemies grant 1 soul less.
+- Unknown (Permanent): Disables the health, soul, geo, essence or map display. (Map is currently unused)
+- Weakness (Permanent): Reduce your base nail damage by 1.
+- Doubt (Instant): Unequippes all charms that you're wearing. Also shuffles the cost of all charms that you have OBTAINED. The total cost is increased by one. For example: If you have Dashmaster (3) and Compass (5), a possible final cost could be Dashmaster (6) and Compass (3) (from 8 total to 9). Charms can never cost more than 7 notches.
+- Confusion (Temporarly): Switches all 8 player actions (nail, spell, dream nail etc.) with each other. Vanishes after picking up 5 items. The needed item amount is increased by 5 each time this curse is casted. Note: Respawnable items like Lifeblood only count once!
+- Regret (Temporarly): Each time you kill an enemy, there is a 5% chance that a random instant curse is applied to you. The chance increases by 4% for each time you have killed that enemy in the last 20. Resets the enemy list each time a curse is applied. Can also cast instant curses that are not activated in the mod menu! Spending 300 Geo removes the curse. 300 more geo is needed each time the curse is casted again. Hint: If you suffer from this curse, Iselda will sell the item "Generosity" which can be bought each time you enter the shop to spend infinite geo (so the curse is always removable). The greed curse also progresses this curse.
+- Maze (Temporarly): Each time you enter a room, there is a 5% chance that you will enter a known room instead. This curse vanishes after killing a boss. 1 more boss is needed every time this is casted. A wrong warp is marked by "???" appearing.
+- Despair (Temporarly): Prevents you from healing (including benches). Drains Soul over time, which increases the longer this curse is active. Upon a certain time geo is increasingly draining as well. If the curse is not lifted after 15 minutes, a random curse (besides Despair itself) is casted on you every 3 minutes. Vanishes after dealing 400 damage (spell or nail damage). Note: Only 50 damage is counted per enemy type. Increases by 400 each time this curse is casted. Unless you play on Steelsoul, this curse kills you upon vanish. Blocks all other temporarly curses from further progressing while "Despair" is active.
 - Custom: Allows all curses which are created from other mods to be viable options. They will appear in the menu to manually setting them yourself.
 
 **Choosing certain curses will override the logic to remove skip logic, since they may break specific skips. The application of the curses takes priority! Be aware of that.**
