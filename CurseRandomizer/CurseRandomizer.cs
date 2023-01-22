@@ -23,7 +23,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public static CurseRandomizer Instance { get; set; }
 
-    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "3.0.0.0";
+    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "3.1.0.0";
 
     public RandoSettings Settings => _settings ??= new();
 
@@ -59,20 +59,23 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             orig = "There is no hope... but no time for despair either.";
         else if (key == "Curse_Randomizer_Maze_Teleported_1")
             orig = "???";
-        else if (key.StartsWith("Curse_Randomizer_Omen_Casted"))
+        else if (key.StartsWith("Curse_Randomizer_Omen_Casted_"))
         {
             key = key.Substring("Curse_Randomizer_Omen_Casted_".Length);
-            orig = $"The curse of <color={Curse.TextColor}>{key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0]}</color> was layed upon you!";
+            string curseName = UnknownCurse.AreCursesHidden ? "???" : key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0];
+            orig = $"The curse of <color={Curse.TextColor}>{curseName}</color> was layed upon you!";
         }
         else if (key.StartsWith("Curse_Randomizer_Regret_Casted_"))
         {
             key = key.Substring("Curse_Randomizer_Regret_Casted_".Length);
-            orig = $"The sins of <color={Curse.TextColor}>{key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0]}</color> are crawling on your back!";
+            string curseName = UnknownCurse.AreCursesHidden ? "???" : key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0];
+            orig = $"The sins of <color={Curse.TextColor}>{curseName}</color> are crawling on your back!";
         }
-        else if (key.StartsWith("Curse_Randomizer_Despair_Afflicted_"))
+        else if (key.StartsWith("Curse_Randomizer_Despair_Casted_"))
         {
             key = key.Substring("Curse_Randomizer_Despair_Casted_".Length);
-            orig = $"Your hopelessness formed <color={Curse.TextColor}>{key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0]}</color>!";
+            string curseName = UnknownCurse.AreCursesHidden ? "???" : key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0];
+            orig = $"Your hopelessness formed <color={Curse.TextColor}>{curseName}</color>!";
         }
         return orig;
     }

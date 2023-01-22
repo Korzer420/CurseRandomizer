@@ -55,7 +55,7 @@ internal class RegretCurse : TemporaryCurse
     private bool ModHooks_GetPlayerBoolHook(string name, bool orig)
     {
         if (name == "HasRegrets")
-            return CurrentAmount != -1;
+            return CurrentAmount != -1 || orig;
         return orig;
     }
 
@@ -101,12 +101,14 @@ internal class RegretCurse : TemporaryCurse
         int chance = 2 + (KilledEnemies.Count(x => x == enemyName) * 4);
         if (UnityEngine.Random.Range(1, 101) <= chance)
         {
-            List<Curse> availableCurses = CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Instant && x.CanApplyCurse()).ToList();
+            List<Curse> availableCurses = CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Instant && x.Data.Active && x.CanApplyCurse()).ToList();
             // Lost curse is the only instant curse which can't be applied if disabled.
             Curse lostCurse = CurseManager.GetCurseByType(CurseType.Lost);
             if (!lostCurse.Data.Active)
                 availableCurses.Remove(lostCurse);
 
+            if (!availableCurses.Any())
+                availableCurses.Add(CurseManager.GetCurseByType(CurseType.Disorientation));
             CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
             string selectedCurse = availableCurses[UnityEngine.Random.Range(0, availableCurses.Count)].Name;
             module.QueueCurse(selectedCurse);

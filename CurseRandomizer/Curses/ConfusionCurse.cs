@@ -2,6 +2,7 @@
 using CurseRandomizer.ItemData;
 using InControl;
 using ItemChanger;
+using Modding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ internal class ConfusionCurse : TemporaryCurse
 {
     #region Members
 
-    private PlayerAction[] _actions = new PlayerAction[8];
+    private PlayerAction[] _actions = new PlayerAction[9];
 
     #endregion
 
@@ -48,14 +49,42 @@ internal class ConfusionCurse : TemporaryCurse
             orig(self);
     }
 
+    private void InputHandler_ResetAllControllerButtonBindings(On.InputHandler.orig_ResetAllControllerButtonBindings orig, InputHandler self)
+    {
+        if (CurrentAmount == -1)
+            orig(self);
+    }
+
+    private void InputHandler_ResetDefaultControllerButtonBindings(On.InputHandler.orig_ResetDefaultControllerButtonBindings orig, InputHandler self)
+    {
+        if (CurrentAmount == -1)
+            orig(self);
+    }
+
+    private void InputHandler_ResetDefaultKeyBindings(On.InputHandler.orig_ResetDefaultKeyBindings orig, InputHandler self)
+    {
+        if (CurrentAmount == -1)
+            orig(self);
+    }
+
     private void ObtainItem(ReadOnlyGiveEventArgs args)
     {
-        if (CurrentAmount != -1 && args != null && args.OriginalState == ObtainState.Unobtained)
+        if (CurrentAmount != -1 && args != null && (args.OriginalState == ObtainState.Unobtained || args.Item?.name == "Generosity"))
         {
             if (!DespairCurse.DespairActive)
                 CurrentAmount++;
             UpdateProgression();
         }
+    }
+
+    private bool ModHooks_GetPlayerBoolHook(string name, bool orig)
+    {
+        if (name == "HasRegrets")
+        {
+            CurseRandomizer.Instance.Log("Check if player has regrets. Current amount is:  " + CurrentAmount);
+            return CurrentAmount != -1 || orig;
+        }
+        return orig;
     }
 
     #endregion
@@ -66,7 +95,11 @@ internal class ConfusionCurse : TemporaryCurse
     {
         On.InputHandler.SendButtonBindingsToGameSettings += InputHandler_SendButtonBindingsToGameSettings;
         On.InputHandler.SendKeyBindingsToGameSettings += InputHandler_SendKeyBindingsToGameSettings;
+        On.InputHandler.ResetDefaultKeyBindings += InputHandler_ResetDefaultKeyBindings;
+        On.InputHandler.ResetDefaultControllerButtonBindings += InputHandler_ResetDefaultControllerButtonBindings;
+        On.InputHandler.ResetAllControllerButtonBindings += InputHandler_ResetAllControllerButtonBindings;
         AbstractItem.BeforeGiveGlobal += ObtainItem;
+        ModHooks.GetPlayerBoolHook += ModHooks_GetPlayerBoolHook;
         _actions[0] = InputHandler.Instance.inputActions.attack;
         _actions[1] = InputHandler.Instance.inputActions.cast;
         _actions[2] = InputHandler.Instance.inputActions.quickCast;
@@ -75,6 +108,7 @@ internal class ConfusionCurse : TemporaryCurse
         _actions[5] = InputHandler.Instance.inputActions.quickMap;
         _actions[6] = InputHandler.Instance.inputActions.superDash;
         _actions[7] = InputHandler.Instance.inputActions.jump;
+        _actions[8] = InputHandler.Instance.inputActions.dash;
         if (CurrentAmount != -1)
             SetBindings(false);
         base.ApplyHooks();
@@ -84,7 +118,11 @@ internal class ConfusionCurse : TemporaryCurse
     {
         On.InputHandler.SendButtonBindingsToGameSettings -= InputHandler_SendButtonBindingsToGameSettings;
         On.InputHandler.SendKeyBindingsToGameSettings -= InputHandler_SendKeyBindingsToGameSettings;
+        On.InputHandler.ResetDefaultKeyBindings -= InputHandler_ResetDefaultKeyBindings;
+        On.InputHandler.ResetDefaultControllerButtonBindings -= InputHandler_ResetDefaultControllerButtonBindings;
+        On.InputHandler.ResetAllControllerButtonBindings -= InputHandler_ResetAllControllerButtonBindings;
         AbstractItem.BeforeGiveGlobal -= ObtainItem;
+        ModHooks.GetPlayerBoolHook -= ModHooks_GetPlayerBoolHook;
         SetBindings(true);
         base.Unhook();
     }
@@ -104,8 +142,8 @@ internal class ConfusionCurse : TemporaryCurse
 
     protected override void LiftCurse()
     {
-        SetBindings(true);
         CurrentAmount = -1;
+        SetBindings(true);
         base.LiftCurse();
     }
 
@@ -138,6 +176,7 @@ internal class ConfusionCurse : TemporaryCurse
             InputHandler.Instance.inputActions.quickMap = _actions[5];
             InputHandler.Instance.inputActions.superDash = _actions[6];
             InputHandler.Instance.inputActions.jump = _actions[7];
+            InputHandler.Instance.inputActions.dash = _actions[8];
         }
         else
         {
@@ -172,6 +211,10 @@ internal class ConfusionCurse : TemporaryCurse
 
             selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
             InputHandler.Instance.inputActions.jump = selectedAction;
+            viableActions.Remove(selectedAction);
+
+            selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
+            InputHandler.Instance.inputActions.dash = selectedAction;
             viableActions.Remove(selectedAction);
         }
     }

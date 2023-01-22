@@ -1,4 +1,5 @@
-﻿using CurseRandomizer.ItemData;
+﻿using CurseRandomizer.Curses;
+using CurseRandomizer.ItemData;
 using ItemChanger;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
@@ -24,7 +25,7 @@ internal class CurseItem : AbstractItem
             CurseName = "Disorientation";
         }
         CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
-        if (curse.CanApplyCurse())
+        if (curse.CanApplyCurse() || (OmenCurse.OmenMode && CurseName == "Omen" && (CurseManager.GetCurseByType(CurseType.Omen) as OmenCurse).KilledEnemies.Contains("Inactive")))
             module.QueueCurse(CurseName);
         else if (CurseManager.DefaultCurse.CanApplyCurse())
         {
@@ -38,13 +39,17 @@ internal class CurseItem : AbstractItem
         }
 
         if (UIDef is not BigUIDef || (info.MessageType != MessageType.Any && info.MessageType != MessageType.Big))
-            (UIDef as MsgUIDef).name = new BoxedString($"<color=#c034eb>{CurseName}</color>");
+        {
+            string curseName = UnknownCurse.AreCursesHidden ? "???" : CurseName;
+            (UIDef as MsgUIDef).name = new BoxedString($"<color=#c034eb>{curseName}</color>");
+        }
         else
         {
+            string curseName = UnknownCurse.AreCursesHidden ? "???" : CurseName;
             // For the big UI we want to display the FOOL message there, which is why the recent item name is set via a tag.
             (UIDef as MsgUIDef).name = new BoxedString($"<color=#c034eb>Fool!</color>");
-            tags.Add(new InteropTag() { Message = "RecentItems", Properties = new() { { "DisplayName", $"<color=#c034eb>{CurseName}</color>" } } });
-            (UIDef as BigUIDef).descOne = new BoxedString("You've been cursed by " + CurseName);
+            tags.Add(new InteropTag() { Message = "RecentItems", Properties = new() { { "DisplayName", $"<color=#c034eb>{curseName}</color>" } } });
+            (UIDef as BigUIDef).descOne = new BoxedString("You've been cursed by " + curseName);
         }
         (UIDef as MsgUIDef).sprite = new CustomSprite("Fool");
 

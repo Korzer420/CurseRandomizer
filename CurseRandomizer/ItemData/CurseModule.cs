@@ -37,8 +37,7 @@ public class CurseModule : Module
     {
         while (HeroController.instance == null || !HeroController.instance.acceptingInput)
         {
-            if (PlayerData.instance != null)
-                PlayerData.instance.SetBool(nameof(PlayerData.instance.disablePause), true);
+            PlayerData.instance?.SetBool(nameof(PlayerData.instance.disablePause), true);
             yield return null;
         }
 

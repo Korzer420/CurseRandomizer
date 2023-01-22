@@ -1,6 +1,7 @@
 ﻿using CurseRandomizer.Curses;
 using CurseRandomizer.Enums;
 using CurseRandomizer.Helper;
+using Modding;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -14,7 +15,7 @@ internal abstract class TemporaryCurse : Curse
 {
     #region Members
 
-    private GameObject _tracker;
+    protected GameObject _tracker;
 
     #endregion
 
@@ -57,6 +58,17 @@ internal abstract class TemporaryCurse : Curse
 
     #endregion
 
+    #region Event handler
+
+    private void DisplayItemAmount_OnEnable(On.DisplayItemAmount.orig_OnEnable orig, DisplayItemAmount self)
+    {
+        orig(self);
+        if (self.playerDataInt == Name)
+            UpdateProgression();
+    }
+
+    #endregion
+
     #region Control
 
     public override void ApplyCurse()
@@ -67,13 +79,16 @@ internal abstract class TemporaryCurse : Curse
 
     public override void ApplyHooks()
     {
+        On.DisplayItemAmount.OnEnable += DisplayItemAmount_OnEnable;
         CurseManager.Handler.StartCoroutine(Wait());
+        
     }
 
     public override void Unhook()
     {
         if (_tracker != null)
             GameObject.Destroy(_tracker);
+        On.DisplayItemAmount.OnEnable -= DisplayItemAmount_OnEnable;
     }
 
     #endregion
@@ -89,12 +104,10 @@ internal abstract class TemporaryCurse : Curse
     {
         RepositionTracker();
         TextMeshPro currentCounter = _tracker.GetComponent<DisplayItemAmount>().textObject;
-        if (Type == CurseType.Omen && OmenCurse.OmenMode)
-            currentCounter.text = $"{CurrentAmount}";
-        else if (DespairCurse.DespairActive && Type != CurseType.Despair)
-            currentCounter.text = $"<color={TextColor}>{CurrentAmount} / {NeededAmount}</color>";
+        if (DespairCurse.DespairActive && Type != CurseType.Despair)
+            currentCounter.text = $"<color={TextColor}>{CurrentAmount}/{NeededAmount}</color>";
         else
-            currentCounter.text = $"{CurrentAmount} / {NeededAmount}";
+            currentCounter.text = $"{CurrentAmount}/{NeededAmount}";
         if (CurrentAmount >= NeededAmount && (!DespairCurse.DespairActive || Type == CurseType.Despair))
             LiftCurse();
     }
@@ -112,7 +125,8 @@ internal abstract class TemporaryCurse : Curse
 
     private IEnumerator Wait()
     {
-        yield return new WaitUntil(() => HeroController.instance != null && HeroController.instance.acceptingInput);
+        yield return new WaitUntil(() => HeroController.instance != null && HeroController.instance.acceptingInput
+        && GameManager.instance != null && GameManager.instance.soulVessel_fsm != null && GameManager.instance.soulVessel_fsm.Active);
         Tracker.SetActive(IsActive() || (OmenCurse.OmenMode && Type == CurseType.Omen));
         if (Tracker.activeSelf)
             UpdateProgression();

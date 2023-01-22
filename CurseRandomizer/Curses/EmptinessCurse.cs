@@ -1,4 +1,5 @@
 ﻿using CurseRandomizer.Helper;
+using CurseRandomizer.Manager;
 using System;
 
 namespace CurseRandomizer.Curses;
@@ -26,7 +27,10 @@ internal class EmptinessCurse : Curse
     public override bool CanApplyCurse()
     {
         int cap = UseCap ? Cap : 1;
-        return PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > cap || PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) >= cap;
+        int spellCost = 33 + CurseManager.GetCurseByType(CurseType.Stupidity).Data.CastedAmount * 3;
+        int maxMp = PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) + PlayerData.instance.GetInt(nameof(PlayerData.instance.maxMP));
+
+        return PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > cap || maxMp / spellCost > cap;
     }
 
     public override void ApplyCurse()
@@ -34,10 +38,12 @@ internal class EmptinessCurse : Curse
         int cap = UseCap ? Cap : 1;
         if (PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > cap)
         {
-            if (PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) >= cap && UnityEngine.Random.Range(0, 10) < 3)
-                HeroController.instance.AddToMaxHealth(-1);
-            else
+            int spellCost = 33 + CurseManager.GetCurseByType(CurseType.Stupidity).Data.CastedAmount * 3;
+            int maxMp = PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) + PlayerData.instance.GetInt(nameof(PlayerData.instance.maxMP));
+            if (maxMp / spellCost > cap && UnityEngine.Random.Range(0, 10) < 3)
                 HeroController.instance.AddToMaxMPReserve(-1);
+            else
+                HeroController.instance.AddToMaxHealth(-1);
         }
         else
             HeroController.instance.AddToMaxMPReserve(-1);

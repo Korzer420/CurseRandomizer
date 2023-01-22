@@ -100,7 +100,7 @@ internal static class ModManager
                 On.PlayMakerFSM.OnEnable -= PreventWhiteDefender;
                 ModHooks.LanguageGetHook -= ShowDreamNailDescription;
             }
-            if (IsVesselCursed)
+            if (IsVesselCursed || UseCurses)
             {
                 IL.PlayerData.AddMPCharge -= LimitSoul;
                 On.PlayMakerFSM.OnEnable -= AdjustSoulAmount;
@@ -127,7 +127,7 @@ internal static class ModManager
         orig(self, permaDeath, bossRush);
         if (!RandomizerMod.RandomizerMod.IsRandoSave)
             return;
-        
+
         Hook();
         // Fix for the shop placement wrap.
         if (IsWalletCursed)
@@ -209,7 +209,7 @@ internal static class ModManager
                 On.PlayMakerFSM.OnEnable += PreventWhiteDefender;
                 ModHooks.LanguageGetHook += ShowDreamNailDescription;
             }
-            if (IsVesselCursed)
+            if (IsVesselCursed || UseCurses)
             {
                 IL.PlayerData.AddMPCharge += LimitSoul;
                 On.PlayMakerFSM.OnEnable += AdjustSoulAmount;
@@ -523,21 +523,15 @@ internal static class ModManager
     {
         try
         {
-            if (SoulVessel < 2)
+            if (amount == -1)
             {
-                SoulVessel++;
-                PlayMakerFSM fsm = GameObject.Find("_GameCameras").transform.Find("HudCamera/Hud Canvas/Soul Orb").gameObject.LocateMyFSM("Soul Orb Control");
-                if (fsm != null)
-                {
-                    fsm.FsmVariables.FindFsmFloat("Liquid Y Per MP").Value = SoulVessel == 1 ? 0.02736f : 0.0171f;
-                    PlayerData.instance.SetInt(nameof(PlayerData.instance.maxMP), SoulVessel == 1 ? 66 : 99);
-                }
-                else
-                {
-                    CurseRandomizer.Instance.LogError("Couldn't update soul vessel. Fsm not found");
+                if (PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) > 0)
                     orig(self, amount);
-                }
+                else
+                    ChangeMaxMP(-1);
             }
+            else if (SoulVessel < 2)
+                ChangeMaxMP(1);
             else
                 orig(self, amount);
         }
@@ -556,6 +550,19 @@ internal static class ModManager
     }
 
     #endregion
+
+    internal static void ChangeMaxMP(int increase)
+    {
+        PlayMakerFSM fsm = GameObject.Find("_GameCameras").transform.Find("HudCamera/Hud Canvas/Soul Orb").gameObject.LocateMyFSM("Soul Orb Control");
+        if (fsm == null)
+        {
+            CurseRandomizer.Instance.LogError("Couldn't update soul vessel. (Soul fsm not found)");
+            return;
+        }
+        SoulVessel += increase;
+        fsm.FsmVariables.FindFsmFloat("Liquid Y Per MP").Value = SoulVessel == 1 ? 0.02736f : (SoulVessel == 2 ? 0.0171f : 0.0513f);
+        PlayerData.instance.SetInt(nameof(PlayerData.instance.maxMP), SoulVessel == 1 ? 66 : (SoulVessel == 2 ? 99 : 33));
+    }
 
     private static void AddShopDefaults()
     {
@@ -663,21 +670,21 @@ internal static class ModManager
             AddDefaultItemToShop(Sly_Cheap, ItemNames.Rancid_Egg, 69);
 
         if (!RandomizerMod.RandomizerMod.RS.GenerationSettings.PoolSettings.Maps)
-        { 
+        {
             AddDefaultItemToShop(Iselda_Cheap, ItemNames.Quill, 120);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Ancient_Basin_Map, 112);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.City_of_Tears_Map, 90);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Crossroads_Map, 30);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Crystal_Peak_Map, 112);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Deepnest_Map, 38);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Fog_Canyon_Map, 150);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Fungal_Wastes_Map, 75);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Greenpath_Map, 60);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Howling_Cliffs_Map, 75);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Kingdoms_Edge_Map, 112);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Queens_Gardens_Map, 150);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Resting_Grounds_Map, 69);
-            AddDefaultItemToShop(Iselda_Cheap,ItemNames.Royal_Waterways_Map, 75);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Ancient_Basin_Map, 112);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.City_of_Tears_Map, 90);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Crossroads_Map, 30);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Crystal_Peak_Map, 112);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Deepnest_Map, 38);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Fog_Canyon_Map, 150);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Fungal_Wastes_Map, 75);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Greenpath_Map, 60);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Howling_Cliffs_Map, 75);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Kingdoms_Edge_Map, 112);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Queens_Gardens_Map, 150);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Resting_Grounds_Map, 69);
+            AddDefaultItemToShop(Iselda_Cheap, ItemNames.Royal_Waterways_Map, 75);
         }
 
         if (_placementsToAdd.Any())

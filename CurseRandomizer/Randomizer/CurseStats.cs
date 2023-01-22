@@ -28,12 +28,17 @@ internal static class CurseStats
 
             List<Curse> curses = CurseManager.GetCurses();
             string column = string.Empty;
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 7; i++)
                 column += $"{curses[i].Name}: {curses[i].Data.CastedAmount}\n";
             displayInfo.StatColumns.Add(column);
 
             column = string.Empty;
-            for (int i = 8; i < 15; i++)
+            for (int i = 7; i < 14; i++)
+                column += $"{curses[i].Name}: {curses[i].Data.CastedAmount}\n";
+            displayInfo.StatColumns.Add(column);
+
+            column = string.Empty;
+            for (int i = 14; i < 20; i++)
                 column += $"{curses[i].Name}: {curses[i].Data.CastedAmount}\n";
             if (!curses.Any(x => x.Type == CurseType.Custom))
                 column += "Custom Curses: -";

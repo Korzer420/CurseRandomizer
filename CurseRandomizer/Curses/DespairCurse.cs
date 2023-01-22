@@ -1,6 +1,7 @@
 ﻿using CurseRandomizer.Components;
 using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
+using ItemChanger;
 using Modding;
 using System;
 using System.Collections;
@@ -39,7 +40,7 @@ internal class DespairCurse : TemporaryCurse
         set { }
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount, UseCap ? Cap : 20) * 400;
+    public override int NeededAmount => Math.Min(Data.CastedAmount, UseCap ? Cap : 20) * 300;
 
     #endregion
 
@@ -148,22 +149,26 @@ internal class DespairCurse : TemporaryCurse
     private IEnumerator Drain()
     {
         yield return new WaitUntil(() => HeroController.instance != null);
-        int ticks = 0;
+        Dictionary<string, int> enemyData = (Dictionary<string, int>)Data.AdditionalData;
         while (true)
         {
             yield return new WaitForSeconds(3f);
-            ticks++;
-            HeroController.instance.TakeMP(Convert.ToInt32(1 + Math.Min(99, ticks / 20)));
-            if (ticks >= 60 && PlayerData.instance.GetInt("Geo") >= (ticks - 40) / 20)
-                HeroController.instance.TakeGeo((ticks - 40) / 20);
-            if (ticks >= 300 && (ticks - 260) % 40 == 0)
+            yield return new WaitUntil(() => GameManager.instance != null && !GameManager.instance.IsGamePaused());
+            if (!enemyData.ContainsKey("Dummy"))
+                yield break;
+            enemyData["Dummy"]++;
+            HeroController.instance.TakeMP(Convert.ToInt32(1 + Math.Min(99, enemyData["Dummy"] / 20)));
+            if (enemyData["Dummy"] >= 60 && PlayerData.instance.GetInt("geo") >= (enemyData["Dummy"] - 50) / 10)
+                HeroController.instance.TakeGeo((enemyData["Dummy"] - 50) / 10);
+            if (enemyData["Dummy"] >= 300 && (enemyData["Dummy"] - 260) % 40 == 0)
             {
                 List<string> availableCurses = CurseManager.GetCurses().Where(x => x.Type != CurseType.Despair && x.Data.Active && x.CanApplyCurse()).Select(x => x.Name).ToList();
                 if (availableCurses.Any())
                 {
                     string selectedCurse = availableCurses[UnityEngine.Random.Range(0, availableCurses.Count)];
-                    CurseManager.GetCurseByName(selectedCurse).ApplyCurse();
-                    DisplayMessage("Afflicted_" + selectedCurse);
+                    CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
+                    module.QueueCurse(selectedCurse);
+                    DisplayMessage("Casted_" + selectedCurse);
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using CurseRandomizer.Enums;
+﻿using CurseRandomizer.Components;
+using CurseRandomizer.Enums;
 using CurseRandomizer.Helper;
 using CurseRandomizer.ItemData;
 using MapChanger;
@@ -43,33 +44,28 @@ internal class MazeCurse : TemporaryCurse
 
     #region Event handler
 
-    private IEnumerator GodfinderIcon_Show(On.GodfinderIcon.orig_Show orig, GodfinderIcon self, float delay)
+    private void GameManager_BeginSceneTransition(On.GameManager.orig_BeginSceneTransition orig, GameManager self, GameManager.SceneLoadInfo info)
     {
-        if (!KnownScenes.ContainsKey("Inactive"))
-        {
-            if (!DespairCurse.DespairActive)
-                KnownScenes["Counter"] = (Convert.ToInt32(KnownScenes["Counter"]) + 1).ToString();
-            UpdateProgression();
-        }
-        yield return orig(self, delay);
-    }
+        if (!KnownScenes.ContainsKey(info.SceneName) && GameManager.instance != null && GameManager.instance.IsGameplayScene()
+            && !info.SceneName.Contains("Dream"))
+            KnownScenes.Add(info.SceneName, info.EntryGateName);
 
-    private string ModHooks_BeforeSceneLoadHook(string targetScene)
-    {
-        if (!KnownScenes.ContainsKey("Inactive") && KnownScenes.Count > 3 && UnityEngine.Random.Range(0, 20) == 0)
+        if (!KnownScenes.ContainsKey("Inactive") && !string.IsNullOrEmpty(info.EntryGateName) 
+            && (info.EntryGateName.StartsWith("left") || info.EntryGateName.StartsWith("right")
+            || info.EntryGateName.StartsWith("top") || info.EntryGateName.StartsWith("bot"))
+            && KnownScenes.Count > 3 && UnityEngine.Random.Range(0, 100) <= 7)
         {
-            targetScene = KnownScenes.Select(x => x.Key).Where(x => x != "Counter" && x != "Inactive" && x != targetScene).ToArray()[UnityEngine.Random.Range(0, KnownScenes.Count)];
-            _toScene = targetScene;
+            List<string> viableScenes = KnownScenes.Select(x => x.Key).Where(x => x != "Counter" && x != "Inactive" && x != info.SceneName).ToList();
+            if (viableScenes.Any())
+            {
+                info.SceneName = viableScenes[UnityEngine.Random.Range(0, viableScenes.Count)];
+                _toScene = info.SceneName;
+            }
+            else
+                _toScene = null;
         }
         else
             _toScene = null;
-        return targetScene;
-    }
-
-    private void GameManager_BeginSceneTransition(On.GameManager.orig_BeginSceneTransition orig, GameManager self, GameManager.SceneLoadInfo info)
-    {
-        if (!KnownScenes.ContainsKey(info.SceneName) && GameManager.instance != null && GameManager.instance.IsGameplayScene())
-            KnownScenes.Add(info.SceneName, info.EntryGateName);
         orig(self, info);
     }
 
@@ -85,25 +81,42 @@ internal class MazeCurse : TemporaryCurse
         orig(self, additiveGateSearch);
     }
 
+    private void HealthManager_OnEnable(On.HealthManager.orig_OnEnable orig, HealthManager self)
+    {
+        orig(self);
+        if (self.hp >= 200)
+            self.gameObject.AddComponent<MazeViable>();
+    }
+
+    private void HealthManager_Die(On.HealthManager.orig_Die orig, HealthManager self, float? attackDirection, AttackTypes attackType, bool ignoreEvasion)
+    {
+        orig(self, attackDirection, attackType, ignoreEvasion);
+        if (self.gameObject.GetComponent<MazeViable>() != null && !KnownScenes.ContainsKey("Inactive"))
+        {
+            KnownScenes["Counter"] = (Convert.ToInt32(KnownScenes["Counter"]) + 1).ToString();
+            UpdateProgression();
+        }
+    }
+
     #endregion
 
     #region Control
 
     public override void ApplyHooks()
     {
-        ModHooks.BeforeSceneLoadHook += ModHooks_BeforeSceneLoadHook;
-        On.GodfinderIcon.Show += GodfinderIcon_Show;
         On.GameManager.BeginSceneTransition += GameManager_BeginSceneTransition;
         On.GameManager.EnterHero += GameManager_EnterHero;
+        On.HealthManager.OnEnable += HealthManager_OnEnable;
+        On.HealthManager.Die += HealthManager_Die;
         base.ApplyHooks();
     }
 
     public override void Unhook()
     {
-        ModHooks.BeforeSceneLoadHook -= ModHooks_BeforeSceneLoadHook;
-        On.GodfinderIcon.Show -= GodfinderIcon_Show;
         On.GameManager.BeginSceneTransition -= GameManager_BeginSceneTransition;
         On.GameManager.EnterHero -= GameManager_EnterHero;
+        On.HealthManager.OnEnable -= HealthManager_OnEnable;
+        On.HealthManager.Die -= HealthManager_Die;
         base.Unhook();
     }
 

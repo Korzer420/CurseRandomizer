@@ -1,6 +1,7 @@
 ﻿using CurseRandomizer.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CurseRandomizer.Curses;
 
@@ -33,6 +34,12 @@ internal class DoubtCurse : Curse
         foreach (int charmId in availableCharms)
             PlayerData.instance.SetInt("charmCost_" + charmId, 0);
 
+        // To balance out the cost, all charms (except the ones affected by normality), start with one notch cost. (If it is possible, at least)
+        NormalityCurse normalityCurse = CurseManager.GetCurseByType(CurseType.Normality) as NormalityCurse;
+        if (availableCharms.Except(normalityCurse.DisabledCharmId).Count() >= totalCost)
+            foreach (int charmId in availableCharms.Except(normalityCurse.DisabledCharmId))
+                PlayerData.instance.SetInt("charmCost_" + charmId, 1);
+        
         int run = 0;
         do
         {
@@ -42,7 +49,9 @@ internal class DoubtCurse : Curse
                 // Charms can never cost more than 7.
                 if (previousCost == 7)
                     continue;
-                int additionalCost = UnityEngine.Random.Range(1, Math.Min(8 - previousCost, totalCost + 1));
+                int maxAdditionalCost = Math.Min(totalCost, Math.Min(7 - previousCost, 4));
+                int additionalCost = UnityEngine.Random.Range(1, maxAdditionalCost);
+
                 totalCost -= additionalCost;
                 PlayerData.instance.SetInt("charmCost_" + charmId, previousCost + additionalCost);
 

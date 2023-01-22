@@ -1,10 +1,12 @@
 ﻿using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
 using ItemChanger;
+using MapChanger;
 using Modding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace CurseRandomizer.Curses;
@@ -62,7 +64,7 @@ internal class OmenCurse : TemporaryCurse
                 else if (KilledEnemies.Count + 1 != NeededAmount)
                     KilledEnemies.AddRange(Enumerable.Range(0, NeededAmount - KilledEnemies.Count - 1).Select(x => x + ""));
                 UpdateProgression();
-                DisplayMessage(selectedCurse);
+                DisplayMessage("Casted_"+selectedCurse);
             }
         }
         return damageAmount;
@@ -130,6 +132,18 @@ internal class OmenCurse : TemporaryCurse
             CurseCounterPosition.Left or CurseCounterPosition.Sides => new(-14f, 0f),
             _ => new(0f, 7.14f),
         };
+    }
+
+    internal override void UpdateProgression()
+    {
+        if (OmenMode)
+        {
+            RepositionTracker();
+            TextMeshPro currentCounter = _tracker.GetComponent<DisplayItemAmount>().textObject;
+            currentCounter.text = $"{CurrentAmount}";
+        }
+        else
+            base.UpdateProgression();
     }
 
     #endregion

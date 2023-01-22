@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using UnityEngine;
 
 namespace CurseRandomizer.Helper;
@@ -12,14 +13,17 @@ public static class SpriteHelper
 
     /// <summary>
     /// Creates a sprite from the given image path. Starts in this Resource folder.
-    /// <para/> Eg. using "Lore" is sprite name will look for LoreMaster\Resources\Base\Lore. (If <paramref name="randoResource"/> is false)
     /// </summary>
     public static Sprite CreateSprite(string spriteName, string extension)
     {
         if (!_cachedSprites.ContainsKey(spriteName))
         {
-            string imageFile = Path.Combine(Path.GetDirectoryName(typeof(CurseRandomizer).Assembly.Location), "Resources/" + (spriteName + extension));
-            byte[] imageData = File.ReadAllBytes(imageFile);
+            // Don't ask...
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            using Stream stream = assembly.GetManifestResourceStream("CurseRandomizer.Resources." + spriteName + extension);
+            using MemoryStream ms = new();
+            stream.CopyTo(ms);
+            byte[] imageData = ms.ToArray();
             Texture2D tex = new(1, 1, TextureFormat.RGBA32, false);
             ImageConversion.LoadImage(tex, imageData, true);
             tex.filterMode = FilterMode.Bilinear;

@@ -38,7 +38,7 @@ internal class DespairCounter : MonoBehaviour
                 enemyList.Add(_enemyName, 0);
             if (hitInstance.AttackType == AttackTypes.Nail || hitInstance.AttackType == AttackTypes.Spell)
             { 
-                enemyList[_enemyName] = Math.Min(50, enemyList[_enemyName] + hitInstance.DamageDealt);
+                enemyList[_enemyName] = Math.Min(100, enemyList[_enemyName] + hitInstance.DamageDealt);
                 _curse.UpdateProgression();
             }
         }

@@ -353,7 +353,19 @@ internal static class RandoManager
         AbstractItem itemToMimic = null;
         try
         {
-            if (requestedItemArgs.ItemName.StartsWith(CurseItem.CursePrefix) && CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
+            if (requestedItemArgs.ItemName == "OMEN")
+                requestedItemArgs.Current = new CurseItem()
+                {
+                    CurseName = "Omen",
+                    name = "Omen",
+                    UIDef = new MsgUIDef()
+                    {
+                        name = new BoxedString("Omen"),
+                        sprite = new CustomSprite("Fool"),
+                        shopDesc = new BoxedString("If you can read this, something went wrong")
+                    }
+                };
+            else if (requestedItemArgs.ItemName.StartsWith(CurseItem.CursePrefix) && CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
             {
                 itemToMimic = Finder.GetItem(requestedItemArgs.ItemName.Substring(CurseItem.CursePrefix.Length));
                 if (itemToMimic == null)
@@ -914,7 +926,7 @@ internal static class RandoManager
             return;
         }
         ModManager.UseCurses = true;
-        OmenCurse.OmenMode = false; // CurseRandomizer.Instance.Settings.CurseControlSettings.OmenMode;
+        OmenCurse.OmenMode = CurseRandomizer.Instance.Settings.CurseControlSettings.OmenMode;
 
         // Get all items which can be removed.
         // Also check the total amount of items.
@@ -951,7 +963,6 @@ internal static class RandoManager
                 if (settings.Name == CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse && settings.Active)
                     CurseManager.DefaultCurse = curse;
             }
-
 
         if (!_availableCurses.Any())
             throw new Exception("No curses available to place.");
@@ -1025,6 +1036,8 @@ internal static class RandoManager
 
         // Reset the unity random state.
         UnityEngine.Random.state = state;
+        if (CurseRandomizer.Instance.Settings.CurseControlSettings.OmenMode)
+            builder.AddToStart("OMEN");
     }
 
     /// <summary>
@@ -1317,6 +1330,8 @@ internal static class RandoManager
             foreach (string term in macros.Keys.ToList())
                 foreach (string skipTerm in skipTerms)
                     builder.DoSubst(new(term, skipTerm, "NOCURSE"));
+            if (CurseRandomizer.Instance.Settings.CurseControlSettings.OmenMode)
+                builder.AddItem(new EmptyItem("OMEN"));
         }
 
         if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet)

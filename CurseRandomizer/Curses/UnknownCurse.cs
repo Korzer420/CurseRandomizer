@@ -44,16 +44,11 @@ internal class UnknownCurse : Curse
         }
     }
 
+    public static bool AreCursesHidden => (CurseManager.GetCurseByType(CurseType.Unknown) as UnknownCurse).Affected.Contains(AffectedVisual.Curses);
+
     #endregion
 
     #region Event handler
-
-    private bool ModHooks_GetPlayerBoolHook(string name, bool orig)
-    {
-        if (!string.IsNullOrEmpty(name) && name.StartsWith("map") && Affected.Contains(AffectedVisual.Map))
-            return false;
-        return orig;
-    }
 
     private void GeoCounter_Update(On.GeoCounter.orig_Update orig, GeoCounter self)
     {
@@ -207,8 +202,6 @@ internal class UnknownCurse : Curse
         On.PlayMakerFSM.OnEnable += PlayMakerFSM_OnEnable;
         IL.HeroAnimationController.PlayIdle += HeroAnimationController_PlayIdle;
         On.HutongGames.PlayMaker.Actions.SetPosition.OnEnter += SetPosition_OnEnter;
-
-        ModHooks.GetPlayerBoolHook += ModHooks_GetPlayerBoolHook;
         _bingoUIUsed = ModHooks.GetMod("BingoUI") is Mod;
     }
 
@@ -226,14 +219,11 @@ internal class UnknownCurse : Curse
         On.PlayMakerFSM.OnEnable -= PlayMakerFSM_OnEnable;
         IL.HeroAnimationController.PlayIdle -= HeroAnimationController_PlayIdle;
         On.HutongGames.PlayMaker.Actions.SetPosition.OnEnter -= SetPosition_OnEnter;
-
-        ModHooks.GetPlayerBoolHook -= ModHooks_GetPlayerBoolHook;
     }
 
     public override void ApplyCurse()
     {
         List<AffectedVisual> viableVisuals = (Enum.GetValues(typeof(AffectedVisual)) as AffectedVisual[]).Except(Affected).ToList();
-        viableVisuals.Remove(AffectedVisual.Map);
         AffectedVisual chosen = viableVisuals[UnityEngine.Random.Range(0, viableVisuals.Count)];
         Affected.Add(chosen);
         if (chosen == AffectedVisual.Health)
@@ -256,15 +246,6 @@ internal class UnknownCurse : Curse
     public override int SetCap(int value) => Math.Max(1, Math.Min(value, 4));
 
     public override void ResetAdditionalData() => Affected.Clear();
-
-    #endregion
-
-    #region Methods
-
-    public void ForceMapDark()
-    {
-       
-    }
 
     #endregion
 }

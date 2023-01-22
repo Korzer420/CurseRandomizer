@@ -62,7 +62,7 @@ internal class StupidityCurse : Curse
     {
         int cap = UseCap ? Cap : 99;
         if (ModManager.SoulVessel == 0)
-            cap = 33;
+            return false;
         else if (ModManager.SoulVessel == 1)
             cap = Mathf.Min(cap, 66);
         return 33 + Data.CastedAmount * 3 < cap;

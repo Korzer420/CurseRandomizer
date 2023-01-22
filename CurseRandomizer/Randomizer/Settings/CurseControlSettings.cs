@@ -6,7 +6,7 @@ public class CurseControlSettings
 {
     public bool PerfectMimics { get; set; }
 
-    //public bool OmenMode { get; set; }
+    public bool OmenMode { get; set; }
 
     public RequestMethod CurseMethod { get; set; }
 
