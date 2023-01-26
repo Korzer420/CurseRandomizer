@@ -10,6 +10,8 @@ public class CurseControlSettings
 
     public RequestMethod CurseMethod { get; set; }
 
+    public bool TakeReplaceGroup { get; set; }
+
     public Amount CurseAmount { get; set; }
 
     [MenuRange(0, 200)]

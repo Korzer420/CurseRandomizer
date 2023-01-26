@@ -79,9 +79,15 @@ internal class RandomizerMenu
         _controlFactory.ElementLookup["CurseMethod"].SelfChanged += (self) =>
         {
             if ((RequestMethod)self.Value != RequestMethod.Add)
+            {
                 replacableSettings.Show();
+                _controlFactory.ElementLookup["TakeReplaceGroup"].Show();
+            }
             else
+            { 
                 replacableSettings.Hide();
+                _controlFactory.ElementLookup["TakeReplaceGroup"].Hide();
+            }
         };
         _controlFactory.ElementLookup["CurseAmount"].SelfChanged += (self) =>
         {

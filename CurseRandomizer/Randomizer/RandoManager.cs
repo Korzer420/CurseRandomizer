@@ -367,7 +367,10 @@ internal static class RandoManager
                 };
             else if (requestedItemArgs.ItemName.StartsWith(CurseItem.CursePrefix) && CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
             {
-                itemToMimic = Finder.GetItem(requestedItemArgs.ItemName.Substring(CurseItem.CursePrefix.Length));
+                if (requestedItemArgs.ItemName.Contains("Evil"))
+                    itemToMimic = Finder.GetItem(RollMimic());
+                else
+                    itemToMimic = Finder.GetItem(requestedItemArgs.ItemName.Substring(CurseItem.CursePrefix.Length));
                 if (itemToMimic == null)
                 {
                     CurseRandomizer.Instance.LogError("Tried to replicate unknown item: " + requestedItemArgs.ItemName);
@@ -396,11 +399,16 @@ internal static class RandoManager
                         msgUIDef.name = new BoxedString(MimicNames.Mimics[itemToMimic.name][_generator.Next(0, MimicNames.Mimics[itemToMimic.name].Length)]);
                     else
                     {
-                        (itemToMimic.tags.First(x => x is IInteropTag tag && tag.Message == "CurseData") as IInteropTag).TryGetProperty("MimicNames", out string[] mimicNames);
-                        if (mimicNames == null || !mimicNames.Any())
-                            CurseRandomizer.Instance.LogError("Couldn't find a mimic name. Will take the normal UI name of: " + itemToMimic.name);
+                        if (itemToMimic.tags.FirstOrDefault(x => x is IInteropTag tag && tag.Message == "CurseData") is not IInteropTag interopTag)
+                            CurseRandomizer.Instance.LogWarn("Couldn't find interop tag on requested item: " + itemToMimic.name + ". Take normal name instead.");
                         else
-                            msgUIDef.name = new BoxedString(mimicNames[_generator.Next(0, mimicNames.Length)]);
+                        {
+                            interopTag.TryGetProperty("MimicNames", out string[] mimicNames);
+                            if (mimicNames == null || !mimicNames.Any())
+                                CurseRandomizer.Instance.LogError("Couldn't find a mimic name. Will take the normal UI name of: " + itemToMimic.name);
+                            else
+                                msgUIDef.name = new BoxedString(mimicNames[_generator.Next(0, mimicNames.Length)]);
+                        }
                     }
                 }
                 else
@@ -465,7 +473,11 @@ internal static class RandoManager
     {
         if ((elementType == ElementType.Item || elementType == ElementType.Unknown) && item.StartsWith(CurseItem.CursePrefix))
         {
-            groupBuilder = builder.GetItemGroupFor(item.Substring(CurseItem.CursePrefix.Length));
+            if (item.Contains("Evil"))
+                groupBuilder = builder.GetItemGroupFor(item.Substring(CurseItem.CursePrefix.Length + "Evil_".Length));
+            else
+                groupBuilder = builder.GetItemGroupFor(item.Substring(CurseItem.CursePrefix.Length));
+            CurseRandomizer.Instance.LogDebug("Group builder is: " + groupBuilder.label);
             return true;
         }
         groupBuilder = default;
@@ -1015,14 +1027,9 @@ internal static class RandoManager
                 ReplacedItems.Add(pickedItem);
                 if (availableItems.Length == 0)
                     availablePools.Remove(pickedGroup);
-                string itemToMimic = RollMimic();
-                //if (pickedItem == ItemNames.Mask_Shard)
-                //    builder.AddItemByName("Fool_Item_Mocked_Shard");
-                //else if (pickedItem == ItemNames.Double_Mask_Shard)
-                //    builder.AddItemByName("Fool_Item_Two_Mocked_Shards");
-                //else if (pickedItem == ItemNames.Full_Mask)
-                //    builder.AddItemByName("Fool_Item_Mocked_Mask");
-                //else
+                string itemToMimic = CurseRandomizer.Instance.Settings.CurseControlSettings.TakeReplaceGroup ?
+                        "Evil_" + pickedItem
+                    : RollMimic();
                 builder.AddItemByName(CurseItem.CursePrefix + itemToMimic);
                 CurseRandomizer.Instance.LogDebug("Removed " + pickedItem + " for a curse.");
             }
