@@ -73,6 +73,9 @@ Determines how the curses should be placed.
 - Replace: The mod tries to replace items, which the player allowed via "Replaceable Items". If no items are left to replace, the rest will be added as additional items. Note: If the randomizer fails repeatedly while also using rando plus, it is caused by curse randomizer removing pale ores, making the nail smith checks impossible to obtain. Consider turning off Pale Ore as replacable items in that case.
 - Force Replace: The mod tries to replace items, which the player allowed via "Replaceable Items". If no items are left to replace, the rest amount will be disposed.
 
+#### Take Replace Group
+If this option is used, the mimic items will take the item group from the item they replaced instead of the one the copied. This is only available if you choose Curse Method "Replace" or "Force Replace". If you don't intend to use split group options at all, this setting doesn't change anything.
+
 #### Curse Amount
 Determines how many curses should be placed. These option are based on the total amount of items that the randomizer have, but still have a minimal amount.
 - Few: 1% to 3% are curse items. At least 3 to 5.
