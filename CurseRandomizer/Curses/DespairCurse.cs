@@ -142,7 +142,7 @@ internal class DespairCurse : TemporaryCurse
     {
         yield return new WaitUntil(() => (bool)_canTakeDamage.Invoke(HeroController.instance, null));
         base.LiftCurse();
-        if (PlayerData.instance.GetInt(nameof(PlayerData.instance.permadeathMode)) < 2)
+        if (PlayerData.instance.GetInt(nameof(PlayerData.instance.permadeathMode)) == 0)
             HeroController.instance.TakeDamage(null, GlobalEnums.CollisionSide.top, 999, 2);
     }
 
