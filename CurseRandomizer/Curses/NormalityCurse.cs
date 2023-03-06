@@ -47,7 +47,7 @@ internal class NormalityCurse : Curse
         {
             if (int.TryParse(key.Substring(11), out int charmId))
                 if (DisabledCharmId.Contains(charmId))
-                    orig += $"\r\n<color={TextColor}>It seems like this charm has lost it's power.</color>";
+                    orig += $"\r\n<color={TextColor}>It seems like this charm has lost its power.</color>";
         }
         return orig;
     } 
