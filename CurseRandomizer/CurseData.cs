@@ -27,4 +27,6 @@ public class CurseData
     /// Gets or sets an object, in which the curse can store additional data.
     /// </summary>
     public object AdditionalData { get; set; }
+
+    public bool Ignored { get; set; }
 }

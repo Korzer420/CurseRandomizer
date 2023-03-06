@@ -1,6 +1,6 @@
 ﻿using CurseRandomizer.Curses;
 using CurseRandomizer.Enums;
-using CurseRandomizer.Helper;
+using KorzUtils.Helper;
 using Modding;
 using System.Collections;
 using TMPro;
@@ -45,7 +45,7 @@ internal abstract class TemporaryCurse : Curse
                 _tracker.GetComponent<DisplayItemAmount>().textObject.text = "";
                 _tracker.GetComponent<DisplayItemAmount>().textObject.fontSize = 3;
                 _tracker.GetComponent<DisplayItemAmount>().textObject.gameObject.name = "Counter";
-                _tracker.GetComponent<SpriteRenderer>().sprite = SpriteHelper.CreateSprite(Name == "Despair" ? "Fool" : Name);
+                _tracker.GetComponent<SpriteRenderer>().sprite = SpriteHelper.CreateSprite<CurseRandomizer>(Name == "Despair" ? "Fool" : Name);
                 _tracker.GetComponent<BoxCollider2D>().size = new Vector2(1.5f, 1f);
                 _tracker.GetComponent<BoxCollider2D>().offset = new Vector2(0.5f, 0f);
                 _tracker.SetActive(IsActive() || (OmenCurse.OmenMode && Type == CurseType.Omen));
@@ -118,7 +118,7 @@ internal abstract class TemporaryCurse : Curse
     protected virtual void LiftCurse()
     {
         _tracker.SetActive(false);
-        DisplayMessage("Vanish");
+        GameHelper.DisplayMessage("The curse of " + Type + " vanished");
     }
 
     internal void RepositionTracker() => Tracker.transform.position = MoveToPosition(Position);

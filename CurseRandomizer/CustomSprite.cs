@@ -1,4 +1,4 @@
-﻿using CurseRandomizer.Helper;
+﻿using KorzUtils.Helper;
 using ItemChanger;
 using System;
 using UnityEngine;
@@ -19,7 +19,7 @@ internal class CustomSprite : ISprite
     public string Key { get; set; } = "Fool";
 
     [Newtonsoft.Json.JsonIgnore]
-    public Sprite Value => SpriteHelper.CreateSprite(Key);
+    public Sprite Value => SpriteHelper.CreateSprite<CurseRandomizer>(Key);
 
     public ISprite Clone() => new CustomSprite(Key);
 }

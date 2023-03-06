@@ -75,19 +75,19 @@
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Assembly-CSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="Benchwarp">
-		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\Benchwarp\Benchwarp.dll</HintPath>
+		  <HintPath>..\..\..\HK Mod\Benchwarp\Benchwarp.dll</HintPath>
 		</Reference>
 		<Reference Include="FStats">
-		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\FStats\FStats.dll</HintPath>
+		  <HintPath>..\..\..\HK Mod\FStats\FStats.dll</HintPath>
 		</Reference>
 		<Reference Include="ItemChanger">
-		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\ItemChanger\ItemChanger.dll</HintPath>
+		  <HintPath>..\..\..\HK Mod\ItemChanger\ItemChanger.dll</HintPath>
 		</Reference>
-		<Reference Include="MapChanger">
-		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\MapChanger\MapChanger.dll</HintPath>
+		<Reference Include="KorzUtils">
+		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\KorzUtils\KorzUtils.dll</HintPath>
 		</Reference>
 		<Reference Include="MenuChanger">
-		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\MenuChanger\MenuChanger.dll</HintPath>
+		  <HintPath>..\..\..\HK Mod\MenuChanger\MenuChanger.dll</HintPath>
 		</Reference>
 		<Reference Include="MMHOOK_Assembly-CSharp">
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\MMHOOK_Assembly-CSharp.dll</HintPath>
@@ -113,17 +113,14 @@
 		<Reference Include="PlayMaker">
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\PlayMaker.dll</HintPath>
 		</Reference>
-		<Reference Include="RandoMapMod">
-		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\RandoMapMod\RandoMapMod.dll</HintPath>
-		</Reference>
 		<Reference Include="RandomizerCore">
-		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\RandomizerCore\RandomizerCore.dll</HintPath>
+		  <HintPath>..\..\..\HK Mod\RandoCore\RandomizerCore.dll</HintPath>
 		</Reference>
 		<Reference Include="RandomizerMod">
-		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\Randomizer 4\RandomizerMod.dll</HintPath>
+		  <HintPath>..\..\..\HK Mod\Randomizer\RandomizerMod.dll</HintPath>
 		</Reference>
 		<Reference Include="RandoSettingsManager">
-		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\RandoSettingsManager\RandoSettingsManager.dll</HintPath>
+		  <HintPath>..\..\..\HK Mod\RandoSettingsManager\RandoSettingsManager.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine">
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\UnityEngine.dll</HintPath>

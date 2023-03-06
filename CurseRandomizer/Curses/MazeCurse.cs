@@ -1,9 +1,7 @@
 ﻿using CurseRandomizer.Components;
 using CurseRandomizer.Enums;
-using CurseRandomizer.Helper;
 using CurseRandomizer.ItemData;
-using MapChanger;
-using Modding;
+using KorzUtils.Helper;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -84,7 +82,7 @@ internal class MazeCurse : TemporaryCurse
     private void HealthManager_OnEnable(On.HealthManager.orig_OnEnable orig, HealthManager self)
     {
         orig(self);
-        if (self.hp >= 200)
+        if (self.hp >= 200 ||self.gameObject.name == "Giant Fly" || self.gameObject.name == "Giant Buzzer" || self.gameObject.name == "Mega Moss Charger")
             self.gameObject.AddComponent<MazeViable>();
     }
 
@@ -156,7 +154,7 @@ internal class MazeCurse : TemporaryCurse
     private IEnumerator WaitForControl()
     {
         yield return new WaitUntil(() => HeroController.instance != null && HeroController.instance.acceptingInput);
-        DisplayMessage("Teleported");
+        GameHelper.DisplayMessage("???");
     }
 
     protected override void LiftCurse()

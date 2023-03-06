@@ -8,7 +8,7 @@ using Modding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
+using UnityEngine.UI;
 
 namespace CurseRandomizer;
 
@@ -23,7 +23,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public static CurseRandomizer Instance { get; set; }
 
-    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "3.1.2.0";
+    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "3.2.0.0";
 
     public RandoSettings Settings => _settings ??= new();
 
@@ -31,53 +31,8 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public override void Initialize()
     {
-        ModHooks.LanguageGetHook += ModHooks_LanguageGetHook;
-
         RandoManager.HookRando();
         CurseManager.Initialize();
-    }
-
-    private string ModHooks_LanguageGetHook(string key, string sheetTitle, string orig)
-    {
-        if (key == "Curse_Randomizer_Fool_1")
-            orig = "FOOL";
-        else if (key == "CR_Fool_Notch_1")
-            orig = "FOOL (You lost a charm notch)";
-        else if (key == "CR_Fool_Relic_1")
-            orig = "FOOL (You lost a relic)";
-        else if (key == "Curse_Randomizer_Darkness_Vanish_1")
-            orig = "The curse of darkness vanished!";
-        else if (key == "Curse_Randomizer_Omen_Vanish_1")
-            orig = "The omen vanished!";
-        else if (key == "Curse_Randomizer_Confusion_Vanish_1")
-            orig = "The confusion vanished!";
-        else if (key == "Curse_Randomizer_Maze_Vanish_1")
-            orig = "The curse of maze vanished";
-        else if (key == "Curse_Randomizer_Regret_Vanish_1")
-            orig = "You have no regrets left.";
-        else if (key == "Curse_Randomizer_Despair_Vanish_1")
-            orig = "There is no hope... but no time for despair either.";
-        else if (key == "Curse_Randomizer_Maze_Teleported_1")
-            orig = "???";
-        else if (key.StartsWith("Curse_Randomizer_Omen_Casted_"))
-        {
-            key = key.Substring("Curse_Randomizer_Omen_Casted_".Length);
-            string curseName = UnknownCurse.AreCursesHidden ? "???" : key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0];
-            orig = $"The curse of <color={Curse.TextColor}>{curseName}</color> was layed upon you!";
-        }
-        else if (key.StartsWith("Curse_Randomizer_Regret_Casted_"))
-        {
-            key = key.Substring("Curse_Randomizer_Regret_Casted_".Length);
-            string curseName = UnknownCurse.AreCursesHidden ? "???" : key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0];
-            orig = $"The sins of <color={Curse.TextColor}>{curseName}</color> are crawling on your back!";
-        }
-        else if (key.StartsWith("Curse_Randomizer_Despair_Casted_"))
-        {
-            key = key.Substring("Curse_Randomizer_Despair_Casted_".Length);
-            string curseName = UnknownCurse.AreCursesHidden ? "???" : key.Split(new string[] { "_1" }, System.StringSplitOptions.RemoveEmptyEntries)[0];
-            orig = $"Your hopelessness formed <color={Curse.TextColor}>{curseName}</color>!";
-        }
-        return orig;
     }
 
     #region Save Data control
@@ -151,7 +106,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public List<IMenuMod.MenuEntry> GetMenuData(IMenuMod.MenuEntry? toggleButtonEntry)
     {
-        return new()
+        List<IMenuMod.MenuEntry> options = new()
         {
             new IMenuMod.MenuEntry("Counter Position", Enum.GetNames(typeof(CurseCounterPosition)), "Determines the position where the counter appear.",
             index =>
@@ -163,6 +118,28 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             },
             () => (int)TemporaryCurse.Position)
         };
+        foreach (Curse curse in CurseManager.GetCurses())
+            options.Add(new($"Ignore {curse.Name}", new string[] { "False", "True" }, $"If true, {curse.Name} doesn't affect you",
+                index => curse.Data.Ignored = index == 1,
+                () =>
+                {
+                    Log("Check if " + curse.Name + " should be ignored.");
+                    return curse.Data.Ignored ? 1 : 0;
+                }));
+        return options;
+    }
+
+    public void SyncMenu(bool reset = true)
+    {
+        MenuScreen screen = ModHooks.BuiltModMenuScreens[this];
+        if (screen != null)
+        {
+            if (reset)
+                foreach (Curse curse in CurseManager.GetCurses())
+                    curse.Data.Ignored = false;
+            foreach (MenuOptionHorizontal option in screen.GetComponentsInChildren<MenuOptionHorizontal>(true))
+                option.menuSetting.RefreshValueFromGameSettings();
+        }
     }
 
     #endregion

@@ -1,5 +1,6 @@
 ﻿using CurseRandomizer.Enums;
 using HutongGames.PlayMaker;
+using System.Collections.Generic;
 
 namespace CurseRandomizer;
 
@@ -116,24 +117,4 @@ public abstract class Curse
     /// Remove the hooks set in <see cref="ApplyHooks"/>.
     /// </summary>
     public virtual void Unhook() { }
-
-    /// <summary>
-    /// Displays a message in the "dream enemy box".
-    /// <para>Note, that the key will have a "_1" at the end! Keep that in mind when resolving it.</para>
-    /// </summary>
-    /// <param name="key">The wrapped language key: Full syntax is Curse_Randomizer_(NameOfTheCurse)_(key)_1. For example: Curse_Randomizer_Omen_Vanish_1</param>
-    public void DisplayMessage(string key)
-    {
-        try
-        {
-            PlayMakerFSM playMakerFSM = PlayMakerFSM.FindFsmOnGameObject(FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value, "Display");
-            playMakerFSM.FsmVariables.GetFsmInt("Convo Amount").Value = 1;
-            playMakerFSM.FsmVariables.GetFsmString("Convo Title").Value = $"Curse_Randomizer_{Name}_" + key;
-            playMakerFSM.SendEvent("DISPLAY ENEMY DREAM");
-        }
-        catch (System.Exception)
-        {
-
-        }
-    }
 }

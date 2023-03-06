@@ -2,6 +2,7 @@
 using CurseRandomizer.ItemData;
 using IL.InControl.UnityDeviceProfiles;
 using ItemChanger;
+using KorzUtils.Helper;
 using Modding;
 using System;
 using System.Collections.Generic;
@@ -113,7 +114,7 @@ internal class RegretCurse : TemporaryCurse
             string selectedCurse = availableCurses[UnityEngine.Random.Range(0, availableCurses.Count)].Name;
             module.QueueCurse(selectedCurse);
 
-            DisplayMessage("Casted");
+            GameHelper.DisplayMessage($"The sins of <color={TextColor}>" + selectedCurse + "</color> are crawling down your back...");
             KilledEnemies.Clear();
         }
 

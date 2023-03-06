@@ -1,4 +1,4 @@
-﻿using CurseRandomizer.Helper;
+﻿using KorzUtils.Helper;
 using CurseRandomizer.Manager;
 using System;
 

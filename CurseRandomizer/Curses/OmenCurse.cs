@@ -1,7 +1,7 @@
 ﻿using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
 using ItemChanger;
-using MapChanger;
+using KorzUtils.Helper;
 using Modding;
 using System;
 using System.Collections.Generic;
@@ -64,7 +64,7 @@ internal class OmenCurse : TemporaryCurse
                 else if (KilledEnemies.Count + 1 != NeededAmount)
                     KilledEnemies.AddRange(Enumerable.Range(0, NeededAmount - KilledEnemies.Count - 1).Select(x => x + ""));
                 UpdateProgression();
-                DisplayMessage("Casted_"+selectedCurse);
+                GameHelper.DisplayMessage("The curse of " + selectedCurse + " was layed upon you.");
             }
         }
         return damageAmount;

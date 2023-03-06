@@ -1,9 +1,10 @@
-﻿using CurseRandomizer.Helper;
+﻿using KorzUtils.Helper;
 using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace CurseRandomizer.Curses;
 
@@ -73,6 +74,17 @@ internal class AmnesiaCurse : Curse
         orig(self);
     }
 
+    private void FlingObjectsFromGlobalPool_OnEnter(On.HutongGames.PlayMaker.Actions.FlingObjectsFromGlobalPool.orig_OnEnter orig, HutongGames.PlayMaker.Actions.FlingObjectsFromGlobalPool self)
+    {
+        if (self.IsCorrectContext("Fireball Cast", null, "Flukes"))
+        {
+            int normalAmount = self.Fsm.GameObject.name.Contains("2") ? 16 : 9;
+            self.spawnMax.Value = Mathf.Max(normalAmount - Stacks, 1);
+            self.spawnMin.Value = Mathf.Max(normalAmount - Stacks, 1);
+        }
+        orig(self);
+    }
+
     #endregion
 
     #region Control
@@ -81,12 +93,15 @@ internal class AmnesiaCurse : Curse
     {
         On.HutongGames.PlayMaker.Actions.FloatCompare.OnEnter += FloatCompare_OnEnter;
         On.PlayMakerFSM.OnEnable += PlayMakerFSM_OnEnable;
+        On.HutongGames.PlayMaker.Actions.FlingObjectsFromGlobalPool.OnEnter += FlingObjectsFromGlobalPool_OnEnter;
     }
 
     public override void Unhook()
     {
         On.HutongGames.PlayMaker.Actions.FloatCompare.OnEnter -= FloatCompare_OnEnter;
         On.PlayMakerFSM.OnEnable -= PlayMakerFSM_OnEnable;
+        On.HutongGames.PlayMaker.Actions.FlingObjectsFromGlobalPool.OnEnter += FlingObjectsFromGlobalPool_OnEnter;
+
     }
 
     public override void ApplyCurse()

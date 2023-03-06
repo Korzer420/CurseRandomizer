@@ -1,5 +1,5 @@
 ﻿using CurseRandomizer.Enums;
-using CurseRandomizer.Helper;
+using KorzUtils.Helper;
 using HutongGames.PlayMaker;
 using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;

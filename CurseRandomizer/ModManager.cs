@@ -1,5 +1,5 @@
 ﻿using CurseRandomizer.Enums;
-using CurseRandomizer.Helper;
+using KorzUtils.Helper;
 using CurseRandomizer.ItemData;
 using HutongGames.PlayMaker.Actions;
 using ItemChanger;
@@ -118,6 +118,7 @@ internal static class ModManager
     private static void UIManager_ContinueGame(On.UIManager.orig_ContinueGame orig, UIManager self)
     {
         orig(self);
+        CurseManager.Handler.StartCoroutine(Wait(false));
         if (RandomizerMod.RandomizerMod.IsRandoSave)
             Hook();
     }
@@ -125,6 +126,8 @@ internal static class ModManager
     private static void UIManager_StartNewGame(On.UIManager.orig_StartNewGame orig, UIManager self, bool permaDeath, bool bossRush)
     {
         orig(self, permaDeath, bossRush);
+        CurseManager.Handler.StartCoroutine(Wait());
+        
         if (!RandomizerMod.RandomizerMod.IsRandoSave)
             return;
 
@@ -180,6 +183,12 @@ internal static class ModManager
                 ItemChangerMod.AddPlacements(new List<AbstractPlacement>() { placement });
             }
         }
+    }
+
+    private static IEnumerator Wait(bool reset = true)
+    {
+        yield return null;
+        CurseRandomizer.Instance.SyncMenu(reset);
     }
 
     private static void Hook()

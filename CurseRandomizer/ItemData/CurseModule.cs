@@ -1,6 +1,7 @@
 ﻿using CurseRandomizer.Curses;
 using HutongGames.PlayMaker;
 using ItemChanger.Modules;
+using KorzUtils.Helper;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,10 +43,7 @@ public class CurseModule : Module
         }
 
         // Display the FOOL text.
-        PlayMakerFSM playMakerFSM = PlayMakerFSM.FindFsmOnGameObject(FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value, "Display");
-        playMakerFSM.FsmVariables.GetFsmInt("Convo Amount").Value = 1;
-        playMakerFSM.FsmVariables.GetFsmString("Convo Title").Value = "Curse_Randomizer_Fool";
-        playMakerFSM.SendEvent("DISPLAY ENEMY DREAM");
+        GameHelper.DisplayMessage("FOOL");
 
         while (CurseQueue.Any())
         {
@@ -53,23 +51,38 @@ public class CurseModule : Module
             if (CurseQueue[0] == "Pain")
             {
                 int painAmount = CurseQueue.RemoveAll(x => x == "Pain");
-                CurseManager.GetCurseByType(CurseType.Pain).Data.CastedAmount += painAmount;
-                PainCurse.DoDamage(painAmount);
+                if (!CurseManager.GetCurseByType(CurseType.Pain).Data.Ignored)
+                {
+                    CurseManager.GetCurseByType(CurseType.Pain).Data.CastedAmount += painAmount;
+                    PainCurse.DoDamage(painAmount);
+                }
             }
             // Casting multiple disorientation curses doesn't serve any purpose which is why the get removed all at once.
             else if (CurseQueue[0] == "Disorientation")
             {
                 int amount = CurseQueue.RemoveAll(x => x == "Disorientation");
-                CurseManager.GetCurseByType(CurseType.Disorientation).Data.CastedAmount += amount;
-                CurseManager.GetCurseByType(CurseType.Disorientation).ApplyCurse();
+                if (!CurseManager.GetCurseByType(CurseType.Disorientation).Data.Ignored)
+                {
+                    CurseManager.GetCurseByType(CurseType.Disorientation).Data.CastedAmount += amount;
+                    CurseManager.GetCurseByType(CurseType.Disorientation).ApplyCurse();
+                }
             }
             else
             {
                 Curse curse = CurseManager.GetCurseByName(CurseQueue[0]);
                 if (curse != null)
                 {
-                    curse.Data.CastedAmount++;
-                    curse.ApplyCurse();
+                    if (!curse.Data.Ignored)
+                        if (!curse.CanApplyCurse())
+                        {
+                            CurseManager.GetCurseByType(CurseType.Disorientation).Data.CastedAmount++;
+                            CurseManager.GetCurseByType(CurseType.Disorientation).ApplyCurse();
+                        }
+                        else
+                        {
+                            curse.Data.CastedAmount++;
+                            curse.ApplyCurse();
+                        }
                 }
                 else
                     CurseRandomizer.Instance.LogError("Tried to cast unknown curse: " + CurseQueue[0]);

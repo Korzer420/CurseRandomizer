@@ -2,6 +2,7 @@
 using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
 using ItemChanger;
+using KorzUtils.Helper;
 using Modding;
 using System;
 using System.Collections;
@@ -168,7 +169,7 @@ internal class DespairCurse : TemporaryCurse
                     string selectedCurse = availableCurses[UnityEngine.Random.Range(0, availableCurses.Count)];
                     CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
                     module.QueueCurse(selectedCurse);
-                    DisplayMessage("Casted_" + selectedCurse);
+                    GameHelper.DisplayMessage($"Your hopelessness formed <color={Curse.TextColor}>{selectedCurse}</color>!");
                 }
             }
         }
