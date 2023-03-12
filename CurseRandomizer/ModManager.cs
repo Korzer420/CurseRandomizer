@@ -262,7 +262,7 @@ internal static class ModManager
         if (self.IsCorrectContext("Fader", "Add Text", "Down") && self.Fsm.GameObject.transform.parent?.name == "Geo Counter")
         {
             int playerGeo = PlayerData.instance.GetInt(nameof(PlayerData.instance.geo));
-            if (((List<AffectedVisual>)CurseManager.GetCurseByType(CurseType.Unknown).Data.AdditionalData).Contains(AffectedVisual.Geo))
+            if (UseCurses && ((List<AffectedVisual>)CurseManager.GetCurseByType(CurseType.Unknown).Data.AdditionalData).Contains(AffectedVisual.Geo))
                 HeroController.instance.geoCounter.geoTextMesh.text = "???";
             else
                 switch (WalletAmount)
