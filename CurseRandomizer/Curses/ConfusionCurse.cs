@@ -81,7 +81,6 @@ internal class ConfusionCurse : TemporaryCurse
     {
         if (name == "HasRegrets")
             return CurrentAmount != -1 || orig;
-        
         return orig;
     }
 
