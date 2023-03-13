@@ -23,7 +23,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public static CurseRandomizer Instance { get; set; }
 
-    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "3.2.1.0";
+    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "3.2.2.0";
 
     public RandoSettings Settings => _settings ??= new();
 
