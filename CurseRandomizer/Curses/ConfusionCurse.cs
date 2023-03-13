@@ -80,10 +80,8 @@ internal class ConfusionCurse : TemporaryCurse
     private bool ModHooks_GetPlayerBoolHook(string name, bool orig)
     {
         if (name == "HasRegrets")
-        {
-            CurseRandomizer.Instance.Log("Check if player has regrets. Current amount is:  " + CurrentAmount);
             return CurrentAmount != -1 || orig;
-        }
+        
         return orig;
     }
 

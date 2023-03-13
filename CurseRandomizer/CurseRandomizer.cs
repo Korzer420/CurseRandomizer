@@ -121,11 +121,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         foreach (Curse curse in CurseManager.GetCurses())
             options.Add(new($"Ignore {curse.Name}", new string[] { "False", "True" }, $"If true, {curse.Name} doesn't affect you",
                 index => curse.Data.Ignored = index == 1,
-                () =>
-                {
-                    Log("Check if " + curse.Name + " should be ignored.");
-                    return curse.Data.Ignored ? 1 : 0;
-                }));
+                () => curse.Data.Ignored ? 1 : 0));
         return options;
     }
 

@@ -86,7 +86,6 @@ public static class CurseManager
 
     internal static void ParseSaveData(Dictionary<string, CurseData> curseData)
     {
-        CurseRandomizer.Instance.LogDebug("Check if data for curses exists.");
         if (curseData == null)
             return;
         CurseRandomizer.Instance.LogDebug("Load data for curses.");
