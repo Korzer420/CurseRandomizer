@@ -55,8 +55,8 @@ internal class DoubtCurse : Curse
             foreach (int charmId in availableCharms)
             {
                 int previousCost = PlayerData.instance.GetInt("charmCost_" + charmId);
-                // Charms can never cost more than 7.
-                if (previousCost == 7)
+                // Charms can never cost more than 6.
+                if (previousCost == 6)
                     continue;
                 if (normalityCurse.DisabledCharmId.Contains(charmId))
                 {
@@ -65,7 +65,7 @@ internal class DoubtCurse : Curse
                 }
                 else
                 {
-                    int maxAdditionalCost = Math.Min(totalCost, Math.Min(7 - previousCost, 4));
+                    int maxAdditionalCost = Math.Min(totalCost, Math.Min(6 - previousCost, 4));
                     int additionalCost = UnityEngine.Random.Range(1, maxAdditionalCost);
 
                     totalCost -= additionalCost;
@@ -96,7 +96,7 @@ internal class DoubtCurse : Curse
                 totalCost += PlayerData.instance.GetInt("charmCost_" + i);
             }
         }
-        return totalCost < charmAmount * 7 && (!UseCap || Data.CastedAmount < Cap);
+        return totalCost < charmAmount * 6 && (!UseCap || Data.CastedAmount < Cap);
     }
 
     public override int SetCap(int value) => Math.Max(1, Math.Min(value, 40));
