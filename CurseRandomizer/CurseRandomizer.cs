@@ -189,7 +189,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             new ("Colorless Indicator", new string[]{"Disabled", "Enabled"}, "If enabled, the Midas curse will display a textbox.",
             index => MidasCurse.Colorless = index == 1,
             () => MidasCurse.Colorless ? 1 : 0),
-            new ("Easy curse lift", new string[] {"Disabled", "Enabled"}, "If enabled, temporary curses will not reset fully.",
+            new ("Easy curse lift", new string[] {"Disabled", "Enabled"}, "If enabled, temporary curses will not fully reset, if recasted.",
             index => TemporaryCurse.EasyLift = index == 1,
             () => TemporaryCurse.EasyLift ? 1 : 0)
         };
