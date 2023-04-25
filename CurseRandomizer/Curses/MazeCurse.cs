@@ -1,7 +1,9 @@
-﻿using CurseRandomizer.Components;
-using CurseRandomizer.Enums;
+﻿using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
+using ItemChanger;
+using ItemChanger.Placements;
 using KorzUtils.Helper;
+using Modding;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,7 +27,7 @@ internal class MazeCurse : TemporaryCurse
         get
         {
             if (Data.AdditionalData == null)
-                Data.AdditionalData = new Dictionary<string, string>() { { "Counter", "0" }, { "Inactive", "Inactive" } };
+                Data.AdditionalData = new Dictionary<string, string>() { { "Counter", "-1" } };
             return Data.AdditionalData as Dictionary<string, string>;
         }
     }
@@ -33,10 +35,10 @@ internal class MazeCurse : TemporaryCurse
     public override int CurrentAmount
     {
         get => Convert.ToInt32(KnownScenes["Counter"]);
-        set { }
+        set => KnownScenes["Counter"] = value.ToString();
     }
 
-    public override int NeededAmount => Math.Min(UseCap ? Cap : 10, Data.CastedAmount);
+    public override int NeededAmount => Math.Min(UseCap ? Cap : 50, Data.CastedAmount * 5);
 
     #endregion
 
@@ -48,12 +50,12 @@ internal class MazeCurse : TemporaryCurse
             && !info.SceneName.Contains("Dream"))
             KnownScenes.Add(info.SceneName, info.EntryGateName);
 
-        if (!KnownScenes.ContainsKey("Inactive") && !string.IsNullOrEmpty(info.EntryGateName) 
+        if (CurrentAmount != -1 && !string.IsNullOrEmpty(info.EntryGateName)
             && (info.EntryGateName.StartsWith("left") || info.EntryGateName.StartsWith("right")
             || info.EntryGateName.StartsWith("top") || info.EntryGateName.StartsWith("bot"))
             && KnownScenes.Count > 3 && UnityEngine.Random.Range(0, 100) <= 7)
         {
-            List<string> viableScenes = KnownScenes.Select(x => x.Key).Where(x => x != "Counter" && x != "Inactive" && x != info.SceneName).ToList();
+            List<string> viableScenes = KnownScenes.Select(x => x.Key).Where(x => x != "Counter" && x != info.SceneName).ToList();
             if (viableScenes.Any())
             {
                 info.SceneName = viableScenes[UnityEngine.Random.Range(0, viableScenes.Count)];
@@ -79,21 +81,21 @@ internal class MazeCurse : TemporaryCurse
         orig(self, additiveGateSearch);
     }
 
-    private void HealthManager_OnEnable(On.HealthManager.orig_OnEnable orig, HealthManager self)
+    private void ObtainItem(ReadOnlyGiveEventArgs args)
     {
-        orig(self);
-        if (self.hp >= 200 ||self.gameObject.name == "Giant Fly" || self.gameObject.name == "Giant Buzzer" || self.gameObject.name == "Mega Moss Charger")
-            self.gameObject.AddComponent<MazeViable>();
-    }
-
-    private void HealthManager_Die(On.HealthManager.orig_Die orig, HealthManager self, float? attackDirection, AttackTypes attackType, bool ignoreEvasion)
-    {
-        orig(self, attackDirection, attackType, ignoreEvasion);
-        if (self.gameObject.GetComponent<MazeViable>() != null && !KnownScenes.ContainsKey("Inactive"))
+        if (CurrentAmount != -1 && args != null && ((args.OriginalState == ObtainState.Unobtained && args.Placement is not IMultiCostPlacement) || args.Item?.name == "Generosity"))
         {
-            KnownScenes["Counter"] = (Convert.ToInt32(KnownScenes["Counter"]) + 1).ToString();
+            if (!DespairCurse.DespairActive)
+                CurrentAmount++;
             UpdateProgression();
         }
+    }
+
+    private bool ModHooks_GetPlayerBoolHook(string name, bool orig)
+    {
+        if (name == "HasRegrets")
+            return CurrentAmount != -1 || orig;
+        return orig;
     }
 
     #endregion
@@ -104,8 +106,8 @@ internal class MazeCurse : TemporaryCurse
     {
         On.GameManager.BeginSceneTransition += GameManager_BeginSceneTransition;
         On.GameManager.EnterHero += GameManager_EnterHero;
-        On.HealthManager.OnEnable += HealthManager_OnEnable;
-        On.HealthManager.Die += HealthManager_Die;
+        AbstractItem.BeforeGiveGlobal += ObtainItem;
+        ModHooks.GetPlayerBoolHook += ModHooks_GetPlayerBoolHook;
         base.ApplyHooks();
     }
 
@@ -113,37 +115,35 @@ internal class MazeCurse : TemporaryCurse
     {
         On.GameManager.BeginSceneTransition -= GameManager_BeginSceneTransition;
         On.GameManager.EnterHero -= GameManager_EnterHero;
-        On.HealthManager.OnEnable -= HealthManager_OnEnable;
-        On.HealthManager.Die -= HealthManager_Die;
+        AbstractItem.BeforeGiveGlobal -= ObtainItem;
+        ModHooks.GetPlayerBoolHook -= ModHooks_GetPlayerBoolHook;
         base.Unhook();
     }
 
     public override void ApplyCurse()
     {
-        KnownScenes.Remove("Inactive");
-        KnownScenes["Counter"] = "0";
+        if (!EasyLift)
+            KnownScenes["Counter"] = "0";
         base.ApplyCurse();
     }
 
     public override int SetCap(int value) => Math.Max(1, Math.Min(10, value));
 
-    protected override bool IsActive() => !KnownScenes.ContainsKey("Inactive");
+    protected override bool IsActive() => CurrentAmount != -1;
 
     public override void ResetAdditionalData()
     {
-        Data.AdditionalData = new Dictionary<string, string>() { { "Counter", "0" }, { "Inactive", "Inactive" } };
+        Data.AdditionalData = new Dictionary<string, string>() { { "Counter", "-1" } };
     }
 
     protected override Vector2 MoveToPosition(CurseCounterPosition position)
     {
         return position switch
         {
-            CurseCounterPosition.Top => new(5f, 5.14f),
-            CurseCounterPosition.Left => new(-14f, -5f),
-            CurseCounterPosition.Right => new(11f, -5f),
-            CurseCounterPosition.Bot => new(5f, -6f),
-            CurseCounterPosition.Sides => new(11f, -2f),
-            _ => new(5f, -8f),
+            CurseCounterPosition.HorizontalBlock => new(4, -1.5f),
+            CurseCounterPosition.VerticalBlock => new(2f, -1.5f),
+            CurseCounterPosition.Column => new(0f, -4.5f),
+            _ => new(12f, 0f),
         };
     }
 
@@ -160,8 +160,7 @@ internal class MazeCurse : TemporaryCurse
     protected override void LiftCurse()
     {
         base.LiftCurse();
-        KnownScenes.Add("Inactive", "Inactive");
-        KnownScenes["Counter"] = "0";
+        KnownScenes["Counter"] = "-1";
     }
 
     #endregion

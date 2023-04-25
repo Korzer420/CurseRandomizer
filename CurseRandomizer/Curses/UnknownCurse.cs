@@ -1,8 +1,10 @@
 ﻿using CurseRandomizer.Enums;
-using KorzUtils.Helper;
 using HutongGames.PlayMaker;
+using ItemChanger;
 using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
+using ItemChanger.UIDefs;
+using KorzUtils.Helper;
 using Modding;
 using MonoMod.Cil;
 using System;
@@ -44,7 +46,7 @@ internal class UnknownCurse : Curse
         }
     }
 
-    public static bool AreCursesHidden => (CurseManager.GetCurseByType(CurseType.Unknown) as UnknownCurse).Affected.Contains(AffectedVisual.Curses);
+    public static bool AreCursesHidden => CurseManager.GetCurse<UnknownCurse>().Affected.Contains(AffectedVisual.Items);
 
     #endregion
 
@@ -143,6 +145,85 @@ internal class UnknownCurse : Curse
         }
         else if (self.FsmName == "blue_health_display" && self.gameObject.name != "Joni Health" && Affected.Contains(AffectedVisual.Health))
             self.GetState("Init").AdjustTransition("FINISHED", "Destroy Self");
+        //else if (self.FsmName == "UI Charms")
+        //{
+        //    self.AddState(new FsmState(self.Fsm)
+        //    {
+        //        Name = "Blinded?",
+        //        Actions = new FsmStateAction[]
+        //        {
+        //            new Lambda(() =>
+        //            {
+        //                if (Affected.Contains(AffectedVisual.Charms))
+        //                    self.SendEvent("FINISHED");
+        //                else
+        //                    self.SendEvent("OVERCHARMED");
+        //            })
+        //        }
+        //    });
+        //    self.GetState("Overcharmed?").AdjustTransition("OVERCHARM", "Blinded?");
+        //    self.GetState("Blinded?").AddTransition("FINISHED", "Not overcharmed");
+        //    self.GetState("Blinded?").AddTransition("OVERCHARMED", "Over Notches 2");
+
+        //    self.AddState(new FsmState(self.Fsm)
+        //    {
+        //        Name = "Blinded? 2",
+        //        Actions = new FsmStateAction[]
+        //        {
+        //            new Lambda(() =>
+        //            {
+        //                if (Affected.Contains(AffectedVisual.Charms))
+        //                {
+        //                    PlayerData.instance.SetBool(nameof(PlayerData.overcharmed), true);
+        //                    self.SendEvent("OVERCHARMED");
+        //                }
+        //            })
+        //        }
+        //    });
+        //    self.GetState("Blinded? 2").AddTransition("OVERCHARMED", "Activate UI");
+        //    self.GetState("Blinded? 2").AddTransition("FINISHED", "OC Set");
+        //    self.GetState("Overcharm Check").AdjustTransition("OVERCHARM", "Blinded? 2");
+
+        //    self.AddState(new FsmState(self.Fsm)
+        //    {
+        //        Name = "Blinded? 3",
+        //        Actions = new FsmStateAction[]
+        //        {
+        //            new Lambda(() =>
+        //            {
+        //                if (Affected.Contains(AffectedVisual.Charms))
+        //                    self.SendEvent("FINISHED");
+        //                else
+        //                    self.SendEvent("OVERCHARM");
+        //            })
+        //        }
+        //    });
+        //    self.GetState("End Overcharm?").AdjustTransition("OVERCHARM", "Blinded? 3");
+        //    self.GetState("Blinded? 3").AddTransition("FINISHED", "Tween Down");
+        //    self.GetState("Blinded? 3").AddTransition("OVERCHARM", "Remain Overcharmed");
+
+        //    self.AddState(new FsmState(self.Fsm)
+        //    {
+        //        Name = "Blinded? 4",
+        //        Actions = new FsmStateAction[]
+        //        {
+        //            new Lambda(() =>
+        //            {
+        //                if (Affected.Contains(AffectedVisual.Charms))
+        //                    self.SendEvent("OVER");
+        //                else if (self.FsmVariables.FindFsmInt("Slots Filled").Value >= self.FsmVariables.FindFsmInt("Slots").Value)
+        //                    self.SendEvent("FULL");
+        //                else
+        //                    self.SendEvent("NOT FULL");
+        //            })
+        //        }
+        //    });
+        //    self.GetState("Blinded? 4").AddTransition("OVER", "Activate UI");
+        //    self.GetState("Blinded? 4").AddTransition("FULL", "No Open Slot");
+        //    self.GetState("Blinded? 4").AddTransition("NOT FULL", "Open Slot");
+        //    self.GetState("Open Slot?").AdjustTransition("FULL", "Blinded? 4");
+        //    self.GetState("Open Slot?").AdjustTransition("NOT FULL", "Blinded? 4");
+        //}
         orig(self);
     }
 
@@ -155,6 +236,8 @@ internal class UnknownCurse : Curse
             || self.IsCorrectContext("Low Health FX", "Health", "HUD In HP Check") || self.IsCorrectContext("Low Health FX", "Health", "Init"))
             && Affected.Contains(AffectedVisual.Health))
             self.integer1.Value = 99;
+        //else if (self.IsCorrectContext("UI Charms", "Charms", "Open Notch?") && Affected.Contains(AffectedVisual.Charms))
+        //    self.integer1.Value = 0;
         orig(self);
     }
 
@@ -202,9 +285,10 @@ internal class UnknownCurse : Curse
         On.PlayMakerFSM.OnEnable += PlayMakerFSM_OnEnable;
         IL.HeroAnimationController.PlayIdle += HeroAnimationController_PlayIdle;
         On.HutongGames.PlayMaker.Actions.SetPosition.OnEnter += SetPosition_OnEnter;
+
         _bingoUIUsed = ModHooks.GetMod("BingoUI") is Mod;
     }
-
+    
     public override void Unhook()
     {
         On.HutongGames.PlayMaker.Actions.SetTextMeshProText.OnEnter -= SetTextMeshProText_OnEnter;
@@ -226,6 +310,7 @@ internal class UnknownCurse : Curse
         List<AffectedVisual> viableVisuals = (Enum.GetValues(typeof(AffectedVisual)) as AffectedVisual[]).Except(Affected).ToList();
         AffectedVisual chosen = viableVisuals[UnityEngine.Random.Range(0, viableVisuals.Count)];
         Affected.Add(chosen);
+        GameHelper.DisplayMessage("FOOL! (You can no longer see your " + chosen + ")");
         if (chosen == AffectedVisual.Health)
         {
             // To force the UI to update to amount of masks.
@@ -239,6 +324,17 @@ internal class UnknownCurse : Curse
         }
         else if (chosen == AffectedVisual.Soul)
             HeroController.instance.AddMPCharge(200);
+        else if (chosen == AffectedVisual.Items)
+        {
+            foreach (AbstractPlacement placement in ItemChanger.Internal.Ref.Settings.Placements.Values)
+                foreach (AbstractItem item in placement.Items)
+                    if (item.GetResolvedUIDef() is MsgUIDef msgUIDef)
+                    {
+                        msgUIDef.name = new BoxedString("???");
+                        msgUIDef.shopDesc = new BoxedString("You'll need this ???, otherwise you can't continue your journey. Although ??? might be a good substitution. \n<i>You don't know some of these words.</i>");
+                        msgUIDef.sprite = new CustomSprite("Fool");
+                    }
+        }
     }
 
     public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Data.Cap : 5);

@@ -1,6 +1,6 @@
 ﻿using CurseRandomizer.Enums;
 using CurseRandomizer.Randomizer.Settings;
-using System.Collections.Generic;
+using UnityEngine;
 
 namespace CurseRandomizer.SaveManagment;
 
@@ -10,5 +10,11 @@ public class GlobalSaveData
 
     public RandoSettings Settings { get; set; }
 
-    public Dictionary<string, bool> IgnoredCurses { get; set; }
+    public bool EasyCurseLift { get; set; }
+
+    public bool ColorBlindHelp { get; set; }
+
+    public Vector3 TrackerPosition { get; set; }
+
+    public float TrackerScaling { get; set; }
 }

@@ -980,7 +980,7 @@ internal static class RandoManager
             throw new Exception("No curses available to place.");
 
         // If for some reason the default curse is not active, we just select the curse of pain.
-        CurseManager.DefaultCurse ??= CurseManager.GetCurseByType(CurseType.Pain);
+        CurseManager.DefaultCurse ??= CurseManager.GetCurse<PainCurse>();
 
         CurseRandomizer.Instance.LogDebug("Total amount of items is: " + totalItemCount);
         // Get the amount of curses to be placed.

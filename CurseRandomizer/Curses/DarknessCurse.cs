@@ -1,12 +1,10 @@
 ﻿using CurseRandomizer.Enums;
-using KorzUtils.Helper;
 using CurseRandomizer.ItemData;
 using GlobalEnums;
-using HutongGames.PlayMaker;
+using KorzUtils.Helper;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 namespace CurseRandomizer.Curses;
@@ -37,7 +35,7 @@ internal class DarknessCurse : TemporaryCurse
         }
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount * 5, CurseManager.UseCaps ? Cap : 50);
+    public override int NeededAmount => Math.Min(Data.CastedAmount * 3, CurseManager.UseCaps ? Cap : 30);
 
     public override int CurrentAmount { get => PassedScenes.Count; set { } }
 
@@ -109,7 +107,6 @@ internal class DarknessCurse : TemporaryCurse
             base.LiftCurse();
             PassedScenes.Clear();
             PassedScenes.Add("Inactive");
-
             HeroController.instance.vignetteFSM.SendEvent("SCENE RESET");
         }
         catch (Exception exception)
@@ -136,12 +133,15 @@ internal class DarknessCurse : TemporaryCurse
 
     public override void ApplyCurse()
     {
-        PassedScenes.Clear();
+        if (!EasyLift)
+            PassedScenes.Clear();
+        else
+            PassedScenes.RemoveAll(x => x == "Inactive");
         base.ApplyCurse();
         HeroController.instance.vignetteFSM.SendEvent("SCENE RESET");
     }
 
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 5));
+    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 30));
 
     public override void ResetAdditionalData()
     {
@@ -155,10 +155,10 @@ internal class DarknessCurse : TemporaryCurse
     {
         return position switch
         {
-            CurseCounterPosition.Bot => new(-5f, -8f),
-            CurseCounterPosition.Right => new(11, 2),
-            CurseCounterPosition.Left or CurseCounterPosition.Sides => new(-14f, 2f),
-            _ => new(-5f, 7.14f),
+            CurseCounterPosition.HorizontalBlock => new(0f, 1.5f),
+            CurseCounterPosition.VerticalBlock => new(2f, 1.5f),
+            CurseCounterPosition.Column => new(0f, 3f),
+            _ => new(-8f, 0f),
         };
     }
 

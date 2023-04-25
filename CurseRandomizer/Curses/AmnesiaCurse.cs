@@ -46,7 +46,6 @@ internal class AmnesiaCurse : Curse
             self.Fsm.GameObject.LocateMyFSM("damages_enemy").FsmVariables.FindFsmInt("damageDealt").Value =
                Convert.ToInt16(Math.Round(self.Fsm.GameObject
                .LocateMyFSM("damages_enemy").FsmVariables.FindFsmInt("damageDealt").Value * (1 - Stacks * 0.1f), 0, MidpointRounding.AwayFromZero));
-
         orig(self);
     }
 
@@ -124,7 +123,16 @@ internal class AmnesiaCurse : Curse
                 if (!availableSpells.Any())
                     CurseRandomizer.Instance.LogError("Couldn't find a spell to downgrade. This curse shouldn't be allowed to be casted. Report this to the mod developer please.");
                 else
-                    PlayerData.instance.DecrementInt(availableSpells[UnityEngine.Random.Range(0, availableSpells.Count)]);
+                {
+                    int selected = UnityEngine.Random.Range(0, availableSpells.Count);
+                    PlayerData.instance.DecrementInt(availableSpells[selected]);
+                    if (availableSpells[selected] == "fireballLevel")
+                        GameHelper.DisplayMessage("FOOL! (Your shade soul vanished)");
+                    else if (availableSpells[selected] == "quakeLevel")
+                        GameHelper.DisplayMessage("FOOL! (Your descending dark vanished)");
+                    else
+                        GameHelper.DisplayMessage("FOOL! (Your abyss shriek vanished)");
+                }
             }
             else
                 CurseRandomizer.Instance.LogError("Couldn't find a spell to downgrade. This curse shouldn't be allowed to be casted. Report this to the mod developer please.");
@@ -146,9 +154,21 @@ internal class AmnesiaCurse : Curse
 
             // 20% chance for a spell upgrade to be taken.
             if (availableSpells.Any() && UnityEngine.Random.Range(0, 5) == 0)
-                PlayerData.instance.DecrementInt(availableSpells[UnityEngine.Random.Range(0, availableSpells.Count)]);
+            {
+                int selected = UnityEngine.Random.Range(0, availableSpells.Count);
+                PlayerData.instance.DecrementInt(availableSpells[selected]);
+                if (availableSpells[selected] == "fireballLevel")
+                    GameHelper.DisplayMessage("FOOL! (Your shade soul vanished)");
+                else if (availableSpells[selected] == "quakeLevel")
+                    GameHelper.DisplayMessage("FOOL! (Your descending dark vanished)");
+                else
+                    GameHelper.DisplayMessage("FOOL! (Your abyss shriek vanished)");
+            }
             else
+            {
                 Stacks++;
+                GameHelper.DisplayMessage("FOOL! (Your spells got weaker)");
+            }
         }
     }
 

@@ -103,6 +103,11 @@ public enum CurseType
     Despair,
 
     /// <summary>
+    /// Turns golden and transform items to small amounts of geo. Happens from time to time.
+    /// </summary>
+    Midas,
+
+    /// <summary>
     /// A custom curse implemented by another mod.
     /// </summary>
     Custom

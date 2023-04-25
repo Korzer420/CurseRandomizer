@@ -4,6 +4,7 @@ using CurseRandomizer.ItemData;
 using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer.Settings;
 using CurseRandomizer.SaveManagment;
+using KorzUtils.Helper;
 using Modding;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public static CurseRandomizer Instance { get; set; }
 
-    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "3.2.2.0";
+    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "4.0.0.0";
 
     public RandoSettings Settings => _settings ??= new();
 
@@ -41,6 +42,11 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
     {
         _settings = randoSettings.Settings;
         TemporaryCurse.Position = randoSettings.CounterPosition;
+        MidasCurse.Colorless = randoSettings.ColorBlindHelp;
+        TemporaryCurse.Scale = Math.Max(0.1f, randoSettings.TrackerScaling);
+        TemporaryCurse.TrackerPosition = randoSettings.TrackerPosition;
+        TemporaryCurse.AdjustTracker();
+        TemporaryCurse.EasyLift = randoSettings.EasyCurseLift;
     }
 
     public void OnLoadLocal(LocalSaveData saveData)
@@ -73,7 +79,16 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         }
     }
 
-    public GlobalSaveData OnSaveGlobal() => new() { Settings = Settings, CounterPosition = TemporaryCurse.Position };
+    public GlobalSaveData OnSaveGlobal() =>
+        new()
+        {
+            Settings = Settings,
+            CounterPosition = TemporaryCurse.Position,
+            ColorBlindHelp = MidasCurse.Colorless,
+            TrackerPosition = TemporaryCurse.TrackerPosition,
+            TrackerScaling = TemporaryCurse.Scale,
+            EasyCurseLift = TemporaryCurse.EasyLift
+        };
 
     public LocalSaveData OnSaveLocal()
     {
@@ -108,7 +123,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
     {
         List<IMenuMod.MenuEntry> options = new()
         {
-            new IMenuMod.MenuEntry("Counter Position", Enum.GetNames(typeof(CurseCounterPosition)), "Determines the position where the counter appear.",
+            new IMenuMod.MenuEntry("Counter Position", Enum.GetNames(typeof(CurseCounterPosition)), "Determines the formation in which the curse counter appear.",
             index =>
             {
                 TemporaryCurse.Position = (CurseCounterPosition)index;
@@ -116,12 +131,72 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
                     foreach (TemporaryCurse curse in CurseManager.GetCurses().Where(x => x is TemporaryCurse))
                         curse.RepositionTracker();
             },
-            () => (int)TemporaryCurse.Position)
+            () => (int)TemporaryCurse.Position),
+            new("Move Counter", new string[] {"Up", "Up"}, "Moves all counters slightly up.", clicked =>
+            {
+                if (GameManager.instance != null && GameManager.instance.IsGameplayScene())
+                {
+                    TemporaryCurse.TrackerPosition += new UnityEngine.Vector3(0f, 0.1f);
+                    TemporaryCurse.AdjustTracker();
+                }
+            },
+            () => 0),
+            new("Move Counter", new string[] {"Down", "Down"}, "Moves all counters slightly down.", clicked =>
+            {
+                if (GameManager.instance != null && GameManager.instance.IsGameplayScene())
+                {
+                    TemporaryCurse.TrackerPosition += new UnityEngine.Vector3(0f, -0.1f);
+                    TemporaryCurse.AdjustTracker();
+                }
+            },
+            () => 0),
+            new("Move Counter", new string[] {"Left", "Left" }, "Moves all counters slightly left.", clicked =>
+            {
+                if (GameManager.instance != null && GameManager.instance.IsGameplayScene())
+                {
+                    TemporaryCurse.TrackerPosition += new UnityEngine.Vector3(-0.1f, 0f);
+                    TemporaryCurse.AdjustTracker();
+                }
+            },
+            () => 0),
+            new("Move Counter", new string[] {"Right", "Right" }, "Moves all counters slightly right.", clicked =>
+            {
+                if (GameManager.instance != null && GameManager.instance.IsGameplayScene())
+                {
+                    TemporaryCurse.TrackerPosition += new UnityEngine.Vector3(0.1f, 0f);
+                    TemporaryCurse.AdjustTracker();
+                }
+            },
+            () => 0),
+            new("Counter Size", new string[] {"Up", "Up" }, "Makes all counters slightly larger.", clicked =>
+            {
+                if (GameManager.instance != null && GameManager.instance.IsGameplayScene())
+                {
+                    TemporaryCurse.Scale += 0.1f;
+                    TemporaryCurse.AdjustTracker();
+                }
+            },
+            () => 0),
+            new("Counter Size", new string[] {"Down", "Down" }, "Makes all counters slightly smaller.", clicked =>
+            {
+                if (GameManager.instance != null && GameManager.instance.IsGameplayScene() && TemporaryCurse.Scale > 0.1f)
+                {
+                    TemporaryCurse.Scale -= 0.1f;
+                    TemporaryCurse.AdjustTracker();
+                }
+            },
+            () => 0),
+            new ("Colorless Indicator", new string[]{"Disabled", "Enabled"}, "If enabled, the Midas curse will display a textbox.",
+            index => MidasCurse.Colorless = index == 1,
+            () => MidasCurse.Colorless ? 1 : 0),
+            new ("Easy curse lift", new string[] {"Disabled", "Enabled"}, "If enabled, temporary curses will not reset fully.",
+            index => TemporaryCurse.EasyLift = index == 1,
+            () => TemporaryCurse.EasyLift ? 1 : 0)
         };
-        foreach (Curse curse in CurseManager.GetCurses())
-            options.Add(new($"Ignore {curse.Name}", new string[] { "False", "True" }, $"If true, {curse.Name} doesn't affect you",
-                index => curse.Data.Ignored = index == 1,
-                () => curse.Data.Ignored ? 1 : 0));
+        //foreach (Curse curse in CurseManager.GetCurses())
+        //    options.Add(new($"Ignore {curse.Name}", new string[] { "False", "True" }, $"If true, {curse.Name} doesn't affect you",
+        //        index => curse.Data.Ignored = index == 1,
+        //        () => curse.Data.Ignored ? 1 : 0));
         return options;
     }
 

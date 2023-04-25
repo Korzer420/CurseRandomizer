@@ -21,11 +21,11 @@ internal class CurseItem : AbstractItem
         if (curse == null)
         {
             CurseRandomizer.Instance.LogError("Couldn't find curse " + CurseName+". Default to Disorientation");
-            curse = CurseManager.GetCurseByType(CurseType.Disorientation);
+            curse = CurseManager.GetCurse<DisorientationCurse>();
             CurseName = "Disorientation";
         }
         CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
-        if (curse.CanApplyCurse() || (OmenCurse.OmenMode && CurseName == "Omen" && (CurseManager.GetCurseByType(CurseType.Omen) as OmenCurse).KilledEnemies.Contains("Inactive")))
+        if (curse.CanApplyCurse() || (OmenCurse.OmenMode && CurseName == "Omen" && CurseManager.GetCurse<OmenCurse>().KilledEnemies.Contains("Inactive")))
             module.QueueCurse(CurseName);
         else if (CurseManager.DefaultCurse.CanApplyCurse())
         {

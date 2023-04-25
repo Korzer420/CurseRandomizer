@@ -10,5 +10,5 @@ internal enum AffectedVisual
 
     Essence,
 
-    Curses
+    Items
 }

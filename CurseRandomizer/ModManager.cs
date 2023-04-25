@@ -111,6 +111,7 @@ internal static class ModManager
             if (UseCurses)
                 foreach (Curse curse in CurseManager.GetCurses())
                     curse.Unhook();
+            CurseManager.Handler.StopAllCoroutines();
         }
         yield return orig(self);
     }
@@ -188,7 +189,7 @@ internal static class ModManager
     private static IEnumerator Wait(bool reset = true)
     {
         yield return null;
-        CurseRandomizer.Instance.SyncMenu(reset);
+        //CurseRandomizer.Instance.SyncMenu(reset);
     }
 
     private static void Hook()
@@ -262,7 +263,7 @@ internal static class ModManager
         if (self.IsCorrectContext("Fader", "Add Text", "Down") && self.Fsm.GameObject.transform.parent?.name == "Geo Counter")
         {
             int playerGeo = PlayerData.instance.GetInt(nameof(PlayerData.instance.geo));
-            if (UseCurses && ((List<AffectedVisual>)CurseManager.GetCurseByType(CurseType.Unknown).Data.AdditionalData).Contains(AffectedVisual.Geo))
+            if (UseCurses && ((List<AffectedVisual>)CurseManager.GetCurse<UnknownCurse>().Data.AdditionalData).Contains(AffectedVisual.Geo))
                 HeroController.instance.geoCounter.geoTextMesh.text = "???";
             else
                 switch (WalletAmount)

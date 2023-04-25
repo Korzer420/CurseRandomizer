@@ -11,19 +11,28 @@ internal class DoubtCurse : Curse
 
     public override void ApplyCurse()
     {
-        int totalCost = 1;
+        int totalCost = 0;
         List<int> availableCharms = new();
         for (int i = 1; i < 41; i++)
         {
             if (i == 36)
                 continue;
             PlayerData.instance.SetBool("equippedCharm_" + i, false);
-            if (PlayerData.instance.GetBool("gotCharm_" + i))
-            {
-                availableCharms.Add(i);
-                totalCost += PlayerData.instance.GetInt("charmCost_" + i);
-            }
+            availableCharms.Add(i);
+            totalCost += PlayerData.instance.GetInt("charmCost_" + i);
         }
+        
+        // Decrease penality based on the current max cost
+        if (totalCost < 101)
+            totalCost += 5;
+        else if (totalCost < 151)
+            totalCost += 4;
+        else if (totalCost < 201)
+            totalCost += 3;
+        else if (totalCost < 251)
+            totalCost += 2;
+        else
+            totalCost++;
 
         // Unequip all charms
         PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).RemoveAll(x => x != 36);
@@ -35,11 +44,11 @@ internal class DoubtCurse : Curse
             PlayerData.instance.SetInt("charmCost_" + charmId, 0);
 
         // To balance out the cost, all charms (except the ones affected by normality), start with one notch cost. (If it is possible, at least)
-        NormalityCurse normalityCurse = CurseManager.GetCurseByType(CurseType.Normality) as NormalityCurse;
+        NormalityCurse normalityCurse = CurseManager.GetCurse<NormalityCurse>();
         if (availableCharms.Except(normalityCurse.DisabledCharmId).Count() >= totalCost)
             foreach (int charmId in availableCharms.Except(normalityCurse.DisabledCharmId))
                 PlayerData.instance.SetInt("charmCost_" + charmId, 1);
-        
+
         int run = 0;
         do
         {
@@ -49,11 +58,19 @@ internal class DoubtCurse : Curse
                 // Charms can never cost more than 7.
                 if (previousCost == 7)
                     continue;
-                int maxAdditionalCost = Math.Min(totalCost, Math.Min(7 - previousCost, 4));
-                int additionalCost = UnityEngine.Random.Range(1, maxAdditionalCost);
+                if (normalityCurse.DisabledCharmId.Contains(charmId))
+                {
+                    totalCost--;
+                    PlayerData.instance.SetInt("charmCost_" + charmId, previousCost + 1);
+                }
+                else
+                {
+                    int maxAdditionalCost = Math.Min(totalCost, Math.Min(7 - previousCost, 4));
+                    int additionalCost = UnityEngine.Random.Range(1, maxAdditionalCost);
 
-                totalCost -= additionalCost;
-                PlayerData.instance.SetInt("charmCost_" + charmId, previousCost + additionalCost);
+                    totalCost -= additionalCost;
+                    PlayerData.instance.SetInt("charmCost_" + charmId, previousCost + additionalCost);
+                }
 
                 if (totalCost == 0)
                     break;
@@ -61,7 +78,7 @@ internal class DoubtCurse : Curse
 
             // This is just a safety check.
             run++;
-        } 
+        }
         while (totalCost > 0 && run < 39 * 7);
     }
 

@@ -1,7 +1,9 @@
-﻿using CurseRandomizer.Enums;
+﻿using CurseRandomizer.Components;
+using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
 using InControl;
 using ItemChanger;
+using KorzUtils.Helper;
 using Modding;
 using System;
 using System.Collections.Generic;
@@ -20,8 +22,8 @@ internal class ConfusionCurse : TemporaryCurse
 
     #region Properties
 
-    public override int CurrentAmount 
-    { 
+    public override int CurrentAmount
+    {
         get
         {
             if (Data.AdditionalData == null)
@@ -31,7 +33,7 @@ internal class ConfusionCurse : TemporaryCurse
         set => Data.AdditionalData = value;
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount * 5, UseCap ? Cap : 40);
+    public override int NeededAmount => Math.Min(Data.CastedAmount, UseCap ? Cap : 3);
 
     #endregion
 
@@ -67,9 +69,17 @@ internal class ConfusionCurse : TemporaryCurse
             orig(self);
     }
 
-    private void ObtainItem(ReadOnlyGiveEventArgs args)
+    private void HealthManager_OnEnable(On.HealthManager.orig_OnEnable orig, HealthManager self)
     {
-        if (CurrentAmount != -1 && args != null && (args.OriginalState == ObtainState.Unobtained || args.Item?.name == "Generosity"))
+        orig(self);
+        if (self.hp >= 200 || self.gameObject.name == "Giant Fly" || self.gameObject.name == "Giant Buzzer" || self.gameObject.name == "Mega Moss Charger")
+            self.gameObject.AddComponent<ConfusionViable>();
+    }
+
+    private void HealthManager_Die(On.HealthManager.orig_Die orig, HealthManager self, float? attackDirection, AttackTypes attackType, bool ignoreEvasion)
+    {
+        orig(self, attackDirection, attackType, ignoreEvasion);
+        if (self.gameObject.GetComponent<ConfusionViable>() != null)
         {
             if (!DespairCurse.DespairActive)
                 CurrentAmount++;
@@ -77,11 +87,14 @@ internal class ConfusionCurse : TemporaryCurse
         }
     }
 
-    private bool ModHooks_GetPlayerBoolHook(string name, bool orig)
+    private void HeroController_TakeDamage(On.HeroController.orig_TakeDamage orig, HeroController self, GameObject go, GlobalEnums.CollisionSide damageSide, int damageAmount, int hazardType)
     {
-        if (name == "HasRegrets")
-            return CurrentAmount != -1 || orig;
-        return orig;
+        orig(self, go, damageSide, damageAmount, hazardType);
+        if (damageAmount > 0 && IsActive() && UnityEngine.Random.Range(0, 3) == 0)
+        {
+            GameHelper.DisplayMessage("???");
+            SetBindings(false);
+        }
     }
 
     #endregion
@@ -95,8 +108,10 @@ internal class ConfusionCurse : TemporaryCurse
         On.InputHandler.ResetDefaultKeyBindings += InputHandler_ResetDefaultKeyBindings;
         On.InputHandler.ResetDefaultControllerButtonBindings += InputHandler_ResetDefaultControllerButtonBindings;
         On.InputHandler.ResetAllControllerButtonBindings += InputHandler_ResetAllControllerButtonBindings;
-        AbstractItem.BeforeGiveGlobal += ObtainItem;
-        ModHooks.GetPlayerBoolHook += ModHooks_GetPlayerBoolHook;
+        On.HeroController.TakeDamage += HeroController_TakeDamage;
+        On.HealthManager.OnEnable += HealthManager_OnEnable;
+        On.HealthManager.Die += HealthManager_Die;
+
         _actions[0] = InputHandler.Instance.inputActions.attack;
         _actions[1] = InputHandler.Instance.inputActions.cast;
         _actions[2] = InputHandler.Instance.inputActions.quickCast;
@@ -118,15 +133,18 @@ internal class ConfusionCurse : TemporaryCurse
         On.InputHandler.ResetDefaultKeyBindings -= InputHandler_ResetDefaultKeyBindings;
         On.InputHandler.ResetDefaultControllerButtonBindings -= InputHandler_ResetDefaultControllerButtonBindings;
         On.InputHandler.ResetAllControllerButtonBindings -= InputHandler_ResetAllControllerButtonBindings;
-        AbstractItem.BeforeGiveGlobal -= ObtainItem;
-        ModHooks.GetPlayerBoolHook -= ModHooks_GetPlayerBoolHook;
+        On.HeroController.TakeDamage -= HeroController_TakeDamage;
+        On.HealthManager.OnEnable -= HealthManager_OnEnable;
+        On.HealthManager.Die -= HealthManager_Die;
+
         SetBindings(true);
         base.Unhook();
     }
 
-    public override void ApplyCurse() 
+    public override void ApplyCurse()
     {
-        CurrentAmount = 0;
+        if (!EasyLift)
+            CurrentAmount = 0;
         SetBindings(false);
         base.ApplyCurse();
     }
@@ -148,12 +166,10 @@ internal class ConfusionCurse : TemporaryCurse
     {
         return position switch
         {
-            CurseCounterPosition.Top => new(0f, 5.14f),
-            CurseCounterPosition.Right => new(11, -3f),
-            CurseCounterPosition.Left => new(-14f, -3f),
-            CurseCounterPosition.TopAndBot => new(0f, -8f),
-            CurseCounterPosition.Sides => new(11f, 0f),
-            _ => new(0f, -6f),
+            CurseCounterPosition.HorizontalBlock => new(-4, 1.5f),
+            CurseCounterPosition.VerticalBlock => new(-2f, 1.5f),
+            CurseCounterPosition.Column => new(0f, 4.5f),
+            _ => new(-12f, 0f),
         };
     }
 

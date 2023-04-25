@@ -1,6 +1,5 @@
 ﻿using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
-using IL.InControl.UnityDeviceProfiles;
 using ItemChanger;
 using KorzUtils.Helper;
 using Modding;
@@ -17,7 +16,7 @@ internal class RegretCurse : TemporaryCurse
 
     public override int CurrentAmount
     {
-        get 
+        get
         {
             if (Data.AdditionalData == null)
                 Data.AdditionalData = -1;
@@ -65,11 +64,12 @@ internal class RegretCurse : TemporaryCurse
     #region Control
 
     public override void ApplyCurse()
-    { 
-        CurrentAmount = 0;
+    {
+        if (!EasyLift)
+            CurrentAmount = 0;
         base.ApplyCurse();
     }
-    
+
     public override void ApplyHooks()
     {
         ModHooks.RecordKillForJournalHook += ModHooks_RecordKillForJournalHook;
@@ -104,17 +104,17 @@ internal class RegretCurse : TemporaryCurse
         {
             List<Curse> availableCurses = CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Instant && x.Data.Active && x.CanApplyCurse()).ToList();
             // Lost curse is the only instant curse which can't be applied if disabled.
-            Curse lostCurse = CurseManager.GetCurseByType(CurseType.Lost);
+            Curse lostCurse = CurseManager.GetCurse<LostCurse>();
             if (!lostCurse.Data.Active)
                 availableCurses.Remove(lostCurse);
 
             if (!availableCurses.Any())
-                availableCurses.Add(CurseManager.GetCurseByType(CurseType.Disorientation));
+                availableCurses.Add(CurseManager.GetCurse<DisorientationCurse>());
             CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
             string selectedCurse = availableCurses[UnityEngine.Random.Range(0, availableCurses.Count)].Name;
             module.QueueCurse(selectedCurse);
 
-            GameHelper.DisplayMessage($"The sins of <color={TextColor}>" + selectedCurse + "</color> are crawling down your back...");
+            GameHelper.DisplayMessage($"The sins of <color={TextColor}>" + selectedCurse + "</color> are crawling down your spine...");
             KilledEnemies.Clear();
         }
 
@@ -134,12 +134,10 @@ internal class RegretCurse : TemporaryCurse
     {
         return position switch
         {
-            CurseCounterPosition.Top => new(-5f, 5.14f),
-            CurseCounterPosition.Right => new(11, -1f),
-            CurseCounterPosition.Left => new(-14f, -1f),
-            CurseCounterPosition.TopAndBot => new(-5f, -8f),
-            CurseCounterPosition.Sides => new(11f, -1f),
-            _ => new(-5f, -6f),
+            CurseCounterPosition.HorizontalBlock => new(-4, -1.5f),
+            CurseCounterPosition.VerticalBlock => new(2f, 0f),
+            CurseCounterPosition.Column => new(0f, -1.5f),
+            _ => new(4f, 0f),
         };
     }
 

@@ -1,8 +1,10 @@
-﻿using KorzUtils.Helper;
+﻿using KorzUtils.Enums;
+using KorzUtils.Helper;
 using Modding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using static On.FSMUtility;
 
 namespace CurseRandomizer.Curses;
@@ -106,6 +108,7 @@ internal class NormalityCurse : Curse
             HeroController.instance.CharmUpdate();
             PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
         }
+        GameHelper.DisplayMessage("FOOL! (Your " + (Regex.Replace(((CharmRef)rolledCharm).ToString(), "([a-z])([A-Z])", "$1 $2"))+ " lost its power.)");
     }
 
     public override void ResetAdditionalData() => DisabledCharmId.Clear();

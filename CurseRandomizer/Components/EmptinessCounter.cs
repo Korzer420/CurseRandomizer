@@ -6,10 +6,10 @@ using UnityEngine;
 
 namespace CurseRandomizer.Components;
 
-internal class DespairCounter : MonoBehaviour
+internal class EmptinessCounter : MonoBehaviour
 {
     private string _enemyName;
-    private DespairCurse _curse = CurseManager.GetCurseByType(CurseType.Despair) as DespairCurse;
+    private EmptinessCurse _curse = CurseManager.GetCurse<EmptinessCurse>();
 
     void Start()
     {

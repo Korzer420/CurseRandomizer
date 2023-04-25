@@ -29,6 +29,7 @@
 	<ItemGroup>
 	  <None Remove="Resources\Confusion.png" />
 	  <None Remove="Resources\Darkness.png" />
+	  <None Remove="Resources\Emptiness.png" />
 	  <None Remove="Resources\Maze.png" />
 	  <None Remove="Resources\Omen.png" />
 	  <None Remove="Resources\Regret.png" />
@@ -42,6 +43,9 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
 	  <EmbeddedResource Include="Resources\Darkness.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </EmbeddedResource>
+	  <EmbeddedResource Include="Resources\Emptiness.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
 	  <EmbeddedResource Include="Resources\Fool.png">

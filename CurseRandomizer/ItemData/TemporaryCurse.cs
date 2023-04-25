@@ -1,8 +1,9 @@
 ﻿using CurseRandomizer.Curses;
 using CurseRandomizer.Enums;
+using ItemChanger;
 using KorzUtils.Helper;
-using Modding;
 using System.Collections;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -16,6 +17,8 @@ internal abstract class TemporaryCurse : Curse
     #region Members
 
     protected GameObject _tracker;
+    private static GameObject _trackerContainer;
+    private static Coroutine _previewRoutine;
 
     #endregion
 
@@ -27,7 +30,28 @@ internal abstract class TemporaryCurse : Curse
 
     public override CurseTag Tag => CurseTag.Temporarly;
 
-    public float TrackPosition { get; set; }
+    public static Vector3 TrackerPosition { get; set; }
+
+    public static float Scale { get; set; } = 1f;
+
+    public static GameObject TrackerContainer 
+    {
+        get 
+        { 
+            if (_trackerContainer == null)
+            {
+                GameObject hudCanvas = GameObject.Find("_GameCameras").transform.Find("HudCamera/Hud Canvas").gameObject;
+                _trackerContainer = new("Container");
+                _trackerContainer.transform.SetParent(hudCanvas.transform);
+                _trackerContainer.transform.localScale = new(Scale, Scale, 1f);
+                _trackerContainer.transform.position = TrackerPosition;
+                _trackerContainer.layer = hudCanvas.layer;
+                _trackerContainer.SetActive(true);
+                _trackerContainer.isStatic = false;
+            }
+            return _trackerContainer;
+        }
+    }
 
     public GameObject Tracker
     {
@@ -36,10 +60,9 @@ internal abstract class TemporaryCurse : Curse
             if (_tracker == null)
             {
                 GameObject prefab = GameObject.Find("_GameCameras").transform.Find("HudCamera/Inventory/Inv/Inv_Items/Geo").gameObject;
-                GameObject hudCanvas = GameObject.Find("_GameCameras").transform.Find("HudCamera/Hud Canvas").gameObject;
-                _tracker = GameObject.Instantiate(prefab, hudCanvas.transform, true);
+                _tracker = GameObject.Instantiate(prefab, TrackerContainer.transform, true);
                 _tracker.name = Name + " Tracker";
-                _tracker.transform.localPosition = new(7.7818f, 0.5418f, 0);
+                _tracker.transform.localPosition = new(0f, 0f, 0);
                 _tracker.transform.localScale = new(1.3824f, 1.3824f, 1.3824f);
                 _tracker.GetComponent<DisplayItemAmount>().playerDataInt = _tracker.name;
                 _tracker.GetComponent<DisplayItemAmount>().textObject.text = "";
@@ -55,6 +78,8 @@ internal abstract class TemporaryCurse : Curse
     }
 
     public static CurseCounterPosition Position { get; set; }
+
+    public static bool EasyLift { get; set; }
 
     #endregion
 
@@ -102,14 +127,17 @@ internal abstract class TemporaryCurse : Curse
     /// </summary>
     internal virtual void UpdateProgression()
     {
-        RepositionTracker();
-        TextMeshPro currentCounter = _tracker.GetComponent<DisplayItemAmount>().textObject;
-        if (DespairCurse.DespairActive && Type != CurseType.Despair)
-            currentCounter.text = $"<color={TextColor}>{CurrentAmount}/{NeededAmount}</color>";
-        else
-            currentCounter.text = $"{CurrentAmount}/{NeededAmount}";
-        if (CurrentAmount >= NeededAmount && (!DespairCurse.DespairActive || Type == CurseType.Despair))
-            LiftCurse();
+        if (GameManager.instance?.IsGameplayScene() == true)
+        {
+            RepositionTracker();
+            TextMeshPro currentCounter = _tracker.GetComponent<DisplayItemAmount>().textObject;
+            if (DespairCurse.DespairActive && Type != CurseType.Despair)
+                currentCounter.text = $"<color={TextColor}>{CurrentAmount}/{NeededAmount}</color>";
+            else
+                currentCounter.text = $"{CurrentAmount}/{NeededAmount}";
+            if (CurrentAmount >= NeededAmount && !DespairCurse.DespairActive)
+                LiftCurse();
+        }
     }
 
     /// <summary>
@@ -121,7 +149,7 @@ internal abstract class TemporaryCurse : Curse
         GameHelper.DisplayMessage("The curse of " + Type + " vanished");
     }
 
-    internal void RepositionTracker() => Tracker.transform.position = MoveToPosition(Position);
+    internal void RepositionTracker() => Tracker.transform.localPosition = MoveToPosition(Position);
 
     private IEnumerator Wait()
     {
@@ -133,6 +161,40 @@ internal abstract class TemporaryCurse : Curse
     }
 
     protected abstract Vector2 MoveToPosition(CurseCounterPosition position);
+
+    internal static void AdjustTracker()
+    {
+        TrackerContainer.transform.position = TrackerPosition;
+        TrackerContainer.transform.localScale = new(Scale, Scale, 1f);
+        if (GameManager.instance != null && GameManager.instance.IsGameplayScene())
+        {
+            foreach (TemporaryCurse curse in CurseManager.GetCurses().Where(x => x is TemporaryCurse))
+            {
+                curse.RepositionTracker();
+                if (!curse.IsActive())
+                {
+                    curse.Tracker.SetActive(true);
+                    curse.Tracker.GetComponent<DisplayItemAmount>().textObject.text = "7777/7777";
+                }
+            }
+            if (_previewRoutine is not null)
+                CurseManager.Handler.StopCoroutine(_previewRoutine);
+            _previewRoutine = CurseManager.Handler?.StartCoroutine(DisablePreview());
+        }
+    }
+
+    private static IEnumerator DisablePreview()
+    {
+        //float passedTime = 0f;
+        //while (passedTime <= 3f)
+        //{
+        //    passedTime += Time.deltaTime;
+            yield return null;
+        //}
+        //foreach (TemporaryCurse curse in CurseManager.GetCurses().Where(x => x is TemporaryCurse))
+        //    if (!curse.IsActive())
+        //        curse.Tracker.SetActive(false);
+    }
 
     #endregion
 }

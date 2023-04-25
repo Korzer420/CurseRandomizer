@@ -43,7 +43,12 @@ public class CurseModule : Module
         }
 
         // Display the FOOL text.
-        GameHelper.DisplayMessage("FOOL");
+        GameHelper.DisplayMessage("FOOL!");
+        if (DespairCurse.DespairActive)
+        { 
+            (CurseManager.GetCurse<DespairCurse>().Data.AdditionalData as DespairTracker).CurseDesperation++;
+            CurseManager.GetCurse<DespairCurse>().UpdateProgression();
+        }
 
         while (CurseQueue.Any())
         {
@@ -51,9 +56,9 @@ public class CurseModule : Module
             if (CurseQueue[0] == "Pain")
             {
                 int painAmount = CurseQueue.RemoveAll(x => x == "Pain");
-                if (!CurseManager.GetCurseByType(CurseType.Pain).Data.Ignored)
+                if (!CurseManager.GetCurse<PainCurse>().Data.Ignored)
                 {
-                    CurseManager.GetCurseByType(CurseType.Pain).Data.CastedAmount += painAmount;
+                    CurseManager.GetCurse<PainCurse>().Data.CastedAmount += painAmount;
                     PainCurse.DoDamage(painAmount);
                 }
             }
@@ -61,10 +66,10 @@ public class CurseModule : Module
             else if (CurseQueue[0] == "Disorientation")
             {
                 int amount = CurseQueue.RemoveAll(x => x == "Disorientation");
-                if (!CurseManager.GetCurseByType(CurseType.Disorientation).Data.Ignored)
+                if (!CurseManager.GetCurse<DisorientationCurse>().Data.Ignored)
                 {
-                    CurseManager.GetCurseByType(CurseType.Disorientation).Data.CastedAmount += amount;
-                    CurseManager.GetCurseByType(CurseType.Disorientation).ApplyCurse();
+                    CurseManager.GetCurse<DisorientationCurse>().Data.CastedAmount += amount;
+                    CurseManager.GetCurse<DisorientationCurse>().ApplyCurse();
                 }
             }
             else
@@ -75,8 +80,8 @@ public class CurseModule : Module
                     if (!curse.Data.Ignored)
                         if (!curse.CanApplyCurse())
                         {
-                            CurseManager.GetCurseByType(CurseType.Disorientation).Data.CastedAmount++;
-                            CurseManager.GetCurseByType(CurseType.Disorientation).ApplyCurse();
+                            CurseManager.GetCurse<DisorientationCurse>().Data.CastedAmount++;
+                            CurseManager.GetCurse<DisorientationCurse>().ApplyCurse();
                         }
                         else
                         {

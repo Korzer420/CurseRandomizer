@@ -2,15 +2,11 @@
 
 public enum CurseCounterPosition
 {
-    Top,
+    HorizontalBlock,
 
-    Bot,
+    Row,
 
-    Left,
+    Column,
 
-    Right,
-
-    TopAndBot,
-
-    Sides
+    VerticalBlock
 }

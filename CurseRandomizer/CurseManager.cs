@@ -30,7 +30,8 @@ public static class CurseManager
         new ConfusionCurse() { Name = "Confusion", Type = CurseType.Confusion, Data = new() {Cap = 15} },
         new RegretCurse() { Name = "Regret", Type = CurseType.Regret, Data = new() {Cap = 5} },
         new MazeCurse() { Name = "Maze", Type = CurseType.Maze, Data = new() {Cap = 2} },
-        new DespairCurse() { Name = "Despair", Type = CurseType.Despair, Data = new() {Cap = 4} }
+        new DespairCurse() { Name = "Despair", Type = CurseType.Despair, Data = new() {Cap = 4} },
+        new MidasCurse() { Name = "Midas", Type = CurseType.Midas, Data = new() { Cap = 10 } }
     };
 
     #endregion
@@ -69,7 +70,7 @@ public static class CurseManager
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>
-    internal static Curse GetCurseByType(CurseType type) => _curses.FirstOrDefault(x => x.Type == type);
+    internal static T GetCurse<T>() where T : Curse => _curses.FirstOrDefault(x => x is T) as T;
 
     internal static List<Curse> GetCurses() => _curses;
 

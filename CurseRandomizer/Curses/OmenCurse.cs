@@ -105,7 +105,10 @@ internal class OmenCurse : TemporaryCurse
     public override void ApplyCurse()
     {
         base.ApplyCurse();
-        KilledEnemies.Clear();
+        if (!EasyLift)
+            KilledEnemies.Clear();
+        else
+            KilledEnemies.RemoveAll(x => x == "Inactive");
         UpdateProgression();
     }
 
@@ -127,10 +130,10 @@ internal class OmenCurse : TemporaryCurse
     {
         return position switch
         {
-            CurseCounterPosition.Bot => new(0f, -8f),
-            CurseCounterPosition.Right => new(11, 0),
-            CurseCounterPosition.Left or CurseCounterPosition.Sides => new(-14f, 0f),
-            _ => new(0f, 7.14f),
+            CurseCounterPosition.HorizontalBlock => new(0f, -1.5f),
+            CurseCounterPosition.VerticalBlock => new(-2f, -1.5f),
+            CurseCounterPosition.Column => new(0f, -3f),
+            _ => new(8f, 0f),
         };
     }
 

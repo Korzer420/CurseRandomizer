@@ -1,6 +1,4 @@
 ﻿using CurseRandomizer.Enums;
-using HutongGames.PlayMaker;
-using System.Collections.Generic;
 
 namespace CurseRandomizer;
 
