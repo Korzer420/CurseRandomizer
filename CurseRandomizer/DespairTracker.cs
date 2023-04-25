@@ -136,7 +136,7 @@ internal class DespairTracker
             if (despairCurse.CurrentAmount >= despairCurse.NeededAmount)
             {
                 despairCurse.RemoveCurse();
-                Reset();
+                Reset(true);
                 StopListening();
             }
         }
@@ -211,9 +211,9 @@ internal class DespairTracker
         }
     }
 
-    internal void Reset()
+    internal void Reset(bool lifting = false)
     {
-        if (TemporaryCurse.EasyLift)
+        if (!TemporaryCurse.EasyLift || lifting)
         {
             _deathDesperation = 0;
             _geoDesperation = 0;

@@ -53,7 +53,6 @@ internal class DespairCurse : TemporaryCurse
     public override void ApplyHooks()
     {
         base.ApplyHooks();
-        CurseRandomizer.Instance.Log("Is curse active? " + IsActive());
         if (IsActive())
             Counter.StartListening();
     }
@@ -74,6 +73,17 @@ internal class DespairCurse : TemporaryCurse
         }
         else
             Counter.StartListening();
+    }
+
+    internal override void UpdateProgression()
+    {
+        base.UpdateProgression();
+        if (PlayerData.instance.GetInt(nameof(PlayerData.instance.permadeathMode)) != 0 && CurrentAmount >= NeededAmount)
+        { 
+            LiftCurse();
+            Counter.Reset(true);
+            Counter.StopListening();
+        }
     }
 
     public override int SetCap(int value) => Math.Max(1, Math.Min(20, value));
