@@ -72,14 +72,14 @@ internal class ConfusionCurse : TemporaryCurse
     private void HealthManager_OnEnable(On.HealthManager.orig_OnEnable orig, HealthManager self)
     {
         orig(self);
-        if (self.hp >= 200 || self.gameObject.name == "Giant Fly" || self.gameObject.name == "Giant Buzzer" || self.gameObject.name == "Mega Moss Charger")
+        if (IsActive() && self.hp >= 200 || self.gameObject.name == "Giant Fly" || self.gameObject.name == "Giant Buzzer" || self.gameObject.name == "Mega Moss Charger")
             self.gameObject.AddComponent<ConfusionViable>();
     }
 
     private void HealthManager_Die(On.HealthManager.orig_Die orig, HealthManager self, float? attackDirection, AttackTypes attackType, bool ignoreEvasion)
     {
         orig(self, attackDirection, attackType, ignoreEvasion);
-        if (self.gameObject.GetComponent<ConfusionViable>() != null)
+        if (IsActive() && self.gameObject.GetComponent<ConfusionViable>() != null)
         {
             if (!DespairCurse.DespairActive)
                 CurrentAmount++;
