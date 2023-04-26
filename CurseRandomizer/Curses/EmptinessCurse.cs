@@ -127,6 +127,7 @@ internal class EmptinessCurse : TemporaryCurse
     protected override void LiftCurse()
     {
         base.LiftCurse();
+        ((Dictionary<string, int>)Data.AdditionalData).Clear();
         HeroController.instance.AddHealth(1);
     }
 
