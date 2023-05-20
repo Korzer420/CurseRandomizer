@@ -2,6 +2,7 @@
 using ItemChanger.Placements;
 using ItemChanger.UIDefs;
 using KorzUtils.Helper;
+using Modding;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -179,7 +180,8 @@ internal class MidasCurse : Curse
     private void PlayerData_CountCharms(On.PlayerData.orig_CountCharms orig, PlayerData self)
     {
         orig(self);
-        PlayerData.instance.SetInt(nameof(PlayerData.charmsOwned), PlayerData.instance.GetInt(nameof(PlayerData.charmsOwned) + DisabledCharms));
+        for (int i = 0; i < DisabledCharms; i++)
+            PlayerData.instance.IncrementInt(nameof(PlayerData.charmsOwned));
     }
 
     #endregion
