@@ -1,7 +1,6 @@
 ﻿using CurseRandomizer.Enums;
 using HutongGames.PlayMaker;
 using ItemChanger;
-using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
 using ItemChanger.UIDefs;
 using KorzUtils.Helper;

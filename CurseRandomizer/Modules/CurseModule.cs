@@ -1,28 +1,66 @@
 ﻿using CurseRandomizer.Curses;
 using HutongGames.PlayMaker;
+using ItemChanger;
 using ItemChanger.Modules;
 using KorzUtils.Helper;
+using Modding;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace CurseRandomizer.ItemData;
+namespace CurseRandomizer.Modules;
 
 public class CurseModule : Module
 {
+    public delegate void QueueFinished();
+
+    #region Members
+
     private bool _isQueueRunning = false;
+    /// <summary>
+    /// Fired when the queue casted the last curse, so it remains empty.
+    /// </summary>
+    public event QueueFinished OnFinished;
+
+    #endregion
+
+    #region Properties
 
     /// <summary>
     /// Gets or sets a list with curses that should be applied once the player has control over their character again.
     /// </summary>
     public List<string> CurseQueue { get; set; } = new();
 
-    public override void Initialize() { }
+    #endregion
+
+    #region Event handler
+
+    private int ForceBargainAvailability(string name, int orig) => name == "takeCurse" ? 1 : orig;
+
+    #endregion
+
+    #region Methods
+
+    public override void Initialize()
+    {
+        ItemChangerMod.Modules.GetOrAdd<VesselModule>();
+        foreach (Curse curse in CurseManager.GetCurses())
+            curse.ApplyHooks();
+        CoroutineHelper.WaitForHero(() =>
+        {
+            if (CurseQueue.Any())
+                CurseManager.Handler.StartCoroutine(WaitForControl());
+        }, true);
+        ModHooks.GetPlayerIntHook += ForceBargainAvailability;
+    }
 
     public override void Unload()
     {
+        foreach (Curse curse in CurseManager.GetCurses())
+            curse.Unhook();
         CurseManager.Handler.StopAllCoroutines();
+        ModHooks.GetPlayerIntHook -= ForceBargainAvailability;
     }
 
     public void QueueCurse(string curse)
@@ -45,7 +83,7 @@ public class CurseModule : Module
         // Display the FOOL text.
         GameHelper.DisplayMessage("FOOL!");
         if (DespairCurse.DespairActive)
-        { 
+        {
             (CurseManager.GetCurse<DespairCurse>().Data.AdditionalData as DespairTracker).CurseDesperation++;
             CurseManager.GetCurse<DespairCurse>().UpdateProgression();
         }
@@ -95,7 +133,10 @@ public class CurseModule : Module
             }
             yield return new WaitForSeconds(0.2f);
         }
+        OnFinished?.Invoke();
         PlayerData.instance.SetBool(nameof(PlayerData.instance.disablePause), false);
         _isQueueRunning = false;
-    }
+    } 
+
+    #endregion
 }

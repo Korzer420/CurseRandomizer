@@ -6,7 +6,7 @@ using UnityEngine;
 namespace CurseRandomizer;
 
 [Serializable]
-internal class CustomSprite : ISprite
+public class CustomSprite : ISprite
 {
     public CustomSprite() { }
 
@@ -19,7 +19,7 @@ internal class CustomSprite : ISprite
     public string Key { get; set; } = "Fool";
 
     [Newtonsoft.Json.JsonIgnore]
-    public Sprite Value => SpriteHelper.CreateSprite<CurseRandomizer>(Key);
+    public Sprite Value => SpriteHelper.CreateSprite<CurseRandomizer>("Sprites."+Key);
 
     public ISprite Clone() => new CustomSprite(Key);
 }

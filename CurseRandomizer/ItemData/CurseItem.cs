@@ -1,5 +1,5 @@
 ﻿using CurseRandomizer.Curses;
-using CurseRandomizer.ItemData;
+using CurseRandomizer.Modules;
 using ItemChanger;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
@@ -15,6 +15,8 @@ internal class CurseItem : AbstractItem
 
     public string CurseName { get; set; }
 
+    protected override void OnLoad() => ItemChangerMod.Modules.GetOrAdd<CurseModule>();
+    
     public override void GiveImmediate(GiveInfo info)
     {
         Curse curse = CurseManager.GetCurseByName(CurseName);

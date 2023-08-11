@@ -57,19 +57,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             if (saveData == null)
                 return;
             CurseManager.ParseSaveData(saveData.Data);
-            ModManager.StartGeo = saveData.StartGeo;
-            ModManager.CanAccessBronze = saveData.BronzeAccess;
-            ModManager.CanAccessSilver = saveData.SilverAccess;
-            ModManager.CanAccessGold = saveData.GoldAccess;
-            ModManager.WalletAmount = saveData.Wallets;
-            ModManager.SoulVessel = saveData.SoulVessels;
-            ModManager.DreamUpgrade = saveData.DreamNailFragments;
             CurseManager.UseCaps = saveData.UseCaps;
-            ModManager.IsWalletCursed = saveData.WalletCursed;
-            ModManager.IsVesselCursed = saveData.VesselCursed;
-            ModManager.IsColoCursed = saveData.ColoCursed;
-            ModManager.IsDreamNailCursed = saveData.DreamNailCursed;
-            ModManager.UseCurses = saveData.UseCurses;
             OmenCurse.OmenMode = saveData.OmenMode;
             CurseManager.DefaultCurse = CurseManager.GetCurseByName(saveData.DefaultCurse);
         }
@@ -100,20 +88,8 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         LocalSaveData saveData = new()
         {
             Data = curseData,
-            UseCurses = ModManager.UseCurses,
-            BronzeAccess = ModManager.CanAccessBronze,
-            SilverAccess = ModManager.CanAccessSilver,
-            GoldAccess = ModManager.CanAccessGold,
-            StartGeo = ModManager.StartGeo,
-            Wallets = ModManager.WalletAmount,
-            SoulVessels = ModManager.SoulVessel,
-            DreamNailFragments = ModManager.DreamUpgrade,
             UseCaps = CurseManager.UseCaps,
             DefaultCurse = CurseManager.DefaultCurse == null ? "Pain" : CurseManager.DefaultCurse.Name,
-            ColoCursed = ModManager.IsColoCursed,
-            VesselCursed = ModManager.IsVesselCursed,
-            WalletCursed = ModManager.IsWalletCursed,
-            DreamNailCursed = ModManager.IsDreamNailCursed,
             OmenMode = OmenCurse.OmenMode
         };
         return saveData;

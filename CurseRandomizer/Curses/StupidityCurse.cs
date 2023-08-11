@@ -2,6 +2,8 @@
 using CurseRandomizer.Manager;
 using System;
 using UnityEngine;
+using CurseRandomizer.Modules;
+using ItemChanger;
 
 namespace CurseRandomizer.Curses;
 
@@ -61,9 +63,11 @@ internal class StupidityCurse : Curse
     public override bool CanApplyCurse()
     {
         int cap = UseCap ? Cap : 99;
-        if (ModManager.SoulVessel == 0)
+
+        VesselModule vesselModule = ItemChangerMod.Modules.GetOrAdd<VesselModule>();
+        if (vesselModule.SoulVessel == 0)
             return false;
-        else if (ModManager.SoulVessel == 1)
+        else if (vesselModule.SoulVessel == 1)
             cap = Mathf.Min(cap, 66);
         return 33 + Data.CastedAmount * 3 < cap;
     }

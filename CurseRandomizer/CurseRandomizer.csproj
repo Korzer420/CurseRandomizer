@@ -36,40 +36,40 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Resources\Bronze_Pass.png">
+	  <EmbeddedResource Include="Resources\Sprites\Bronze_Pass.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Confusion.png">
+	  <EmbeddedResource Include="Resources\Sprites\Confusion.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Darkness.png">
+	  <EmbeddedResource Include="Resources\Sprites\Darkness.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Emptiness.png">
+	  <EmbeddedResource Include="Resources\Sprites\Emptiness.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Fool.png">
+	  <EmbeddedResource Include="Resources\Sprites\Fool.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Gold_Pass.png">
+	  <EmbeddedResource Include="Resources\Sprites\Gold_Pass.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
 	  <EmbeddedResource Include="Resources\Logic\WalletLogic.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Maze.png">
+	  <EmbeddedResource Include="Resources\Sprites\Maze.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Omen.png">
+	  <EmbeddedResource Include="Resources\Sprites\Omen.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Regret.png">
+	  <EmbeddedResource Include="Resources\Sprites\Regret.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Silver_Pass.png">
+	  <EmbeddedResource Include="Resources\Sprites\Silver_Pass.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Wallet.png">
+	  <EmbeddedResource Include="Resources\Sprites\Wallet.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
 	</ItemGroup>
@@ -79,19 +79,19 @@
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Assembly-CSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="Benchwarp">
-		  <HintPath>..\..\..\HK Mod\Benchwarp\Benchwarp.dll</HintPath>
+		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\Benchwarp\Benchwarp.dll</HintPath>
 		</Reference>
 		<Reference Include="FStats">
-		  <HintPath>..\..\..\HK Mod\FStats\FStats.dll</HintPath>
+		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\FStats\FStats.dll</HintPath>
 		</Reference>
 		<Reference Include="ItemChanger">
-		  <HintPath>..\..\..\HK Mod\ItemChanger\ItemChanger.dll</HintPath>
+		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\ItemChanger\ItemChanger.dll</HintPath>
 		</Reference>
 		<Reference Include="KorzUtils">
 		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\KorzUtils\KorzUtils.dll</HintPath>
 		</Reference>
 		<Reference Include="MenuChanger">
-		  <HintPath>..\..\..\HK Mod\MenuChanger\MenuChanger.dll</HintPath>
+		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\MenuChanger\MenuChanger.dll</HintPath>
 		</Reference>
 		<Reference Include="MMHOOK_Assembly-CSharp">
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\MMHOOK_Assembly-CSharp.dll</HintPath>
@@ -118,13 +118,13 @@
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\PlayMaker.dll</HintPath>
 		</Reference>
 		<Reference Include="RandomizerCore">
-		  <HintPath>..\..\..\HK Mod\RandoCore\RandomizerCore.dll</HintPath>
+		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\RandomizerCore\RandomizerCore.dll</HintPath>
 		</Reference>
 		<Reference Include="RandomizerMod">
-		  <HintPath>..\..\..\HK Mod\Randomizer\RandomizerMod.dll</HintPath>
+		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\Randomizer 4\RandomizerMod.dll</HintPath>
 		</Reference>
 		<Reference Include="RandoSettingsManager">
-		  <HintPath>..\..\..\HK Mod\RandoSettingsManager\RandoSettingsManager.dll</HintPath>
+		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\RandoSettingsManager\RandoSettingsManager.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine">
 			<HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\UnityEngine.dll</HintPath>

@@ -1,5 +1,6 @@
 ﻿using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
+using CurseRandomizer.Modules;
 using ItemChanger;
 using KorzUtils.Helper;
 using Modding;

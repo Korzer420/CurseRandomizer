@@ -68,7 +68,7 @@ internal abstract class TemporaryCurse : Curse
                 _tracker.GetComponent<DisplayItemAmount>().textObject.text = "";
                 _tracker.GetComponent<DisplayItemAmount>().textObject.fontSize = 3;
                 _tracker.GetComponent<DisplayItemAmount>().textObject.gameObject.name = "Counter";
-                _tracker.GetComponent<SpriteRenderer>().sprite = SpriteHelper.CreateSprite<CurseRandomizer>(Name == "Despair" ? "Fool" : Name);
+                _tracker.GetComponent<SpriteRenderer>().sprite = SpriteHelper.CreateSprite<CurseRandomizer>(Name == "Despair" ? "Sprites.Fool" : "Sprites." + Name);
                 _tracker.GetComponent<BoxCollider2D>().size = new Vector2(1.5f, 1f);
                 _tracker.GetComponent<BoxCollider2D>().offset = new Vector2(0.5f, 0f);
                 _tracker.SetActive(IsActive() || (OmenCurse.OmenMode && Type == CurseType.Omen));

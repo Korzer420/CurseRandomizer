@@ -9,6 +9,7 @@ using ItemChanger.Items;
 using ItemChanger.Locations;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
+using KorzUtils.Helper;
 using Modding;
 using RandomizerCore.Logic;
 using RandomizerCore.LogicItems;
@@ -23,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static ItemChanger.Internal.SpriteManager;
 using static RandomizerMod.RC.RequestBuilder;
 using static RandomizerMod.Settings.MiscSettings;
 
@@ -33,9 +35,6 @@ internal static class RandoManager
     #region Constants
 
     public const string Geo_Wallet = "Geo_Wallet";
-    public const string Bronze_Trial_Ticket = "Bronze_Trial_Ticket";
-    public const string Silver_Trial_Ticket = "Silver_Trial_Ticket";
-    public const string Gold_Trial_Ticket = "Gold_Trial_Ticket";
     public const string Dreamnail_Fragment = "Dreamnail_Fragment";
 
     #endregion
@@ -67,7 +66,6 @@ internal static class RandoManager
             tags = new()
         });
 
-        // Data for wallets.
         Finder.DefineCustomItem(new WalletItem()
         {
             name = Geo_Wallet,
@@ -78,8 +76,8 @@ internal static class RandoManager
                     Message = "CurseData",
                      Properties = new()
                      {
-                         {"MimicNames", new string[] {"Wallet", "Moneybag", "Ge0 Wallet"} },
-                         {"CanMimic",  new BoxedBool(CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet) }
+                         { "MimicNames", new string[] {"Wallet", "Moneybag", "Ge0 Wallet" } },
+                         { "CanMimic",  new BoxedBool(CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet) }
                      }
                 },
                 new InteropTag()
@@ -100,121 +98,6 @@ internal static class RandoManager
             }
         });
 
-        string[] shopNames = new string[] { LocationNames.Sly, LocationNames.Sly_Key, LocationNames.Iselda, LocationNames.Salubra, LocationNames.Leg_Eater };
-        string[] stages = new string[] { "Cheap", "Medium", "Expensive", "Extreme_Valuable" };
-        foreach (string locationName in shopNames)
-        {
-            ShopLocation originalLocation = Finder.GetLocation(locationName) as ShopLocation;
-            foreach (string stage in stages)
-            {
-                AbstractLocation currentLocation = originalLocation.Clone();
-                currentLocation.name = $"{locationName}_{stage}";
-                Finder.DefineCustomLocation(currentLocation);
-            }
-        }
-
-        // Data for cursed colo
-        Finder.DefineCustomItem(new ItemChanger.Items.BoolItem()
-        {
-            name = Bronze_Trial_Ticket,
-            fieldName = "CanAccessBronze",
-            setValue = true,
-            UIDef = new MsgUIDef()
-            {
-                name = new BoxedString("Bronze Trial Ticket"),
-                shopDesc = new BoxedString("You like beating up someone? Then this is a must-have."),
-                sprite = new CustomSprite("Bronze_Pass")
-            },
-            tags = new()
-            {
-                new InteropTag()
-                {
-                    Message = "CurseData",
-                     Properties = new()
-                     {
-                         {"MimicNames", new string[] {"Colo 1 Access", "Warrior Trial Ticket", "Bronce Trial Ticket"} },
-                         {"CanMimic", new BoxedBool(CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo) }
-                     }
-                },
-                new InteropTag()
-                {
-                    Message = "RandoSupplementalMetadata",
-                    Properties = new()
-                    {
-                        {"IsMajorItem", true },
-                        {"MajorItemName", Bronze_Trial_Ticket }
-                    }
-                }
-            },
-        });
-        Finder.DefineCustomItem(new ItemChanger.Items.BoolItem()
-        {
-            name = Silver_Trial_Ticket,
-            fieldName = "CanAccessSilver",
-            setValue = true,
-            UIDef = new MsgUIDef()
-            {
-                name = new BoxedString("Silver Trial Ticket"),
-                shopDesc = new BoxedString("You like beating up someone? Then this is a must-have."),
-                sprite = new CustomSprite("Silver_Pass")
-            },
-            tags = new()
-            {
-                new InteropTag()
-                {
-                    Message = "CurseData",
-                     Properties = new()
-                     {
-                         {"MimicNames", new string[] {"Colo 2 Access", "Silver Trial Pass", "Silwer Trial Ticket"} },
-                         {"CanMimic", new BoxedBool(CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo) }
-                     }
-                },
-                new InteropTag()
-                {
-                    Message = "RandoSupplementalMetadata",
-                    Properties = new()
-                    {
-                        {"IsMajorItem", true },
-                        {"MajorItemName", Silver_Trial_Ticket }
-                    }
-                }
-            },
-        });
-        Finder.DefineCustomItem(new ItemChanger.Items.BoolItem()
-        {
-            name = Gold_Trial_Ticket,
-            fieldName = "CanAccessGold",
-            setValue = true,
-            UIDef = new MsgUIDef()
-            {
-                name = new BoxedString("Gold Trial Ticket"),
-                shopDesc = new BoxedString("You like beating up someone? Then this is a must-have."),
-                sprite = new CustomSprite("Gold_Pass")
-            },
-            tags = new()
-            {
-                new InteropTag()
-                {
-                    Message = "CurseData",
-                     Properties = new()
-                     {
-                         {"MimicNames", new string[] {"Colo 3 Access", "Fool Trial Ticket", "Golt Trial Ticket"} },
-                         {"CanMimic", new BoxedBool(CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo) }
-                     }
-                },
-                new InteropTag()
-                {
-                    Message = "RandoSupplementalMetadata",
-                    Properties = new()
-                    {
-                        {"IsMajorItem", true },
-                        {"MajorItemName", Gold_Trial_Ticket}
-                    }
-                }
-            },
-        });
-
-        // Data for cursed dream nail
         Finder.DefineCustomItem(new DreamFragmentItem()
         {
             name = Dreamnail_Fragment,
@@ -247,7 +130,7 @@ internal static class RandoManager
             }
         });
 
-        // Data for regret curse
+        // Special item to always get rid of curses that require geo to spend
         Finder.DefineCustomItem(new IntItem()
         {
             name = "Generosity",
@@ -303,8 +186,12 @@ internal static class RandoManager
 
     private static void SetupVesselTerm(LogicManager logicManager, GenerationSettings generationSettings, ProgressionInitializer progressionInitializer)
     {
+        if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled)
+            return;
         if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel > 0)
             progressionInitializer.Increments.Add(new(logicManager.GetTerm("VESSELFRAGMENTS"), 6 - CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel * 3));
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses && CurseRandomizer.Instance.Settings.CurseControlSettings.Bargains)
+            progressionInitializer.Increments.Add(new(logicManager.GetTerm("TAKECURSE"), 4));
     }
 
     private static void WriteCurseRandoSettings(LogArguments args, TextWriter textWriter)
@@ -465,7 +352,6 @@ internal static class RandoManager
             }
         }
         builder.ItemMatchers.Add(TryMatch);
-
         builder.OnGetGroupFor.Subscribe(150f, MimickGroupResolve);
     }
 
@@ -490,338 +376,41 @@ internal static class RandoManager
     /// <param name="builder"></param>
     private static void ApplySettings(RequestBuilder builder)
     {
-        if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled)
-        {
-            ModManager.WalletAmount = 4;
-            ModManager.IsWalletCursed = false;
-            ModManager.CanAccessBronze = true;
-            ModManager.CanAccessSilver = true;
-            ModManager.CanAccessGold = true;
-            ModManager.IsColoCursed = false;
-            ModManager.IsDreamNailCursed = false;
-            ModManager.IsVesselCursed = false;
-            ModManager.SoulVessel = 2;
-            return;
-        }
+        ModManager.WalletCapacities = Array.Empty<int>();
         _generator = new(builder.gs.Seed);
-        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet)
-        {
-            ModManager.IsWalletCursed = true;
-            ModManager.WalletAmount = 0;
+
+        // In case wallets are added through other means, we still check for wallets, even if the mod is disabled.
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.Enabled && CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet)
             builder.AddItemByName("Geo_Wallet", 4);
-            if (builder.StartItems.EnumerateDistinct().FirstOrDefault(x => x.EndsWith("_Geo")) is string geoName)
-            {
-                if (int.TryParse(new string(geoName.TakeWhile(x => !x.Equals('_')).ToArray()), out int value))
-                    ModManager.StartGeo = value;
-                else
-                    ModManager.StartGeo = 0;
-            }
-            else
-                ModManager.StartGeo = 0;
-            // Replace normal shop locations with our own.
-            List<string> shopToReplace = new();
-            foreach (ItemGroupBuilder group in builder.EnumerateItemGroups())
-            {
-                if (group.Locations.GetCount(LocationNames.Iselda) > 0 && !shopToReplace.Contains(LocationNames.Iselda))
-                    shopToReplace.Add(LocationNames.Iselda);
-                if (group.Locations.GetCount(LocationNames.Salubra) > 0 && !shopToReplace.Contains(LocationNames.Salubra))
-                    shopToReplace.Add(LocationNames.Salubra);
-                if (group.Locations.GetCount(LocationNames.Sly) > 0 && !shopToReplace.Contains(LocationNames.Sly))
-                    shopToReplace.Add(LocationNames.Sly);
-                if (group.Locations.GetCount(LocationNames.Sly_Key) > 0 && !shopToReplace.Contains(LocationNames.Sly_Key))
-                    shopToReplace.Add(LocationNames.Sly_Key);
-                if (group.Locations.GetCount(LocationNames.Leg_Eater) > 0 && !shopToReplace.Contains(LocationNames.Leg_Eater))
-                    shopToReplace.Add(LocationNames.Leg_Eater);
-            }
-            foreach (string shop in shopToReplace)
-            {
-                builder.ReplaceLocation(shop, $"{shop}_Cheap");
-                builder.AddLocationByName($"{shop}_Medium");
-                builder.AddLocationByName($"{shop}_Expensive");
-                builder.AddLocationByName($"{shop}_Extreme_Valuable");
 
-                builder.EditLocationRequest($"{shop}_Cheap", info =>
-                {
-                    info.getLocationDef = () => new()
-                    {
-                        FlexibleCount = true,
-                        Name = $"{shop}_Cheap",
-                        AdditionalProgressionPenalty = true,
-                    };
-                    info.onRandoLocationCreation += (factory, location) =>
-                    {
-                        location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(0, 201)));
-                    };
-                    info.onRandomizerFinish += placement =>
-                    {
-                        if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
-                                || randoLocation.costs == null)
-                            return;
-                        if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
-                            foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
-                                gc.GeoAmount = 1;
-                    };
-                });
-                builder.EditLocationRequest($"{shop}_Medium", info =>
-                {
-                    info.getLocationDef = () => new()
-                    {
-                        FlexibleCount = true,
-                        Name = $"{shop}_Medium",
-                        AdditionalProgressionPenalty = true,
-                    };
-                    info.onRandoLocationCreation += (factory, location) =>
-                    {
-                        location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(201, 501)));
-                    };
-                    info.onRandomizerFinish += placement =>
-                    {
-                        if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
-                                || randoLocation.costs == null)
-                            return;
-                        if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
-                            foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
-                                gc.GeoAmount = 1;
-                    };
-                });
-                builder.EditLocationRequest($"{shop}_Expensive", info =>
-                {
-                    info.getLocationDef = () => new()
-                    {
-                        FlexibleCount = true,
-                        Name = $"{shop}_Expensive",
-                        AdditionalProgressionPenalty = true,
-                    };
-                    info.onRandoLocationCreation += (factory, location) =>
-                    {
-                        location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(501, 1001)));
-                    };
-                    info.onRandomizerFinish += placement =>
-                    {
-                        if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
-                                || randoLocation.costs == null)
-                            return;
-                        if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
-                            foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
-                                gc.GeoAmount = 1;
-                    };
-                });
-                builder.EditLocationRequest($"{shop}_Extreme_Valuable", info =>
-                {
-                    info.getLocationDef = () => new()
-                    {
-                        FlexibleCount = true,
-                        Name = $"{shop}_Extreme_Valuable",
-                        AdditionalProgressionPenalty = true,
-                    };
-                    info.onRandoLocationCreation += (factory, location) =>
-                    {
-                        location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(1001, 1801)));
-                    };
-                    info.onRandomizerFinish += placement =>
-                    {
-                        if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
-                                || randoLocation.costs == null)
-                            return;
-                        if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
-                            foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
-                                gc.GeoAmount = 1;
-                    };
-                });
-
-                if (shop == "Salubra" && (builder.gs.MiscSettings.SalubraNotches == SalubraNotchesSetting.Randomized
-                    || (builder.gs.MiscSettings.SalubraNotches == SalubraNotchesSetting.GroupedWithCharmNotchesPool && builder.gs.PoolSettings.CharmNotches)))
-                {
-                    builder.ReplaceLocation("Salubra_(Requires_Charms)", "Salubra_(Requires_Charms)_Cheap");
-                    builder.AddLocationByName("Salubra_(Requires_Charms)_Medium");
-                    builder.AddLocationByName("Salubra_(Requires_Charms)_Expensive");
-                    builder.AddLocationByName("Salubra_(Requires_Charms)_Extreme_Valuable");
-
-                    builder.EditLocationRequest("Salubra_(Requires_Charms)_Cheap", info =>
-                    {
-                        info.getLocationDef = () =>
-                        new LocationDef()
-                        {
-                            AdditionalProgressionPenalty = true,
-                            FlexibleCount = true,
-                            Name = "Salubra_(Requires_Charms)_Cheap"
-                        };
-                        info.randoLocationCreator += factory => factory.MakeLocation("Salubra_Cheap");
-                        info.onRandoLocationCreation += (factory, location) =>
-                        {
-                            if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
-                                cost.GeoAmount = _generator.Next(0, 201);
-                            else
-                                location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(0, 201)));
-                            location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
-                        };
-                        info.onRandomizerFinish += placement =>
-                        {
-                            if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
-                                || randoLocation.costs == null)
-                                return;
-                            if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
-                                foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
-                                    gc.GeoAmount = 1;
-                        };
-                    });
-                    builder.EditLocationRequest("Salubra_(Requires_Charms)_Medium", info =>
-                    {
-                        info.getLocationDef = () =>
-                        new LocationDef()
-                        {
-                            AdditionalProgressionPenalty = true,
-                            FlexibleCount = true,
-                            Name = "Salubra_(Requires_Charms)_Medium"
-                        };
-                        info.randoLocationCreator += factory => factory.MakeLocation("Salubra_Medium");
-                        info.onRandoLocationCreation += (factory, location) =>
-                        {
-                            if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
-                                cost.GeoAmount = _generator.Next(201, 501);
-                            else
-                                location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(201, 501)));
-                            location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
-                        };
-                        info.onRandomizerFinish += placement =>
-                        {
-                            if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
-                                || randoLocation.costs == null)
-                                return;
-                            if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
-                                foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
-                                    gc.GeoAmount = 1;
-                        };
-                    });
-                    builder.EditLocationRequest("Salubra_(Requires_Charms)_Expensive", info =>
-                    {
-                        info.getLocationDef = () =>
-                        new LocationDef()
-                        {
-                            AdditionalProgressionPenalty = true,
-                            FlexibleCount = true,
-                            Name = "Salubra_(Requires_Charms)_Expensive"
-                        };
-                        info.randoLocationCreator += factory => factory.MakeLocation("Salubra_Expensive");
-                        info.onRandoLocationCreation += (factory, location) =>
-                        {
-                            if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
-                                cost.GeoAmount = _generator.Next(501, 1001);
-                            else
-                                location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(501, 1001)));
-                            location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
-                        };
-                        info.onRandomizerFinish += placement =>
-                        {
-                            if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
-                                || randoLocation.costs == null)
-                                return;
-                            if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
-                                foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
-                                    gc.GeoAmount = 1;
-                        };
-                    });
-                    builder.EditLocationRequest("Salubra_(Requires_Charms)_Extreme_Valuable", info =>
-                    {
-                        info.getLocationDef = () =>
-                        new LocationDef()
-                        {
-                            AdditionalProgressionPenalty = true,
-                            FlexibleCount = true,
-                            Name = "Salubra_(Requires_Charms)_Extreme_Valuable"
-                        };
-                        info.randoLocationCreator += factory => factory.MakeLocation("Salubra_Extreme_Valuable");
-                        info.onRandoLocationCreation += (factory, location) =>
-                        {
-                            if (location.costs != null && location.costs.FirstOrDefault(x => x is LogicGeoCost) is LogicGeoCost cost)
-                                cost.GeoAmount = _generator.Next(1001, 1801);
-                            else
-                                location.AddCost(new LogicGeoCost(builder.lm, _generator.Next(1001, 1801)));
-                            location.AddCost(new SimpleCost(factory.lm.GetTerm("CHARMS"), factory.rng.Next(factory.gs.CostSettings.MinimumCharmCost, factory.gs.CostSettings.MaximumCharmCost + 1)));
-                        };
-                        info.onRandomizerFinish += placement =>
-                        {
-                            if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
-                                 || randoLocation.costs == null)
-                                return;
-                            if (ri.item?.Name != null && ri.item.Name.StartsWith("Geo_"))
-                                foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
-                                    gc.GeoAmount = 1;
-                        };
-                    });
-                }
-            }
-            AddShopDefaultItems(builder);
-        }
-        else
+        int walletAmounts = 0;
+        foreach (ItemGroupBuilder group in builder.EnumerateItemGroups())
+            walletAmounts += group.Items.GetCount("Geo_Wallet");
+        builder.CostConverters.Subscribe(420f, CostConverter);
+        if (walletAmounts > 0)
         {
-            ModManager.WalletAmount = 4;
-            ModManager.IsWalletCursed = false;
+            ModManager.WalletCapacities = new int[walletAmounts];
+            for (int i = 0; i < walletAmounts; i++)
+                ModManager.WalletCapacities[i] = 500 + 500 * i;
+
+            builder.EditLocationRequest(LocationNames.Sly, info => ModifyShopsForWallets(info, walletAmounts, builder));
+            builder.EditLocationRequest(LocationNames.Sly_Key, info => ModifyShopsForWallets(info, walletAmounts, builder));
+            builder.EditLocationRequest(LocationNames.Salubra, info => ModifyShopsForWallets(info, walletAmounts, builder));
+            builder.EditLocationRequest(LocationNames.Iselda, info => ModifyShopsForWallets(info, walletAmounts, builder));
+            builder.EditLocationRequest(LocationNames.Leg_Eater, info => ModifyShopsForWallets(info, walletAmounts, builder));
+            builder.EditLocationRequest("Salubra_(Requires_Charms)", info => ModifyShopsForWallets(info, walletAmounts, builder));
+            builder.EditLocationRequest(LocationNames.Lemm, info => ModifyShopsForWallets(info, walletAmounts, builder));
+            builder.EditLocationRequest("Junk_Shop", info => ModifyShopsForWallets(info, walletAmounts, builder));
         }
 
-        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo)
-        {
-            ModManager.IsColoCursed = true;
-            ModManager.CanAccessBronze = false;
-            ModManager.CanAccessSilver = false;
-            ModManager.CanAccessGold = false;
-
-            builder.AddItemByName(Bronze_Trial_Ticket);
-            builder.AddItemByName(Silver_Trial_Ticket);
-            builder.AddItemByName(Gold_Trial_Ticket);
-
-            builder.EditItemRequest(Bronze_Trial_Ticket, info =>
-            {
-                info.getItemDef = () =>
-                new()
-                {
-                    Name = Bronze_Trial_Ticket,
-                    MajorItem = true,
-                    Pool = "Keys"
-                };
-            });
-            builder.EditItemRequest(Silver_Trial_Ticket, info =>
-            {
-                info.getItemDef = () =>
-                new()
-                {
-                    Name = Silver_Trial_Ticket,
-                    MajorItem = true,
-                    Pool = "Keys"
-                };
-            });
-            builder.EditItemRequest(Gold_Trial_Ticket, info =>
-            {
-                info.getItemDef = () =>
-                new()
-                {
-                    Name = Gold_Trial_Ticket,
-                    MajorItem = true,
-                    Pool = "Keys"
-                };
-            });
-        }
-        else
-        {
-            ModManager.CanAccessBronze = true;
-            ModManager.CanAccessSilver = true;
-            ModManager.CanAccessGold = true;
-            ModManager.IsColoCursed = false;
-        }
+        if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled)
+            return;
 
         if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedDreamNail)
-        {
-            ModManager.DreamUpgrade = 0;
             builder.AddItemByName(Dreamnail_Fragment, 2);
-            ModManager.IsDreamNailCursed = true;
-        }
-        else
-            ModManager.IsDreamNailCursed = false;
 
         if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel != 0)
         {
-            ModManager.IsVesselCursed = true;
-            ModManager.SoulVessel = (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel - 2) * -1;
             if (builder.gs.MiscSettings.VesselFragments == VesselFragmentType.OneFragmentPerVessel)
                 builder.AddItemByName(ItemNames.Full_Soul_Vessel, CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel);
             else if (builder.gs.MiscSettings.VesselFragments == VesselFragmentType.TwoFragmentsPerVessel)
@@ -836,11 +425,6 @@ internal static class RandoManager
             }
             else
                 builder.AddItemByName(ItemNames.Vessel_Fragment, CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel * 3);
-        }
-        else
-        {
-            ModManager.IsVesselCursed = false;
-            ModManager.SoulVessel = 2;
         }
     }
 
@@ -933,11 +517,9 @@ internal static class RandoManager
         ReplacedItems.Clear();
         if (!CurseRandomizer.Instance.Settings.GeneralSettings.Enabled || !CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
         {
-            ModManager.UseCurses = false;
             OmenCurse.OmenMode = false;
             return;
         }
-        ModManager.UseCurses = true;
         OmenCurse.OmenMode = CurseRandomizer.Instance.Settings.CurseControlSettings.OmenMode;
 
         // Get all items which can be removed.
@@ -1027,8 +609,8 @@ internal static class RandoManager
                 ReplacedItems.Add(pickedItem);
                 if (availableItems.Length == 0)
                     availablePools.Remove(pickedGroup);
-                string itemToMimic = CurseRandomizer.Instance.Settings.CurseControlSettings.TakeReplaceGroup ?
-                        "Evil_" + pickedItem
+                string itemToMimic = CurseRandomizer.Instance.Settings.CurseControlSettings.TakeReplaceGroup 
+                    ? "Evil_" + pickedItem
                     : RollMimic();
                 builder.AddItemByName(CurseItem.CursePrefix + itemToMimic);
                 CurseRandomizer.Instance.LogDebug("Removed " + pickedItem + " for a curse.");
@@ -1037,10 +619,20 @@ internal static class RandoManager
         if (amount > 0 && CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod != RequestMethod.ForceReplace)
             for (; amount > 0; amount--)
                 builder.AddItemByName(CurseItem.CursePrefix + RollMimic());
-
         else if (CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod == RequestMethod.ForceReplace && amount > 0)
             CurseRandomizer.Instance.LogWarn("Couldn't replace enough items to satisfy the selected amount. Disposed amount: " + amount);
 
+        if (CurseRandomizer.Instance.Settings.CurseControlSettings.Bargains)
+        {
+            builder.EditLocationRequest(LocationNames.Sly, info => ModifyShopsForCurses(info, builder));
+            builder.EditLocationRequest(LocationNames.Sly_Key, info => ModifyShopsForCurses(info, builder));
+            builder.EditLocationRequest(LocationNames.Salubra, info => ModifyShopsForCurses(info, builder));
+            builder.EditLocationRequest(LocationNames.Iselda, info => ModifyShopsForCurses(info, builder));
+            builder.EditLocationRequest(LocationNames.Leg_Eater, info => ModifyShopsForCurses(info, builder));
+            builder.EditLocationRequest("Salubra_(Requires_Charms)", info => ModifyShopsForCurses(info, builder));
+            //builder.EditLocationRequest(LocationNames.Lemm, info => ModifyShopsForWallets(info, walletAmounts, builder));
+            //builder.EditLocationRequest("Junk_Shop", info => ModifyShopsForWallets(info, walletAmounts, builder));
+        }
         // Reset the unity random state.
         UnityEngine.Random.state = state;
         if (CurseRandomizer.Instance.Settings.CurseControlSettings.OmenMode)
@@ -1174,9 +766,7 @@ internal static class RandoManager
     private static void AddMimickableItems(RequestBuilder requestBuilder)
     {
         _mimicableItems.Clear();
-#if RELEASE
         AddBaseMimics(requestBuilder.gs);
-#endif
         CurseRandomizer.Instance.LogDebug("Check for additional mimicks");
         // Check for additional mimickable items, like from other connections.
         List<string> mimickableItemNames = _mimicableItems.Select(x => x.Item1).ToList();
@@ -1339,6 +929,8 @@ internal static class RandoManager
                     builder.DoSubst(new(term, skipTerm, "NOCURSE"));
             if (CurseRandomizer.Instance.Settings.CurseControlSettings.OmenMode)
                 builder.AddItem(new EmptyItem("OMEN"));
+            if (CurseRandomizer.Instance.Settings.CurseControlSettings.Bargains)
+                builder.GetOrAddTerm("TAKECURSE");
         }
 
         if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedWallet)
@@ -1375,36 +967,6 @@ internal static class RandoManager
                 builder.DoLogicEdit(new("Nailsmith_Upgrade_3", "(ORIG) + WALLET>2"));
                 builder.DoLogicEdit(new("Nailsmith_Upgrade_4", "(ORIG) + WALLET>2"));
             }
-
-            if (builder.IsTerm("LISTEN"))
-            {
-                string[] stages = new string[] { "_Cheap", "_Medium", "_Expensive", "_Extreme_Valuable" };
-                foreach (string stage in stages)
-                {
-                    builder.DoLogicEdit(new($"{LocationNames.Iselda}{stage}", "(ORIG) + LISTEN"));
-                    builder.DoLogicEdit(new($"{LocationNames.Salubra}{stage}", "(ORIG) + LISTEN"));
-                    builder.DoLogicEdit(new($"{LocationNames.Sly}{stage}", "(ORIG) + LISTEN"));
-                    builder.DoLogicEdit(new($"{LocationNames.Sly_Key}{stage}", "(ORIG) + LISTEN"));
-                    builder.DoLogicEdit(new($"{LocationNames.Leg_Eater}{stage}", "(ORIG) + LISTEN"));
-                }
-            }
-        }
-
-        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedColo)
-        {
-            Term term = builder.GetOrAddTerm("BRONZE");
-            builder.AddItem(new RandomizerCore.LogicItems.BoolItem(Bronze_Trial_Ticket, term));
-
-            term = builder.GetOrAddTerm("SILVER");
-            builder.AddItem(new RandomizerCore.LogicItems.BoolItem(Silver_Trial_Ticket, term));
-
-            term = builder.GetOrAddTerm("GOLD");
-            builder.AddItem(new RandomizerCore.LogicItems.BoolItem(Gold_Trial_Ticket, term));
-
-            builder.DoLogicEdit(new("Defeated_Colosseum_1", "(ORIG) + BRONZE"));
-            builder.DoLogicEdit(new("Defeated_Colosseum_2", "(ORIG) + SILVER"));
-            if (builder.Waypoints.Contains("Defeated_Colosseum_3"))
-                builder.DoLogicEdit(new("Defeated_Colosseum_3", "(ORIG) + GOLD"));
         }
 
         if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedDreamNail)
@@ -1449,6 +1011,71 @@ internal static class RandoManager
             foreach (string term in macros.Keys.ToList())
                 builder.DoSubst(new(term, "FIREBALLSKIPS", "(FIREBALLSKIPS + VESSELFRAGMENTS>5)"));
         }
+    }
+
+    private static void ModifyShopsForWallets(LocationRequestInfo info, int walletAmounts, RequestBuilder builder)
+    {
+        info.onRandoLocationCreation += (factory, location) =>
+        {
+            int neededWallets = builder.rng.Next(0, walletAmounts + 1);
+            if (neededWallets > 0)
+                location.AddCost(new SimpleCost(builder.lm.GetTerm("WALLET"), neededWallets));
+        };
+        info.onRandomizerFinish += placement =>
+        {
+            if (placement.Location is not RandoModLocation randoLocation || placement.Item is not RandoModItem ri
+                    || randoLocation.costs == null)
+                return;
+
+            // To preserve the vanilla cost if possible, we just change it, when it is outside our range.
+            SimpleCost walletCost = randoLocation.costs.OfType<SimpleCost>().FirstOrDefault(x => x.term?.Name == "WALLET");
+            int minCost = walletCost == null
+                ? 1
+                : ModManager.WalletCapacities[walletCost.threshold - 1];
+
+            int maxCost = walletCost == null
+                ? ModManager.WalletCapacities[0]
+                : (walletCost.threshold == walletAmounts
+                    ? ModManager.WalletCapacities[walletAmounts - 1] + 500
+                    : ModManager.WalletCapacities[walletCost.threshold]);
+
+            foreach (LogicGeoCost gc in randoLocation.costs.OfType<LogicGeoCost>())
+                if (gc.GeoAmount == 1)
+                    continue;
+                else if (gc.GeoAmount < minCost || gc.GeoAmount > maxCost)
+                    gc.GeoAmount = builder.rng.Next(minCost, maxCost);
+        };
+    }
+
+    private static void ModifyShopsForCurses(LocationRequestInfo info, RequestBuilder builder)
+    {
+        info.onRandoLocationCreation += (factory, location) =>
+        {
+            // The chance of a curse bargain is based on the amount of curses, up to 70% if "Custom" amount is used.
+            int chance = ((int)CurseRandomizer.Instance.Settings.CurseControlSettings.CurseAmount + 1) * 10;
+            if (builder.rng.Next(1, 101) > chance)
+                return;
+            location.AddCost(new SimpleCost(builder.lm.GetTerm("TAKECURSE"), builder.rng.Next(1, 4)));
+        };
+    }
+
+    private static bool CostConverter(LogicCost logicCost, out Cost cost)
+    {
+        cost = null;
+        if (logicCost is not SimpleCost simpleCost)
+            return false;
+        if (simpleCost.term?.Name == "WALLET")
+        {
+            cost = new PDIntCost(simpleCost.threshold, "wallets", $"You'll need to obtain {simpleCost.threshold} wallet(s) to be able to buy this.");
+            return true;
+        }
+        else if (simpleCost.term?.Name == "TAKECURSE")
+        {
+            cost = new CurseBargainCost(simpleCost.threshold);
+            return true;
+        }
+
+        return false;
     }
 
     #endregion

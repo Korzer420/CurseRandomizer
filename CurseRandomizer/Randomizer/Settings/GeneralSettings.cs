@@ -14,14 +14,12 @@ public class GeneralSettings
     /// </summary>
     public bool Enabled { get; set; }
 
+    public bool UseCurses { get; set; }
+
     public bool CursedWallet { get; set; }
 
     public bool CursedDreamNail { get; set; }
 
-    public bool UseCurses { get; set; }
-
     [MenuRange(0, 2)]
     public int CursedVessel { get; set; } = 0;
-
-    public bool CursedColo { get; set; }
 }

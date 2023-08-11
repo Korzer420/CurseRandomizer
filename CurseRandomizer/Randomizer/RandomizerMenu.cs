@@ -46,8 +46,13 @@ internal class RandomizerMenu
         _cursePage = new("Available Curses", _mainPage);
 
         // Places the general settings in a row (besides the enable button, which should be above).
-        GridItemPanel generalPanel = new(_mainPage, new(0f, 400f), 5, 500, 400, true, _generalFactory.Elements.Skip(1).ToArray());
-        new VerticalItemPanel(_mainPage, new(0f, 400f), 120f, true, new IMenuElement[] { _generalFactory.ElementLookup["Enabled"], generalPanel });
+        GridItemPanel generalPanel = new(_mainPage, new(0f, 400f), 5, 500, 400, true, _generalFactory.Elements.Skip(2).ToArray());
+        new VerticalItemPanel(_mainPage, new(0f, 400f), 120f, true, new IMenuElement[] 
+        { 
+            _generalFactory.ElementLookup["Enabled"],
+            generalPanel,
+            _generalFactory.ElementLookup["UseCurses"]
+        });
 
         // Place the elements for curse settings.
         SmallButton cursePageButton = new(_mainPage, "Available Curses");
