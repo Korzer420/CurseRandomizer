@@ -89,20 +89,21 @@ Determines how many curses should be placed. These option are based on the total
 #### Replacable Items
 - Defines which items the mod can replace with curses if the curse method is not "Add".
 
+#### Bargains
+Allows items in the shop to be "cursed", so they apply curses upon you, once bought. A purple/pink text is visible under the item description showing how much curses will be applied to you. This ranges from 1-3 curses.
+Note that the cursed items ARE NOT counted as normal curse items and will be placed **on top of the selected amount**! Depending on the selected amount, the chance for an item to be cursed is increased by 10% for each step. "Few" grants a 10% per shop item to be cursed up to 70% if "Custom" is used. The order can be seen under "Curse Amount". Once all curses of an item got resolved, it will display what the casted curses where. Note that if a curse was blocked (i.e "Lost" was about to be casted but you have no mask, vessel and charm notch to spare), the actual result might differ from the shown message!
+
 ## Cursed Wallet
-Limits the amount of geo the player can hold at a time. The base capacity is 200.
-Four wallet items will be added, increasing the max amount to 500, 1000, 5000, 9999999 respectivly.
+Limits the amount of geo the player can hold at a time. The base capacity is 500.
+Four wallet items will be added, increasing the max amount by 500 each time (Except the last one, which will uncap the geo).
+Once a wallet is picked up, it will automatically be filled to full capacity (besides the "Uncap" wallet which will just grant you 420 geo)
 
 ### Special Interactions
-- **This settings does overwrite the cost cap which items in shops normally have, to match the requirement.** For example, normally major items are capped at 500 geo. If it is placed in the third stage (requiring two wallets), it's price will be randomized between 501 and 1000 geo. This causes many junk checks placed in shop to be mostly pointless (e.g certain geo amounts or soul totems). **Even though the second to last wallet allows 5000 geo to be stored, shop items will never cost more than 1.8k geo!**
-- If Start Geo is enabled, the mod will grant you a percentage of it upon acquiring a wallet. You get 50% times the amount of wallets you have. So for example, if your starting geo was 700 (from which you would only get 200 due to the cap), the first wallet grants 350, the second 700, the third 1050 and the last 1400 geo.
+- **This settings does overwrite the cost cap which items in shops normally have, to match the requirement, in case the item is not the wallet range already.** For example, normally major items are capped at 500 geo. If it is placed in the third stage (requiring two wallets), it's price will be randomized between 1001 and 1500 geo. The only exception to this are junk items which cost 1 geo normally. It still requires the determined wallet amount, but will remain at 1 geo.
 
 ## Cursed Dreamnail
 Adds two extra progressive items, which deny you the access to dream warriors and dream bosses.
 Obtaining one unlocks dream warriors, the second dream bosses.
-
-## Cursed Colo
-Adds 3 extra items, which lock the entrance to the trials in colosseum of fools.
 
 ## Cursed Vessel
 Similiar to "Cursed Mask" this does add additional soul vessel fragments to the pool and let you only have 33/66 at a time.
@@ -116,8 +117,6 @@ This mod does offer support for other connections to add their own mimics, curse
 First off, a few general important things to note:
 - **Your suggested replacements will only be taken into account, if the player chooses the "Custom" option under replaceable items!**
 - Try to do your request stuff before the curse randomizer executes (usually it should be automatically granted, since the curse interaction does happen with priority 9999 in the request)
-- For testing, use the debug build attached to the release. In debug, only connection items will be considered for mimics and replacements (if Custom is active).
-This should make it easier to test if mimics and replacements work as intended.
 
 To allow this mod to consider your items, add a interop tag to them (or your own implementation of an IInteropTag) with the message "CurseData".
 
