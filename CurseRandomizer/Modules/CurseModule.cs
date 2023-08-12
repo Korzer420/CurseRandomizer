@@ -131,7 +131,7 @@ public class CurseModule : Module
                     CurseRandomizer.Instance.LogError("Tried to cast unknown curse: " + CurseQueue[0]);
                 CurseQueue.RemoveAt(0);
             }
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(3f);
         }
         OnFinished?.Invoke();
         PlayerData.instance.SetBool(nameof(PlayerData.instance.disablePause), false);

@@ -6,7 +6,7 @@
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<LangVersion>latest</LangVersion>
 		<AssemblyTitle>CurseRandomizer</AssemblyTitle>
-		<AssemblyVersion>3.0.0.0</AssemblyVersion>
+		<AssemblyVersion>5.0.0.0</AssemblyVersion>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -15,7 +15,7 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<DocumentationFile></DocumentationFile>
-		<FileVersion>3.0.0.0</FileVersion>
+		<FileVersion>5.0.0.0</FileVersion>
 	</PropertyGroup>
 
 	<Target Name="CopyMod" AfterTargets="PostBuildEvent">
@@ -36,9 +36,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Resources\Sprites\Bronze_Pass.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
 	  <EmbeddedResource Include="Resources\Sprites\Confusion.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
@@ -51,9 +48,6 @@
 	  <EmbeddedResource Include="Resources\Sprites\Fool.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Sprites\Gold_Pass.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
 	  <EmbeddedResource Include="Resources\Logic\WalletLogic.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
@@ -64,9 +58,6 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
 	  <EmbeddedResource Include="Resources\Sprites\Regret.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Sprites\Silver_Pass.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </EmbeddedResource>
 	  <EmbeddedResource Include="Resources\Sprites\Wallet.png">
@@ -110,6 +101,9 @@
 		</Reference>
 		<Reference Include="MonoMod.Utils">
 		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\MonoMod.Utils.dll</HintPath>
+		</Reference>
+		<Reference Include="MoreLocations">
+		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\MoreLocations\MoreLocations.dll</HintPath>
 		</Reference>
 		<Reference Include="Newtonsoft.Json">
 		  <HintPath>..\..\..\Program Files\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Newtonsoft.Json.dll</HintPath>

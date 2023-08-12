@@ -46,8 +46,10 @@ internal class RandomizerMenu
         _cursePage = new("Available Curses", _mainPage);
 
         // Places the general settings in a row (besides the enable button, which should be above).
-        GridItemPanel generalPanel = new(_mainPage, new(0f, 400f), 5, 500, 400, true, _generalFactory.Elements.Skip(2).ToArray());
-        new VerticalItemPanel(_mainPage, new(0f, 400f), 120f, true, new IMenuElement[] 
+        GridItemPanel generalPanel = new(_mainPage, new(0f, 400f), 3, 500, 400, false, _generalFactory.ElementLookup["CursedWallet"], 
+            _generalFactory.ElementLookup["CursedVessel"],
+            _generalFactory.ElementLookup["CursedDreamNail"]);
+        new VerticalItemPanel(_mainPage, new(0f, 450f), 120f, true, new IMenuElement[] 
         { 
             _generalFactory.ElementLookup["Enabled"],
             generalPanel,
@@ -102,10 +104,38 @@ internal class RandomizerMenu
                 _controlFactory.ElementLookup["CurseItems"].Hide();
         };
 
-        // We trigger the event handler instantly to adjust the view.
-        _generalFactory.ElementLookup["UseCurses"].SetValue(CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses);
-        _controlFactory.ElementLookup["CurseMethod"].SetValue(CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod);
-        _controlFactory.ElementLookup["CurseAmount"].SetValue(CurseRandomizer.Instance.Settings.CurseControlSettings.CurseAmount);
+        // Adjust the view
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
+        {
+            cursePageButton.Show();
+            controlSettings.Show();
+            if (CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod != RequestMethod.Add)
+                replacableSettings.Show();
+            else
+                replacableSettings.Hide();
+        }
+        else
+        {
+            cursePageButton.Hide();
+            controlSettings.Hide();
+            replacableSettings.Hide();
+        }
+
+        if (CurseRandomizer.Instance.Settings.CurseControlSettings.CurseMethod != RequestMethod.Add)
+        {
+            replacableSettings.Show();
+            _controlFactory.ElementLookup["TakeReplaceGroup"].Show();
+        }
+        else
+        {
+            replacableSettings.Hide();
+            _controlFactory.ElementLookup["TakeReplaceGroup"].Hide();
+        }
+
+        if (CurseRandomizer.Instance.Settings.CurseControlSettings.CurseAmount == Amount.Custom && CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
+            _controlFactory.ElementLookup["CurseItems"].Show();
+        else
+            _controlFactory.ElementLookup["CurseItems"].Hide();
 
         //-------------------------- Create the sub curse page. -----------------------------------------
 

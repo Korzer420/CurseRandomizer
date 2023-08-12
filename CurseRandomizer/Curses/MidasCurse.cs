@@ -263,11 +263,13 @@ internal class MidasCurse : Curse
                                     .Select(x => x as ConsumablePDIntCost)
                                     .ToList();
 
-                            if (costs.Any(x => x.fieldName?.StartsWith("trinket") == true))
+                            if (costs == null)
+                                continue;
+                            if (costs.Any(x => x?.fieldName?.StartsWith("trinket") == true))
                                 used.Item1 = true;
-                            else if (costs.Any(x => x.fieldName == nameof(PlayerData.rancidEggs)))
+                            else if (costs.Any(x => x?.fieldName == nameof(PlayerData.rancidEggs)))
                                 used.Item2 = true;
-                            else if (costs.Any(x => x.fieldName == nameof(PlayerData.ore)))
+                            else if (costs.Any(x => x?.fieldName == nameof(PlayerData.ore)))
                                 used.Item3 = true;
                         }
                 }

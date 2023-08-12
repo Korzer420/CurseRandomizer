@@ -1,6 +1,7 @@
 ﻿using CurseRandomizer.Curses;
 using CurseRandomizer.ItemData;
 using CurseRandomizer.Manager;
+using CurseRandomizer.ModInterop.MoreLocations;
 using CurseRandomizer.Randomizer;
 using CurseRandomizer.Randomizer.Settings;
 using ItemChanger;
@@ -182,6 +183,9 @@ internal static class RandoManager
 
         if (ModHooks.GetMod("FStatsMod") is Mod)
             HookFStats();
+
+        if (ModHooks.GetMod("MoreLocations") is Mod)
+            MoreLocationsInterop.Hook();
     }
 
     private static void SetupVesselTerm(LogicManager logicManager, GenerationSettings generationSettings, ProgressionInitializer progressionInitializer)
@@ -1017,6 +1021,9 @@ internal static class RandoManager
     {
         info.onRandoLocationCreation += (factory, location) =>
         {
+            IEnumerable<LogicGeoCost> geoCosts = location.costs?.OfType<LogicGeoCost>();
+            if (geoCosts == null || !geoCosts.Any())
+                return;
             int neededWallets = builder.rng.Next(0, walletAmounts + 1);
             if (neededWallets > 0)
                 location.AddCost(new SimpleCost(builder.lm.GetTerm("WALLET"), neededWallets));
