@@ -129,17 +129,24 @@ internal class DespairTracker
     private void GetPlayerDataInt_OnEnter(On.HutongGames.PlayMaker.Actions.GetPlayerDataInt.orig_OnEnter orig, HutongGames.PlayMaker.Actions.GetPlayerDataInt self)
     {
         orig(self);
-        if (self.IsCorrectContext("Hero Death Anim", null, "Remove Geo"))
+        try
         {
-            DeathDesperation += 3;
-            _spendGeo -= self.storeValue.Value;
-            DespairCurse despairCurse = CurseManager.GetCurse<DespairCurse>();
-            if (despairCurse.CurrentAmount >= despairCurse.NeededAmount)
+            if (self.IsCorrectContext("Hero Death Anim", null, "Remove Geo"))
             {
-                despairCurse.RemoveCurse();
-                Reset(true);
-                StopListening();
+                DeathDesperation += 3;
+                _spendGeo -= self.storeValue.Value;
+                DespairCurse despairCurse = CurseManager.GetCurse<DespairCurse>();
+                if (despairCurse.CurrentAmount >= despairCurse.NeededAmount)
+                {
+                    despairCurse.RemoveCurse();
+                    Reset(true);
+                    StopListening();
+                }
             }
+        }
+        catch (Exception exception)
+        {
+            LogHelper.Write<CurseRandomizer>("Error while modifying remove geo from Hero Death Anim.",exception);
         }
     }
 
