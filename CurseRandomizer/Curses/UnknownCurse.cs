@@ -3,12 +3,15 @@ using HutongGames.PlayMaker;
 using ItemChanger;
 using ItemChanger.FsmStateActions;
 using ItemChanger.UIDefs;
+using KorzUtils.Data;
 using KorzUtils.Helper;
 using Modding;
 using MonoMod.Cil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
+using UnityEngine;
 
 namespace CurseRandomizer.Curses;
 
@@ -20,6 +23,8 @@ internal class UnknownCurse : Curse
     #region Members
 
     private bool _bingoUIUsed = false;
+    private GameObject _maskCover;
+    private GameObject _soulCover;
 
     #endregion
 
@@ -96,8 +101,6 @@ internal class UnknownCurse : Curse
         if (self.IsCorrectContext("Soul Orb Control", "Soul Orb", "Idle") && Affected.Contains(AffectedVisual.Soul))
             self.State.ClearTransitions();
     }
-
-    // ---------------------- Health Stuff ---------------------------
 
     private void PlayMakerFSM_OnEnable(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
     {
@@ -235,8 +238,8 @@ internal class UnknownCurse : Curse
             || self.IsCorrectContext("Low Health FX", "Health", "HUD In HP Check") || self.IsCorrectContext("Low Health FX", "Health", "Init"))
             && Affected.Contains(AffectedVisual.Health))
             self.integer1.Value = 99;
-        //else if (self.IsCorrectContext("UI Charms", "Charms", "Open Notch?") && Affected.Contains(AffectedVisual.Charms))
-        //    self.integer1.Value = 0;
+        else if (self.IsCorrectContext("Soul Orb Control", "Soul Orb", "Init") && Affected.Contains(AffectedVisual.Soul) && self.equal?.Name == "MP IS ZERO")
+            self.integer1.Value = 100;
         orig(self);
     }
 
@@ -248,7 +251,7 @@ internal class UnknownCurse : Curse
             self.State.ClearTransitions();
     }
 
-    private void HeroAnimationController_PlayIdle(MonoMod.Cil.ILContext il)
+    private void HeroAnimationController_PlayIdle(ILContext il)
     {
         ILCursor cursor = new(il);
         cursor.Goto(0);
@@ -265,7 +268,6 @@ internal class UnknownCurse : Curse
             self.y = 300f;
         orig(self);
     }
-
     #endregion
 
     #region Control
@@ -286,8 +288,41 @@ internal class UnknownCurse : Curse
         On.HutongGames.PlayMaker.Actions.SetPosition.OnEnter += SetPosition_OnEnter;
 
         _bingoUIUsed = ModHooks.GetMod("BingoUI") is Mod;
+
+        CurseManager.Handler.StartCoroutine(CoroutineHelper.WaitForHero(() =>
+        {
+            if (Affected.Contains(AffectedVisual.Health))
+            {
+                GameObject prefab = GameObject.Find("_GameCameras").transform.Find("HudCamera/Inventory/Inv/Inv_Items/Geo/Geo Amount").gameObject;
+                Transform parent = GameObject.Find("_GameCameras").transform.Find("HudCamera/Hud Canvas");
+                GameObject cover = GameObject.Instantiate(prefab, parent, true);
+                cover.layer = parent.gameObject.layer;
+                cover.transform.position = new(-10.285f, 6.3351f, 0.1094f);
+                cover.transform.localScale = new(1.4f, 1.4f, 0.751f);
+                cover.GetComponent<TMP_Text>().fontSize = 4;
+                cover.GetComponent<TMP_Text>().color = new(1f, 0f, 1f);
+                cover.GetComponent<TMP_Text>().text = "?";
+                _maskCover = cover;
+                _maskCover.SetActive(true);
+                GameObject.DontDestroyOnLoad(_maskCover);
+            }
+            if (Affected.Contains(AffectedVisual.Soul))
+            {
+                GameObject prefab = GameObject.Find("_GameCameras").transform.Find("HudCamera/Inventory/Inv/Inv_Items/Geo/Geo Amount").gameObject;
+                Transform parent = GameObject.Find("_GameCameras").transform.Find("HudCamera/Hud Canvas");
+                GameObject cover = GameObject.Instantiate(prefab, parent, true);
+                cover.transform.position = new(-12.1442f, 6.2679f, 0.1093f);
+                cover.transform.localScale = new(1.2369f, 1.2369f, 0.751f);
+                cover.GetComponent<TMP_Text>().fontSize = 12;
+                cover.GetComponent<TMP_Text>().color = new(1f, 0f, 1f);
+                cover.GetComponent<TMP_Text>().text = "?";
+                _soulCover = cover;
+                _soulCover.SetActive(true);
+                GameObject.DontDestroyOnLoad(_soulCover);
+            }
+        }));
     }
-    
+
     public override void Unhook()
     {
         On.HutongGames.PlayMaker.Actions.SetTextMeshProText.OnEnter -= SetTextMeshProText_OnEnter;
@@ -302,6 +337,11 @@ internal class UnknownCurse : Curse
         On.PlayMakerFSM.OnEnable -= PlayMakerFSM_OnEnable;
         IL.HeroAnimationController.PlayIdle -= HeroAnimationController_PlayIdle;
         On.HutongGames.PlayMaker.Actions.SetPosition.OnEnter -= SetPosition_OnEnter;
+
+        if (_maskCover != null)
+            GameObject.Destroy(_maskCover);
+        if (_soulCover != null)
+            GameObject.Destroy(_soulCover);
     }
 
     public override void ApplyCurse()
@@ -310,19 +350,45 @@ internal class UnknownCurse : Curse
         AffectedVisual chosen = viableVisuals[UnityEngine.Random.Range(0, viableVisuals.Count)];
         Affected.Add(chosen);
         GameHelper.DisplayMessage("FOOL! (You can no longer see your " + chosen + ")");
-        if (chosen == AffectedVisual.Health)
+        if (chosen == AffectedVisual.Health || chosen == AffectedVisual.Soul)
         {
-            // To force the UI to update to amount of masks.
-            if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
-                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+            GameObject prefab = GameObject.Find("_GameCameras").transform.Find("HudCamera/Inventory/Inv/Inv_Items/Geo/Geo Amount").gameObject;
+            Transform parent = GameObject.Find("_GameCameras").transform.Find("HudCamera/Hud Canvas");
+            GameObject cover = GameObject.Instantiate(prefab, parent, true);
+            cover.layer = parent.gameObject.layer;
+
+            if (chosen == AffectedVisual.Soul)
+            {
+                cover.transform.position = new(-12.1442f, 6.2679f, 0.1093f);
+                cover.transform.localScale = new(1.2369f, 1.2369f, 0.751f);
+                cover.GetComponent<TMP_Text>().fontSize = 12;
+                cover.GetComponent<TMP_Text>().color = new(1f, 0f, 1f);
+                cover.GetComponent<TMP_Text>().text = "?";
+                _soulCover = cover;
+                HeroController.instance.AddMPCharge(200);
+                _soulCover.SetActive(true);
+                GameObject.DontDestroyOnLoad(_soulCover);
+            }
             else
             {
-                GameCameras.instance.hudCanvas.gameObject.SetActive(false);
-                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+                cover.transform.position = new(-10.285f, 6.3351f, 0.1094f);
+                cover.transform.localScale = new(1.4f, 1.4f, 0.751f);
+                cover.GetComponent<TMP_Text>().fontSize = 4;
+                cover.GetComponent<TMP_Text>().color = new(1f, 0f, 1f);
+                cover.GetComponent<TMP_Text>().text = "?";
+                _maskCover = cover;
+                // To force the UI to update to amount of masks.
+                if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
+                    GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+                else
+                {
+                    GameCameras.instance.hudCanvas.gameObject.SetActive(false);
+                    GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+                }
+                _maskCover.SetActive(true);
+                GameObject.DontDestroyOnLoad(_maskCover);
             }
         }
-        else if (chosen == AffectedVisual.Soul)
-            HeroController.instance.AddMPCharge(200);
         else if (chosen == AffectedVisual.Items)
         {
             foreach (AbstractPlacement placement in ItemChanger.Internal.Ref.Settings.Placements.Values)

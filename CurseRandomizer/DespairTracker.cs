@@ -186,7 +186,7 @@ internal class DespairTracker
             yield return new WaitForSeconds(3f);
             yield return new WaitUntil(() => GameManager.instance != null && !GameManager.instance.IsGamePaused());
             Ticks++;
-            if (Ticks % 60 == 0)
+            if (Ticks % 100 == 0)
             {
                 try
                 {

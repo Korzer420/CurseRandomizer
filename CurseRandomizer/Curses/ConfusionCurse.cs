@@ -2,7 +2,6 @@
 using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
 using InControl;
-using ItemChanger;
 using KorzUtils.Helper;
 using Modding;
 using System;
@@ -87,14 +86,14 @@ internal class ConfusionCurse : TemporaryCurse
         }
     }
 
-    private void HeroController_TakeDamage(On.HeroController.orig_TakeDamage orig, HeroController self, GameObject go, GlobalEnums.CollisionSide damageSide, int damageAmount, int hazardType)
+    private int ModHooks_AfterTakeDamageHook(int hazardType, int damageAmount)
     {
-        orig(self, go, damageSide, damageAmount, hazardType);
-        if (damageAmount > 0 && IsActive() && UnityEngine.Random.Range(0, 3) == 0)
+        if (damageAmount > 0 && IsActive() && UnityEngine.Random.Range(0, 4) == 0)
         {
             GameHelper.DisplayMessage("???");
             SetBindings(false);
         }
+        return damageAmount;
     }
 
     #endregion
@@ -108,7 +107,7 @@ internal class ConfusionCurse : TemporaryCurse
         On.InputHandler.ResetDefaultKeyBindings += InputHandler_ResetDefaultKeyBindings;
         On.InputHandler.ResetDefaultControllerButtonBindings += InputHandler_ResetDefaultControllerButtonBindings;
         On.InputHandler.ResetAllControllerButtonBindings += InputHandler_ResetAllControllerButtonBindings;
-        On.HeroController.TakeDamage += HeroController_TakeDamage;
+        ModHooks.AfterTakeDamageHook += ModHooks_AfterTakeDamageHook;
         On.HealthManager.OnEnable += HealthManager_OnEnable;
         On.HealthManager.Die += HealthManager_Die;
 
@@ -133,7 +132,7 @@ internal class ConfusionCurse : TemporaryCurse
         On.InputHandler.ResetDefaultKeyBindings -= InputHandler_ResetDefaultKeyBindings;
         On.InputHandler.ResetDefaultControllerButtonBindings -= InputHandler_ResetDefaultControllerButtonBindings;
         On.InputHandler.ResetAllControllerButtonBindings -= InputHandler_ResetAllControllerButtonBindings;
-        On.HeroController.TakeDamage -= HeroController_TakeDamage;
+        ModHooks.AfterTakeDamageHook -= ModHooks_AfterTakeDamageHook;
         On.HealthManager.OnEnable -= HealthManager_OnEnable;
         On.HealthManager.Die -= HealthManager_Die;
 

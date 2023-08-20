@@ -2,6 +2,7 @@
 using CurseRandomizer.Enums;
 using ItemChanger;
 using KorzUtils.Helper;
+using System;
 using System.Collections;
 using System.Linq;
 using TMPro;
@@ -185,15 +186,24 @@ internal abstract class TemporaryCurse : Curse
 
     private static IEnumerator DisablePreview()
     {
-        //float passedTime = 0f;
-        //while (passedTime <= 3f)
-        //{
-        //    passedTime += Time.deltaTime;
+        float passedTime = 0f;
+        while (passedTime <= 3f)
+        {
+            passedTime += Time.deltaTime;
             yield return null;
-        //}
-        //foreach (TemporaryCurse curse in CurseManager.GetCurses().Where(x => x is TemporaryCurse))
-        //    if (!curse.IsActive())
-        //        curse.Tracker.SetActive(false);
+        }
+        foreach (TemporaryCurse curse in CurseManager.GetCurses().Where(x => x is TemporaryCurse))
+        {
+            try
+            {
+                if (!curse.IsActive())
+                    curse.Tracker.SetActive(false);
+            }
+            catch (Exception exception)
+            {
+                LogHelper.Write<CurseRandomizer>("Failed to disable preview for curse: " + curse.Name, exception);
+            }
+        }
     }
 
     #endregion

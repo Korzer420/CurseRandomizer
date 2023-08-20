@@ -36,6 +36,7 @@ internal static class ModManager
             ItemChangerMod.Modules.GetOrAdd<WalletModule>().Capacities = WalletCapacities;
         if (CurseRandomizer.Instance.Settings.GeneralSettings.Enabled && CurseRandomizer.Instance.Settings.GeneralSettings.UseCurses)
         {
+            ItemChangerMod.Modules.GetOrAdd<CurseModule>();
             foreach (Curse curse in CurseManager.GetCurses())
                 curse.ResetData();
             if (ItemChanger.Internal.Ref.Settings.Placements.ContainsKey(LocationNames.Iselda))
@@ -63,7 +64,7 @@ internal static class ModManager
             }
         }
 
-        if (CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel > 0)
+        if (CurseRandomizer.Instance.Settings.GeneralSettings.Enabled && CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel > 0)
             ItemChangerMod.Modules.GetOrAdd<VesselModule>().SoulVessel = 2 - CurseRandomizer.Instance.Settings.GeneralSettings.CursedVessel;
     } 
 

@@ -27,43 +27,8 @@
 	</Target>
 
 	<ItemGroup>
-	  <None Remove="Resources\Confusion.png" />
-	  <None Remove="Resources\Darkness.png" />
-	  <None Remove="Resources\Emptiness.png" />
-	  <None Remove="Resources\Maze.png" />
-	  <None Remove="Resources\Omen.png" />
-	  <None Remove="Resources\Regret.png" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Include="Resources\Sprites\Confusion.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Sprites\Darkness.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Sprites\Emptiness.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Sprites\Fool.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Logic\WalletLogic.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Sprites\Maze.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Sprites\Omen.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Sprites\Regret.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Sprites\Wallet.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	</ItemGroup>
+      <EmbeddedResource Include="Resources\Sprites\*.png" />
+    </ItemGroup>
 
 	<ItemGroup>
 		<Reference Include="Assembly-CSharp">

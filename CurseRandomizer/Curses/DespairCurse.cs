@@ -1,22 +1,12 @@
 ﻿using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
-using Modding;
 using System;
-using System.Reflection;
 using UnityEngine;
 
 namespace CurseRandomizer.Curses;
 
 internal class DespairCurse : TemporaryCurse
 {
-    #region Members
-
-    private MethodInfo _canTakeDamage = ReflectionHelper.GetMethodInfo(typeof(HeroController), "CanTakeDamage");
-
-    private Coroutine _soulDrain;
-
-    #endregion
-
     #region Properties
 
     /// <summary>
@@ -41,10 +31,6 @@ internal class DespairCurse : TemporaryCurse
             return Data.AdditionalData as DespairTracker;
         }
     }
-
-    #endregion
-
-    #region Event handler
 
     #endregion
 

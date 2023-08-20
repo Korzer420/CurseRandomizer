@@ -1,10 +1,8 @@
 ﻿using CurseRandomizer.Curses;
 using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
-using CurseRandomizer.Manager;
 using CurseRandomizer.Randomizer.Settings;
 using CurseRandomizer.SaveManagment;
-using KorzUtils.Helper;
 using Modding;
 using System;
 using System.Collections.Generic;
@@ -24,7 +22,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public static CurseRandomizer Instance { get; set; }
 
-    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "5.0.0.0";
+    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "5.1.0.0";
 
     public RandoSettings Settings => _settings ??= new();
 

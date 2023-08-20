@@ -1,5 +1,4 @@
 ﻿using CurseRandomizer.Curses;
-using HutongGames.PlayMaker;
 using ItemChanger;
 using ItemChanger.Modules;
 using KorzUtils.Helper;
@@ -50,7 +49,7 @@ public class CurseModule : Module
         CoroutineHelper.WaitForHero(() =>
         {
             if (CurseQueue.Any())
-                CurseManager.Handler.StartCoroutine(WaitForControl());
+                CurseManager.Handler.StartCoroutine(WaitForControl(true));
         }, true);
         ModHooks.GetPlayerIntHook += ForceBargainAvailability;
     }
@@ -72,7 +71,7 @@ public class CurseModule : Module
         CurseManager.Handler.StartCoroutine(WaitForControl());
     }
 
-    internal IEnumerator WaitForControl()
+    internal IEnumerator WaitForControl(bool initialize = false)
     {
         while (HeroController.instance == null || !HeroController.instance.acceptingInput)
         {
@@ -80,6 +79,9 @@ public class CurseModule : Module
             yield return null;
         }
 
+        // Display messages throw an error if done too early as the fsm didn't get setu
+        if (initialize)
+            yield return new WaitForSeconds(5f);
         // Display the FOOL text.
         GameHelper.DisplayMessage("FOOL!");
         if (DespairCurse.DespairActive)
