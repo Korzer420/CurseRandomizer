@@ -942,9 +942,6 @@ internal static class RandoManager
             Term wallet = builder.GetOrAddTerm("WALLET");
             builder.AddItem(new SingleItem("Geo_Wallet", new(wallet, 1)));
 
-            using Stream stream = typeof(RandoManager).Assembly.GetManifestResourceStream("CurseRandomizer.Resources.Logic.WalletLogic.json");
-            builder.DeserializeJson(LogicManagerBuilder.JsonType.Locations, stream);
-
             // Divine upgrades.
             builder.DoLogicEdit(new(LocationNames.Unbreakable_Greed, "(ORIG) + WALLET>1"));
             builder.DoLogicEdit(new(LocationNames.Unbreakable_Heart, "(ORIG) + WALLET>1"));
