@@ -17,6 +17,7 @@ public class CurseModule : Module
     #region Members
 
     private bool _isQueueRunning = false;
+
     /// <summary>
     /// Fired when the queue casted the last curse, so it remains empty.
     /// </summary>
@@ -82,8 +83,7 @@ public class CurseModule : Module
         // Display messages throw an error if done too early as the fsm didn't get setu
         if (initialize)
             yield return new WaitForSeconds(5f);
-        // Display the FOOL text.
-        GameHelper.DisplayMessage("FOOL!");
+        
         if (DespairCurse.DespairActive)
         {
             (CurseManager.GetCurse<DespairCurse>().Data.AdditionalData as DespairTracker).CurseDesperation++;
@@ -98,9 +98,13 @@ public class CurseModule : Module
                 int painAmount = CurseQueue.RemoveAll(x => x == "Pain");
                 if (!CurseManager.GetCurse<PainCurse>().Data.Ignored)
                 {
+                    // Display the FOOL text.
+                    GameHelper.DisplayMessage("FOOL!");
                     CurseManager.GetCurse<PainCurse>().Data.CastedAmount += painAmount;
                     PainCurse.DoDamage(painAmount);
                 }
+                else
+                    GameHelper.DisplayMessage("(Not a) FOOL!");
             }
             // Casting multiple disorientation curses doesn't serve any purpose which is why the get removed all at once.
             else if (CurseQueue[0] == "Disorientation")
@@ -108,9 +112,12 @@ public class CurseModule : Module
                 int amount = CurseQueue.RemoveAll(x => x == "Disorientation");
                 if (!CurseManager.GetCurse<DisorientationCurse>().Data.Ignored)
                 {
+                    GameHelper.DisplayMessage("FOOL!");
                     CurseManager.GetCurse<DisorientationCurse>().Data.CastedAmount += amount;
                     CurseManager.GetCurse<DisorientationCurse>().ApplyCurse();
                 }
+                else
+                    GameHelper.DisplayMessage("(Not a) FOOL!");
             }
             else
             {
@@ -118,6 +125,8 @@ public class CurseModule : Module
                 if (curse != null)
                 {
                     if (!curse.Data.Ignored)
+                    {
+                        GameHelper.DisplayMessage("FOOL!");
                         if (!curse.CanApplyCurse())
                         {
                             CurseManager.GetCurse<DisorientationCurse>().Data.CastedAmount++;
@@ -128,6 +137,9 @@ public class CurseModule : Module
                             curse.Data.CastedAmount++;
                             curse.ApplyCurse();
                         }
+                    }
+                    else
+                        GameHelper.DisplayMessage("(Not a) FOOL!");
                 }
                 else
                     CurseRandomizer.Instance.LogError("Tried to cast unknown curse: " + CurseQueue[0]);

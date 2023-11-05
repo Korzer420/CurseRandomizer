@@ -7,7 +7,6 @@ using Modding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.UI;
 
 namespace CurseRandomizer;
 
@@ -22,7 +21,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public static CurseRandomizer Instance { get; set; }
 
-    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "5.1.1.0";
+    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "5.1.1.1";
 
     public RandoSettings Settings => _settings ??= new();
 
@@ -167,24 +166,11 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             index => TemporaryCurse.EasyLift = index == 1,
             () => TemporaryCurse.EasyLift ? 1 : 0)
         };
-        //foreach (Curse curse in CurseManager.GetCurses())
-        //    options.Add(new($"Ignore {curse.Name}", new string[] { "False", "True" }, $"If true, {curse.Name} doesn't affect you",
-        //        index => curse.Data.Ignored = index == 1,
-        //        () => curse.Data.Ignored ? 1 : 0));
+        foreach (Curse curse in CurseManager.GetCurses())
+            options.Add(new($"Ignore {curse.Name}", new string[] { "False", "True" }, $"If true, {curse.Name} doesn't affect you",
+                index => curse.Data.Ignored = index == 1,
+                () => curse.Data.Ignored ? 1 : 0));
         return options;
-    }
-
-    public void SyncMenu(bool reset = true)
-    {
-        MenuScreen screen = ModHooks.BuiltModMenuScreens[this];
-        if (screen != null)
-        {
-            if (reset)
-                foreach (Curse curse in CurseManager.GetCurses())
-                    curse.Data.Ignored = false;
-            foreach (MenuOptionHorizontal option in screen.GetComponentsInChildren<MenuOptionHorizontal>(true))
-                option.menuSetting.RefreshValueFromGameSettings();
-        }
     }
 
     #endregion
