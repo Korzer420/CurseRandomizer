@@ -1,4 +1,4 @@
-# CurseRandomizer
+# Curse Randomizer
 Hollow Knight Randomizer Connection for more cursed stuff.
 
 ## Curses
