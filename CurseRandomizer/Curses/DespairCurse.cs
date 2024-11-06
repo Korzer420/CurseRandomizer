@@ -91,5 +91,7 @@ internal class DespairCurse : TemporaryCurse
 
     protected override bool IsActive() => Counter.Active;
 
+    public override bool CanApplyCurse() => false;
+
     #endregion
 }

@@ -127,7 +127,7 @@ internal static class RandoManager
             {
                 name = new BoxedString("Fight Fragment"),
                 shopDesc = new BoxedString("You can insert this into your dreamnail to restore a part of it's original power."),
-                sprite = (Finder.GetItem(ItemNames.Dream_Nail).UIDef as MsgUIDef).sprite
+                sprite = new ItemChangerSprite("ShopIcons.Dreamnail")
             }
         });
 
@@ -160,7 +160,7 @@ internal static class RandoManager
             {
                 name = new BoxedString("Generosity"),
                 shopDesc = new BoxedString("If this does cleanse you from your past regrets is beyond me. But I wouldn't mind having more geo."),
-                sprite = new BoxedSprite(Finder.GetItem(ItemNames.One_Geo).GetResolvedUIDef().GetSprite())
+                sprite = new ItemChangerSprite("ShopIcons.Geo")
             }
         });
     }

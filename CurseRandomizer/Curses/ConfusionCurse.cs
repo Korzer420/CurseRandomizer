@@ -88,7 +88,7 @@ internal class ConfusionCurse : TemporaryCurse
 
     private int ModHooks_AfterTakeDamageHook(int hazardType, int damageAmount)
     {
-        if (damageAmount > 0 && IsActive() && UnityEngine.Random.Range(0, 4) == 0)
+        if (damageAmount > 0 && IsActive() && UnityEngine.Random.Range(0, 20) == 0)
         {
             GameHelper.DisplayMessage("???");
             SetBindings(false);
