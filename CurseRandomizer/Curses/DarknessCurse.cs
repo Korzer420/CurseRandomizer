@@ -35,7 +35,7 @@ internal class DarknessCurse : TemporaryCurse
         }
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount * 3, CurseManager.UseCaps ? Cap : 30);
+    public override int NeededAmount => Math.Min(Data.CastedAmount * 3, 30);
 
     public override int CurrentAmount { get => PassedScenes.Count; set { } }
 
@@ -48,7 +48,7 @@ internal class DarknessCurse : TemporaryCurse
         orig(self);
         if (self.IsCorrectContext("Darkness Control", "Vignette", null) && !PassedScenes.Contains("Inactive"))
         {
-            int cap = CurseManager.UseCaps ? Cap : 5;
+            int cap = CurseManager.UseCaps ? Math.Min(Cap, 5) : 5;
             Vector3 normalScale = new(self.x.Value, self.y.Value);
             float darknessFactor = 1 - ((Math.Min(cap, Data.CastedAmount) + 1) * 0.15f);
             self.vector3Variable.Value = new(Math.Max(0.4f, normalScale.x * darknessFactor), Math.Max(0.4f, normalScale.y * darknessFactor), Math.Max(0.4f, normalScale.z * darknessFactor));
@@ -141,7 +141,7 @@ internal class DarknessCurse : TemporaryCurse
         HeroController.instance.vignetteFSM.SendEvent("SCENE RESET");
     }
 
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 30));
+    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 5));
 
     public override void ResetAdditionalData()
     {
