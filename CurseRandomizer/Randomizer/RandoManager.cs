@@ -177,6 +177,7 @@ internal static class RandoManager
         RandomizerMenu.AttachMenu();
         SettingsLog.AfterLogSettings += WriteCurseRandoSettings;
         ProgressionInitializer.OnCreateProgressionInitializer += SetupVesselTerm;
+        RandoController.OnExportCompleted += RandoController_OnExportCompleted;
 
         if (ModHooks.GetMod("RandoSettingsManager") is Mod)
             HookRandoSettingsManager();
@@ -187,6 +188,9 @@ internal static class RandoManager
         if (ModHooks.GetMod("MoreLocations") is Mod)
             MoreLocationsInterop.Hook();
     }
+
+    private static void RandoController_OnExportCompleted(RandoController obj) 
+        => CurseManager.UseCaps = CurseRandomizer.Instance.Settings.CurseControlSettings.CapEffects;
 
     private static void SetupVesselTerm(LogicManager logicManager, GenerationSettings generationSettings, ProgressionInitializer progressionInitializer)
     {
