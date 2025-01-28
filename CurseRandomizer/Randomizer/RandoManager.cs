@@ -7,10 +7,8 @@ using CurseRandomizer.Randomizer.Settings;
 using ItemChanger;
 using ItemChanger.Extensions;
 using ItemChanger.Items;
-using ItemChanger.Locations;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
-using KorzUtils.Helper;
 using Modding;
 using RandomizerCore.Logic;
 using RandomizerCore.LogicItems;
@@ -25,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static ItemChanger.Internal.SpriteManager;
 using static RandomizerMod.RC.RequestBuilder;
 using static RandomizerMod.Settings.MiscSettings;
 

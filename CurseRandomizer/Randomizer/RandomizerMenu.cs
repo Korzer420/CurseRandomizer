@@ -1,4 +1,5 @@
 ﻿using CurseRandomizer.Randomizer.Settings;
+using KorzUtils.Helper;
 using MenuChanger;
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
@@ -163,6 +164,7 @@ internal class RandomizerMenu
         capEffects.SetValue(CurseRandomizer.Instance.Settings.CurseControlSettings.CapEffects);
 
         MenuItem<string> defaultCurse = new(_cursePage, "Default Curse", CurseManager.GetCurses().Select(x => x.Name).ToArray());
+        defaultCurse.SetValue(CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse ?? "Pain");
         defaultCurse.SelfChanged += (self) =>
         {
             string selectedCurse = (string)self.Value;
@@ -182,8 +184,7 @@ internal class RandomizerMenu
                 CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse = selectedCurse;
         };
         defaultCurse.MoveTo(new(250f, 450f));
-        defaultCurse.SetValue(CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse ?? "Pain");
-
+        
         // Create a toggle button and a cap field for each curse. Curses unknown to the settings will be added.
         foreach (Curse curse in CurseManager.GetCurses())
         {
@@ -204,7 +205,7 @@ internal class RandomizerMenu
                 else
                     curseCap.Hide();
                 // Only allow active curses to be default. (Except pain curse)
-                if (CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse == curseEnable.Name)
+                if (!(bool)self.Value && CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse == curseEnable.Name)
                 {
                     if (CurseRandomizer.Instance.Settings.CurseSettings.Any(x => x.Active))
                         defaultCurse.MoveNext();
