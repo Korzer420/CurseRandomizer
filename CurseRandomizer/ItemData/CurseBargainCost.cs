@@ -44,7 +44,9 @@ public record CurseBargainCost : Cost
 
             for (int i = 0; i < CurseAmount; i++)
             {
-                List<Curse> viableCurses = CurseManager.GetCurses().Where(x => x.CanApplyCurse()).ToList();
+                List<Curse> viableCurses = CurseManager.GetCurses().Where(x => x.CanApplyCurse() && x.Data?.Active == true).ToList();
+                if (viableCurses.Count == 0)
+                    break;
                 Curse selectedCurse = viableCurses[UnityEngine.Random.Range(0, viableCurses.Count)];
                 appliedCurses.Add(selectedCurse.Name);
                 curseModule.QueueCurse(selectedCurse.Name);
