@@ -14,35 +14,43 @@ With this method it is ensured, that a curse is applied regardless of the contex
 
 ### Curses
 Here's a list of available curses:
-- Amnesia (Permanent): Lowers the damage of your spells by 10% or takes away a spell upgrade (20% chance).
-- Darkness (Temporarly): Lowers the vision range by 30% until you traverse 3 different rooms ("Traverse" as in you need to exit on a different side than you entered). Repeated cast increase the vision range penalty by 15% each (up to 90% if not capped). The needed room amount increases by 3 each time as well.
-- Diminish (Permanent): Lowers your nail range by 0.1. For perspective, your base nail range is around 1.4. Do the math yourself :c
+- Amnesia (Permanent): Lowers the damage of your spells by 5% (up to 90%).
+- Darkness (Temporarly): Lowers the vision range by 30% until you traverse 3 different rooms ("Traverse" as in you need to exit on a different side than you entered). The needed room amount increases by 3 each time.
+- Diminish (Permanent): Lowers your nail range by 0.05. For perspective, your base nail range is around 1.4. Do the math yourself :c
 - Disorientation (Instant): Warps you back to your bench.
 - Emptiness (Temporarly): You can no longer gain hp, even through benches. Trying to focus will deal 1 damage to you instead. Dealing 300 damage to enemies, will cease the curse (Damage is capped at 100 per enemy type) and heal you for 1 hp. Increases by 300 additional damage each time this is casted.
 - Greed (Instant): Takes 50% of you geo.
 - Lost (Instant): Remove a notch, mask or vessel (It is ensured, that you have at least one notch to equip quest charms). Can take vessels from the base one, lowering up to 33 soul. You'll always have enough soul to cast at least one spell.
 - Normality (Permanent): Makes a charm useless, removing all it's effect, but it heals you to full health. This curse cannot be applied to quest charms. 
 - Omen (Temporarly): Upon taking a hit, apply a random permanent curse onto you. This curse vanishes after killing 5 different TYPES of enemies (although the casted curses through "Omen" remain). With each cast, 5 additional enemies types are needed (up to 50 if uncapped). Taking a hit reduces the needed kill amount by 10. If you have less 10 ten kills remaining, it sets you to 1 instead. If no permanent curse can be applied, you'll be killed instantly instead.
-- Pain (Instant): Take 1 to 3 damage. (60% for 1, 30% for 2 and 10% for 3 damage)
-- Sloth (Permanent): Add a additional cooldown to your dash (0.1 seconds), crystal dash charge (0.15 seconds), nail art charge (0.15 seconds) or nail swing (0.1 seconds).
+- Pain (Instant): Take 1 damage. This will not be affected by overcharming.
+- Sloth (Permanent): Add a additional cooldown to your dash (0.05 seconds), crystal dash charge (0.075 seconds), nail art charge (0.075 seconds) or nail swing (0.05 seconds).
 - Stupidity (Permanent): Spells cost 3 more soul. Also applies to focus. (Since focus works different, the extra amount is taken after the cast is finished.)
-- Thirst (Permanent): Hits on enemies grant 1 soul less.
+- Thirst (Permanent): Every 12th time you'd get soul it is negated. This intervall is smaller for each subsequent cast (up to 10 times).
 - Unknown (Permanent): Disables the health, soul, geo, essence or item display. Note that curses will retain at least their icon, so you know you got cursed even though the name is obscured.
 - Weakness (Permanent): Reduce your base nail damage by 1.
 - Doubt (Instant): Unequippes all charms that you're wearing. Also reshuffles the cost of ALL charms. The total cost is increased by up to 5. For example: If you have Dashmaster (3) and Compass (5), a possible final cost could be Dashmaster (6) and Compass (3) (from 8 total to 9). Charms can never cost more than 6 notches.
 - Confusion (Temporarly): Switches all 9 player actions (nail, spell, dream nail etc.) with each other. Vanishes after killing a boss (Enemies with more than 200 hp are considered bosses). The needed boss kill amount is increased by 1 each time this is casted. Taking a hit has a 25% chance to reshuffle the controls if this curse is active. The shuffle is marked by "???" appearing.
 - Regret (Temporarly): Each time you kill an enemy, there is a 5% chance that a random instant curse is applied to you. The chance increases by 4% for each time you have killed that enemy in the last 20. Resets the enemy list each time a curse is applied. Can also cast instant curses that are not activated in the mod menu! Spending 300 Geo removes the curse. 300 more geo is needed each time the curse is casted again. Hint: If you suffer from this curse, Iselda will sell the item "Generosity" which can be bought each time you enter the shop to spend infinite geo (so the curse is always removable). The greed curse also progresses this curse.
 - Maze (Temporarly): Each time you enter a room, there is a 7% chance that you will enter a known room instead. This curse vanishes after picking up 5 different items. Note that shop items (besides "Generosity") are not counted! A wrong warp is marked by "???" appearing.
-- Midas (Permanent): Occasionally you'll turn to gold for a short period of time. Trying to obtain a not necessary item, while being under this effect, will turn it to 8 geo instead. The chance of this happening is at 0.5% each second. Increasing by 0.5% each time this is casted. Picking up geo and ceasing the golden status will grant you a bit of save time, where this effect cannot occur. **If you have problems seeing colors, you can enable the "Colorless Indicator" in the mod menu, which then will give a message each time the effect is enabled/disabled**
-- Custom: Allows all curses which are created from other mods to be viable options. They will appear in the menu to manually setting them yourself.
-- Despair (Temporarly): Prevents all other temporary curses from progressing further. Every 5 minutes you'll receive a random used curse (besides "Despair" itself). This curse vanishes after getting desperate enough (getting 7 despair point, increased by 7 each cast) and then dying (**if you're playing on steel soul the curse will just vanish**). Note that dying in areas, where the shade doesn't appear do not count! Despair points can be obtained from various sources, but are capped at certain interactions. These are all viable options to gain despair point (Note, that it is intended to figure this out by yourself, so I'd recommend to just try it out instead of looking it up. Anyway "Spoilers"):
-    - Spending Geo (1 point per 500 Geo) (Capped at 10 points)
-    - Entering the same rooms over and over again (Entering a room 5 times in between 50 rooms grants 1 point) (Capped at 10 points)
-    - Dying (3 points per Death) (Capped at 15 points)
-    - Killing a new enemy type (1 point) (Unlimited) If this curse is cast multiple times, all known enemies flags will reset. Simply put: You kill a vengefly -> 1 Point -> You pick up another despair -> you can get 1   
-      point from vengeflies again.
-    - Obtaining a curse (1 point) (Unlimited). Curses applied by despair itself and other curses like omen also count.
-    - Dealing damage with spells (1 point per 200 damage) (Capped at 20 points)
+- Despair (Permanent): Enhances the effects of most other curses:
+	- Amnesia: Damage penalty of subsequent casts are increased by 5% for each despair cast.
+	- Darkness: Increases the vision penalty by 15% for each despair cast.
+	- Diminish: Decrease the nail length by another 0.05 for each despair cast.
+	- Disorientation: No effect.
+	- Emptiness: Decreases your health by one for each despair cast. This can never lower your health below 1.
+	- Greed: An additional 5% geo is taken for each despair cast.
+	- Lost: For every other despair cast one additional penalty is applied (starting on the second despair).
+	- Normality: For every other despair cast one additional penalty is applied (starting on the second despair).
+	- Omen: No effect.
+	- Pain: The damage is increased by 1 for each despair cast.
+	- Sloth: The applied penalty is increased by 100% for each despair cast.
+	- Stupidity: Spell cost is additionally increased by 1 for each despair cast on each subsequent cast.
+	- Thirst: Hits on enemies grant 1 soul less for each despair cast (up to 10).
+	- Unknown: No effect.
+	- Weakness: Damage penalty is increased by 1 for each subsequent cast.
+	- Doubt: The cost is increased by an additional point for each despair cast on each subsequent cast.
+	
 
 **Choosing certain curses will override the logic to remove skip logic, since they may break specific skips. The application of the curses takes priority! Be aware of that.**
 

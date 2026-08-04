@@ -1,6 +1,7 @@
 ﻿using CurseRandomizer.Modules;
 using ItemChanger;
 using KorzUtils.Helper;
+using System;
 using UnityEngine;
 
 namespace CurseRandomizer.Curses;
@@ -9,7 +10,18 @@ internal class StupidityCurse : Curse
 {
     #region Properties
 
-    public static int SpellCost => 33 + CurseManager.GetCurse<StupidityCurse>().Data.CastedAmount * (3 + DespairCurse.CastedDespair);
+    public static int SpellCost => 33 + CurseManager.GetCurse<StupidityCurse>().Stacks;
+
+    public int Stacks
+    {
+        get
+        {
+            if (Data.AdditionalData == null)
+                Data.AdditionalData = 0;
+            return Convert.ToInt32(Data.AdditionalData);
+        }
+        set => Data.AdditionalData = value;
+    }
 
     #endregion
 
@@ -67,16 +79,25 @@ internal class StupidityCurse : Curse
     public override bool CanApplyCurse()
     {
         int cap = 99;
-
         VesselModule vesselModule = ItemChangerMod.Modules.GetOrAdd<VesselModule>();
         if (vesselModule.SoulVessel == 0)
             return false;
         else if (vesselModule.SoulVessel == 1)
             cap = 66;
-        return SpellCost + (3 + DespairCurse.CastedDespair) <= cap;
+        return SpellCost + Stacks <= cap;
     }
 
-    public override void ApplyCurse() { }
+    public override void ApplyCurse()
+    {
+        // The inital needed 33 soul are omitted here, so it is easier to calculate.
+        int cap = 66;
+        VesselModule vesselModule = ItemChangerMod.Modules.GetOrAdd<VesselModule>();
+        if (vesselModule.SoulVessel == 0)
+            return;
+        else if (vesselModule.SoulVessel == 1)
+            cap = 33;
+        Stacks = Math.Min(cap, Stacks + 3 + DespairCurse.CastedDespair);
+    }
 
     #endregion
 }
