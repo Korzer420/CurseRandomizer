@@ -38,11 +38,7 @@ internal class WeaknessCurse : Curse
         On.HutongGames.PlayMaker.Actions.IntOperator.OnEnter -= IntOperator_OnEnter;
     }
 
-    public override bool CanApplyCurse()
-    {
-        int cap = UseCap ? Cap : 1;
-        return 5 + 4 * PlayerData.instance.GetInt(nameof(PlayerData.instance.nailSmithUpgrades)) - Data.CastedAmount > cap;
-    }
+    public override bool CanApplyCurse() => 5 + 4 * PlayerData.instance.GetInt(nameof(PlayerData.instance.nailSmithUpgrades)) - Data.CastedAmount > 1;
 
     public override void ApplyCurse() => PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
 

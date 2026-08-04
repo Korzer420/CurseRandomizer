@@ -32,7 +32,7 @@ internal class ConfusionCurse : TemporaryCurse
         set => Data.AdditionalData = value;
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount, UseCap ? Cap : 3);
+    public override int NeededAmount => Math.Min(Data.CastedAmount, 3);
 
     #endregion
 

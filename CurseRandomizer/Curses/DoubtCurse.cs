@@ -96,7 +96,7 @@ internal class DoubtCurse : Curse
                 totalCost += PlayerData.instance.GetInt("charmCost_" + i);
             }
         }
-        return totalCost < charmAmount * 6 && (!UseCap || Data.CastedAmount < Cap);
+        return totalCost < charmAmount * 6;
     }
 
     public override int SetCap(int value) => Math.Max(1, Math.Min(value, 40));

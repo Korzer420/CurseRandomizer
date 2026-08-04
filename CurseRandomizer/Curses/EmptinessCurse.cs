@@ -24,7 +24,7 @@ internal class EmptinessCurse : TemporaryCurse
         set { }
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount, UseCap ? Cap : 20) * 300;
+    public override int NeededAmount => Math.Min(Data.CastedAmount, 20) * 300;
 
     #endregion
 

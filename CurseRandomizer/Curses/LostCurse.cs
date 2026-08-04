@@ -40,27 +40,23 @@ internal class LostCurse : Curse
 
     public override bool CanApplyCurse()
     {
-        int cap = UseCap ? Cap : 1;
         int spellCost = 33 + CurseManager.GetCurse<StupidityCurse>().Data.CastedAmount * 3;
         int maxMp = PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) + PlayerData.instance.GetInt(nameof(PlayerData.instance.maxMP));
-        return PlayerData.instance.GetInt("charmSlots") > cap || maxMp / spellCost > cap
-            || PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > cap;
+        return PlayerData.instance.GetInt("charmSlots") > 1 || maxMp / spellCost > 1
+            || PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > 1;
     }
 
     public override void ApplyCurse()
     {
-        List<string> viableSlots = new();
-        int cap = UseCap
-        ? Cap
-        : 1;
+        List<string> viableSlots = [];
 
-        if (PlayerData.instance.GetInt("charmSlots") > cap)
+        if (PlayerData.instance.GetInt("charmSlots") > 1)
             viableSlots.Add("charmSlots");
-        if (PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > cap)
+        if (PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > 1)
             viableSlots.Add("masks");
         int spellCost = 33 + CurseManager.GetCurse<StupidityCurse>().Data.CastedAmount * 3;
         int maxMp = PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) + PlayerData.instance.GetInt(nameof(PlayerData.instance.maxMP));
-        if (maxMp / spellCost > cap)
+        if (maxMp / spellCost > 1)
             viableSlots.Add("vessels");
         string rolledConsumable = null;
 

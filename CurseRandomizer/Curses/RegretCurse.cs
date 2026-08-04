@@ -26,9 +26,9 @@ internal class RegretCurse : TemporaryCurse
         set => Data.AdditionalData = value;
     }
 
-    public override int NeededAmount => Math.Min(UseCap ? Cap * 300 : 3000, Data.CastedAmount * 300);
+    public override int NeededAmount => Math.Min(3000, Data.CastedAmount * 300);
 
-    public List<string> KilledEnemies { get; set; } = new();
+    public List<string> KilledEnemies { get; set; } = [];
 
     public override CurseTag Tag => CurseTag.Temporarly;
 

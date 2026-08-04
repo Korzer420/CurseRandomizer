@@ -72,9 +72,7 @@ internal class NormalityCurse : Curse
 
     public override bool CanApplyCurse()
     {
-        if (UseCap && DisabledCharmId.Count >= Cap)
-            return false;
-        List<int> availableCharms = new();
+        List<int> availableCharms = [];
         for (int i = 1; i < 41; i++)
         {
             // Skip quest charms

@@ -32,11 +32,7 @@ internal class DiminishCurse : Curse
 
     public override void ApplyCurse() { }
 
-    public override bool CanApplyCurse()
-    {
-        int cap = CurseManager.UseCaps ? Data.Cap : 8;
-        return Data.CastedAmount < cap;
-    }
+    public override bool CanApplyCurse() => Data.CastedAmount < 8;
 
     public override int SetCap(int value)
     => Math.Max(1, Math.Min(value, 8)); 

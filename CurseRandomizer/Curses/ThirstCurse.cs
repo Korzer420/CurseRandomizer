@@ -18,7 +18,7 @@ internal class ThirstCurse : Curse
 
     public override void Unhook() => ModHooks.SoulGainHook -= ModHooks_SoulGainHook;
 
-    public override bool CanApplyCurse() => 11 - Data.CastedAmount > (UseCap ? Cap : 1);
+    public override bool CanApplyCurse() => 11 - Data.CastedAmount > 1;
 
     public override void ApplyCurse() { }
 

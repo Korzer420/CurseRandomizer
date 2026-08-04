@@ -402,7 +402,7 @@ internal class UnknownCurse : Curse
         }
     }
 
-    public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Data.Cap : 5);
+    public override bool CanApplyCurse() => Data.CastedAmount < 5;
 
     public override int SetCap(int value) => Math.Max(1, Math.Min(value, 5));
 

@@ -38,7 +38,7 @@ internal class MazeCurse : TemporaryCurse
         set => KnownScenes["Counter"] = value.ToString();
     }
 
-    public override int NeededAmount => Math.Min(UseCap ? Cap : 50, Data.CastedAmount * 5);
+    public override int NeededAmount => Math.Min(50, Data.CastedAmount * 5);
 
     #endregion
 

@@ -132,7 +132,7 @@ internal class SlothCurse : Curse
         GameHelper.DisplayMessage(message);
     }
 
-    public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Cap : 99);
+    public override bool CanApplyCurse() => Data.CastedAmount < 99;
 
     public override int SetCap(int value) => Math.Max(1, Math.Min(value, 99));
 

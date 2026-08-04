@@ -12,9 +12,7 @@ internal class GreedCurse : Curse
 
     public override void ApplyCurse()
     {
-        int geoToTake = UseCap
-            ? Mathf.Min(Cap, PlayerData.instance.GetInt("geo") / 2)
-            : PlayerData.instance.GetInt("geo") / 2;
+        int geoToTake = PlayerData.instance.GetInt("geo") / 2;
         HeroController.instance.TakeGeo(geoToTake);
     }
 

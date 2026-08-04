@@ -38,7 +38,7 @@ internal class OmenCurse : TemporaryCurse
         set { }
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount * 5, CurseManager.UseCaps ? Cap : 50);
+    public override int NeededAmount => Math.Min(Data.CastedAmount * 5, 50);
 
     #endregion
 

@@ -48,9 +48,8 @@ internal class DarknessCurse : TemporaryCurse
         orig(self);
         if (self.IsCorrectContext("Darkness Control", "Vignette", null) && !PassedScenes.Contains("Inactive"))
         {
-            int cap = CurseManager.UseCaps ? Math.Min(Cap, 5) : 5;
             Vector3 normalScale = new(self.x.Value, self.y.Value);
-            float darknessFactor = 1 - ((Math.Min(cap, Data.CastedAmount) + 1) * 0.15f);
+            float darknessFactor = 1 - ((Math.Min(5, Data.CastedAmount) + 1) * 0.15f);
             self.vector3Variable.Value = new(Math.Max(0.4f, normalScale.x * darknessFactor), Math.Max(0.4f, normalScale.y * darknessFactor), Math.Max(0.4f, normalScale.z * darknessFactor));
         }
     }

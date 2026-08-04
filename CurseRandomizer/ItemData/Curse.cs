@@ -47,16 +47,6 @@ public abstract class Curse
     }
 
     /// <summary>
-    /// Gets the cap. (This property exists to not break compability.)
-    /// </summary>
-    public int Cap => Data.Cap;
-
-    /// <summary>
-    /// Gets the value that indicates if the <see cref="Cap"/> should be used.
-    /// </summary>
-    public bool UseCap => CurseManager.UseCaps;
-
-    /// <summary>
     /// Gets the tag of the curse. Default is permanent.
     /// </summary>
     public virtual CurseTag Tag => CurseTag.Permanent;

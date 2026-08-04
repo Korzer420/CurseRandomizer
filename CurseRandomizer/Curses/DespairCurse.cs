@@ -20,7 +20,7 @@ internal class DespairCurse : TemporaryCurse
         set { }
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount, UseCap ? Cap : 10) * 7;
+    public override int NeededAmount => Math.Min(Data.CastedAmount, 10) * 7;
 
     public DespairTracker Counter
     {

@@ -62,7 +62,7 @@ internal class StupidityCurse : Curse
 
     public override bool CanApplyCurse()
     {
-        int cap = UseCap ? Cap : 99;
+        int cap = 99;
 
         VesselModule vesselModule = ItemChangerMod.Modules.GetOrAdd<VesselModule>();
         if (vesselModule.SoulVessel == 0)

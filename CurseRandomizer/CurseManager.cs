@@ -11,27 +11,26 @@ public static class CurseManager
 
     private static List<Curse> _curses = new()
     {
-        new PainCurse() { Name = "Pain", Type = CurseType.Pain, Data = new CurseData() { Cap = 1 }},
-        new GreedCurse() { Name = "Greed", Type = CurseType.Greed, Data = new CurseData() { Cap = 5000 } },
-        new EmptinessCurse() { Name = "Emptiness", Type = CurseType.Emptiness, Data = new CurseData() { Cap = 3 } },
-        new ThirstCurse() { Name = "Thirst", Type = CurseType.Thirst, Data = new CurseData() { Cap = 5 } },
-        new WeaknessCurse() { Name = "Weakness", Type = CurseType.Weakness, Data = new CurseData() { Cap = 3 } },
+        new PainCurse() { Name = "Pain", Type = CurseType.Pain},
+        new GreedCurse() { Name = "Greed"},
+        new EmptinessCurse() { Name = "Emptiness", Type = CurseType.Emptiness},
+        new ThirstCurse() { Name = "Thirst", Type = CurseType.Thirst},
+        new WeaknessCurse() { Name = "Weakness", Type = CurseType.Weakness },
         new DisorientationCurse() { Name = "Disorientation", Type = CurseType.Disorientation },
-        new LostCurse() { Name = "Lost", Type = CurseType.Lost, Data = new CurseData() { Cap = 2 } },
-        new NormalityCurse() { Name = "Normality", Type = CurseType.Normality, Data = new CurseData() { Cap = 5 } },
-        new StupidityCurse() { Name = "Stupidity", Type = CurseType.Stupidity, Data = new CurseData() { Cap = 50 } },
-        new AmnesiaCurse() {Name = "Amnesia", Type = CurseType.Amnesia, Data = new() { Cap = 5 } },
-        new DarknessCurse() {Name = "Darkness", Type = CurseType.Darkness, Data = new() { Cap = 3 } },
-        new DiminishCurse() {Name = "Diminish", Type = CurseType.Diminish, Data = new() { Cap = 3 } },
-        new SlothCurse() {Name = "Sloth", Type = CurseType.Sloth, Data = new() { Cap = 5 } },
-        new UnknownCurse() {Name = "Unknown", Type = CurseType.Unknown, Data = new() { Cap = 3 } },
-        new OmenCurse() {Name = "Omen", Type = CurseType.Omen, Data = new() { Cap = 5 } },
-        new DoubtCurse() { Name = "Doubt", Type = CurseType.Doubt, Data = new() {Cap = 5} },
-        new ConfusionCurse() { Name = "Confusion", Type = CurseType.Confusion, Data = new() {Cap = 15} },
-        new RegretCurse() { Name = "Regret", Type = CurseType.Regret, Data = new() {Cap = 5} },
-        new MazeCurse() { Name = "Maze", Type = CurseType.Maze, Data = new() {Cap = 2} },
-        new DespairCurse() { Name = "Despair", Type = CurseType.Despair, Data = new() {Cap = 4} },
-        new MidasCurse() { Name = "Midas", Type = CurseType.Midas, Data = new() { Cap = 10 } }
+        new LostCurse() { Name = "Lost", Type = CurseType.Lost },
+        new NormalityCurse() { Name = "Normality", Type = CurseType.Normality },
+        new StupidityCurse() { Name = "Stupidity", Type = CurseType.Stupidity },
+        new AmnesiaCurse() {Name = "Amnesia", Type = CurseType.Amnesia},
+        new DarknessCurse() {Name = "Darkness", Type = CurseType.Darkness },
+        new DiminishCurse() {Name = "Diminish", Type = CurseType.Diminish },
+        new SlothCurse() {Name = "Sloth", Type = CurseType.Sloth },
+        new UnknownCurse() {Name = "Unknown", Type = CurseType.Unknown },
+        new OmenCurse() {Name = "Omen", Type = CurseType.Omen },
+        new DoubtCurse() { Name = "Doubt", Type = CurseType.Doubt },
+        new ConfusionCurse() { Name = "Confusion", Type = CurseType.Confusion },
+        new RegretCurse() { Name = "Regret", Type = CurseType.Regret },
+        new MazeCurse() { Name = "Maze", Type = CurseType.Maze },
+        new DespairCurse() { Name = "Despair", Type = CurseType.Despair }
     };
 
     #endregion

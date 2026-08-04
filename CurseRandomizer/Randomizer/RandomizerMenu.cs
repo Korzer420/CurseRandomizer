@@ -33,7 +33,7 @@ internal class RandomizerMenu
 
     private Dictionary<string, VerticalItemPanel> _curseSettings;
 
-    private IMenuElement[] _additionalElements = new IMenuElement[3];
+    private IMenuElement[] _additionalElements = new IMenuElement[2];
 
     #region Event handler
 
@@ -50,12 +50,12 @@ internal class RandomizerMenu
         GridItemPanel generalPanel = new(_mainPage, new(0f, 400f), 3, 500, 400, false, _generalFactory.ElementLookup["CursedWallet"], 
             _generalFactory.ElementLookup["CursedVessel"],
             _generalFactory.ElementLookup["CursedDreamNail"]);
-        new VerticalItemPanel(_mainPage, new(0f, 450f), 120f, true, new IMenuElement[] 
-        { 
+        new VerticalItemPanel(_mainPage, new(0f, 450f), 120f, true,
+        [
             _generalFactory.ElementLookup["Enabled"],
             generalPanel,
             _generalFactory.ElementLookup["UseCurses"]
-        });
+        ]);
 
         // Place the elements for curse settings.
         SmallButton cursePageButton = new(_mainPage, "Available Curses");
@@ -140,28 +140,9 @@ internal class RandomizerMenu
 
         //-------------------------- Create the sub curse page. -----------------------------------------
 
-        _curseSettings = new();
+        _curseSettings = [];
         // Delete all curse settings which don't have a matching curse.
         CurseRandomizer.Instance.Settings.CurseSettings.RemoveAll(x => CurseManager.GetCurseByName(x.Name) is null);
-
-        ToggleButton capEffects = new(_cursePage, "Cap Effects");
-        capEffects.SelfChanged += (self) =>
-        {
-            if ((bool)self.Value)
-                foreach (VerticalItemPanel verticalItemPanel in _curseSettings.Values)
-                {
-                    if ((verticalItemPanel.Items[0] as ToggleButton).Value)
-                        verticalItemPanel.Items[1].Show();
-                    else
-                        verticalItemPanel.Items[1].Hide();
-                }
-            else
-                foreach (VerticalItemPanel verticalItemPanel in _curseSettings.Values)
-                    verticalItemPanel.Items[1].Hide();
-            CurseRandomizer.Instance.Settings.CurseControlSettings.CapEffects = (bool)self.Value;
-        };
-        capEffects.MoveTo(new(-250f, 450f));
-        capEffects.SetValue(CurseRandomizer.Instance.Settings.CurseControlSettings.CapEffects);
 
         MenuItem<string> defaultCurse = new(_cursePage, "Default Curse", CurseManager.GetCurses().Select(x => x.Name).ToArray());
         defaultCurse.SetValue(CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse ?? "Pain");
@@ -196,14 +177,9 @@ internal class RandomizerMenu
             }
 
             ToggleButton curseEnable = new(_cursePage, curse.Name);
-            EntryField<int> curseCap = new(_cursePage, "Cap");
 
             curseEnable.SelfChanged += (self) =>
             {
-                if ((bool)self.Value && CurseRandomizer.Instance.Settings.CurseControlSettings.CapEffects)
-                    curseCap.Show();
-                else
-                    curseCap.Hide();
                 // Only allow active curses to be default. (Except pain curse)
                 if (!(bool)self.Value && CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse == curseEnable.Name)
                 {
@@ -214,15 +190,7 @@ internal class RandomizerMenu
                 }
             };
             curseEnable.Bind(settings, ReflectionHelper.GetPropertyInfo(typeof(CurseSettings), "Active"));
-
-            curseCap.ValueChanged += (value) =>
-            {
-                int valueToSet = curse.SetCap(value);
-                if (value != valueToSet)
-                    curseCap.SetValue(valueToSet);
-            };
-            curseCap.Bind(settings, ReflectionHelper.GetPropertyInfo(typeof(CurseSettings), "Cap"));
-            _curseSettings.Add(curse.Name, new(_cursePage, new(0f, 0f), 100, false, new IMenuElement[2] { curseEnable, curseCap }));
+            _curseSettings.Add(curse.Name, new(_cursePage, new(0f, 0f), 100, false, [curseEnable]));
         }
         new GridItemPanel(_cursePage, new(0f, 400f), 5, 150, 400, true, _curseSettings
             .Where(x => CurseManager.GetCurseByName(x.Key).Type != CurseType.Custom)
@@ -252,9 +220,8 @@ internal class RandomizerMenu
         customCurses.SetValue(CurseRandomizer.Instance.Settings.CurseControlSettings.CustomCurses);
         customCurses.MoveTo(new(0f, -250f));
 
-        _additionalElements[0] = capEffects;
-        _additionalElements[1] = defaultCurse;
-        _additionalElements[2] = customCurses;
+        _additionalElements[0] = defaultCurse;
+        _additionalElements[1] = customCurses;
     }
 
     private bool HandleButton(MenuPage previousPage, out SmallButton connectionButton)
@@ -295,9 +262,8 @@ internal class RandomizerMenu
                     (_curseSettings[curseSettings.Name].Items[1] as EntryField<int>).SetValue(curseSettings.Cap);
                 }
 
-            (_additionalElements[0] as ToggleButton).SetValue(settings.CurseControlSettings.CapEffects);
-            (_additionalElements[1] as MenuItem<string>).SetValue(settings.CurseControlSettings.DefaultCurse);
-            (_additionalElements[2] as ToggleButton).SetValue(settings.CurseControlSettings.CustomCurses);
+            (_additionalElements[0] as MenuItem<string>).SetValue(settings.CurseControlSettings.DefaultCurse);
+            (_additionalElements[1] as ToggleButton).SetValue(settings.CurseControlSettings.CustomCurses);
         }
     }
 }

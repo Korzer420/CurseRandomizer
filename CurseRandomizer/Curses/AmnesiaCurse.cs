@@ -1,6 +1,7 @@
-﻿using KorzUtils.Helper;
-using ItemChanger.FsmStateActions;
+﻿using ItemChanger.FsmStateActions;
+using KorzUtils.Helper;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -104,14 +105,13 @@ internal class AmnesiaCurse : Curse
 
     public override void ApplyCurse()
     {
-        int cap = CurseManager.UseCaps ? Data.Cap : 9;
-        if (cap == Stacks)
+        if (Stacks == 9)
         {
-            if ((Data.Cap > 4 || !CurseManager.UseCaps) && (PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1
+            if ((PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1
                 || PlayerData.instance.GetInt(nameof(PlayerData.instance.screamLevel)) > 1
                 || PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1))
             {
-                List<string> availableSpells = new();
+                List<string> availableSpells = [];
                 if (PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1)
                     availableSpells.Add("fireballLevel");
                 if (PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1)
@@ -139,9 +139,9 @@ internal class AmnesiaCurse : Curse
         else
         {
             List<string> availableSpells = new();
-            if ((Data.Cap > 4 || !CurseManager.UseCaps) && (PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1
+            if (PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1
                 || PlayerData.instance.GetInt(nameof(PlayerData.instance.screamLevel)) > 1
-                || PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1))
+                || PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1)
             {
                 if (PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1)
                     availableSpells.Add("fireballLevel");
@@ -174,13 +174,11 @@ internal class AmnesiaCurse : Curse
     public override bool CanApplyCurse()
     {
         // Upgrades can only be taken if cap is above 4.
-        if ((Data.Cap > 4 || !CurseManager.UseCaps) && (PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1
+        if (PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1
             || PlayerData.instance.GetInt(nameof(PlayerData.instance.screamLevel)) > 1
-            || PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1))
+            || PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1)
             return true;
-
-        int cap = CurseManager.UseCaps ? Data.Cap : 9;
-        return Stacks < cap;
+        return Stacks < 9;
     }
 
     public override int SetCap(int value) => Math.Max(1, Math.Min(value, 9)); 

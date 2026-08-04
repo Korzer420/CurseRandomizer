@@ -227,10 +227,7 @@ internal static class RandoManager
             addition++;
 
         foreach (Curse curse in _availableCurses)
-        {
             addition += 120 * (int)curse.Type;
-            addition += 5 * curse.Cap;
-        }
         addition += (int)CurseManager.DefaultCurse.Type * 420;
         addition += (CurseManager.GetCurses().Select(x => x.Name).IndexOf(CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse) + 1) * 777;
 
@@ -555,7 +552,6 @@ internal static class RandoManager
                 if (curse.Type != CurseType.Custom || CurseRandomizer.Instance.Settings.CurseControlSettings.CustomCurses)
                 {
                     curse.Data.Active = settings.Active;
-                    curse.Data.Cap = settings.Cap;
                     if (settings.Active)
                         _availableCurses.Add(curse);
                 }

@@ -13,12 +13,7 @@ internal class PainCurse : Curse
 
     #region Control
 
-    public override bool CanApplyCurse()
-    {
-        if (UseCap)
-            return PlayerData.instance.GetInt(nameof(PlayerData.instance.health)) > Cap;
-        return true;
-    }
+    public override bool CanApplyCurse() => true;
 
     public override void ApplyCurse() => DoDamage(1);
 
