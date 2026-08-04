@@ -1,9 +1,6 @@
 ﻿using ItemChanger.FsmStateActions;
 using KorzUtils.Helper;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace CurseRandomizer.Curses;
@@ -33,7 +30,7 @@ internal class AmnesiaCurse : Curse
                 Data.AdditionalData = 0;
             return Convert.ToInt32(Data.AdditionalData);
         }
-        set => Data.AdditionalData = value;   
+        set => Data.AdditionalData = value;
     }
 
     #endregion
@@ -45,7 +42,7 @@ internal class AmnesiaCurse : Curse
         if (self.IsCorrectContext("Fireball Control", null, "Init") && Stacks > 0)
             self.Fsm.GameObject.LocateMyFSM("damages_enemy").FsmVariables.FindFsmInt("damageDealt").Value =
                Convert.ToInt16(Math.Round(self.Fsm.GameObject
-               .LocateMyFSM("damages_enemy").FsmVariables.FindFsmInt("damageDealt").Value * (1 - Stacks * 0.1f), 0, MidpointRounding.AwayFromZero));
+               .LocateMyFSM("damages_enemy").FsmVariables.FindFsmInt("damageDealt").Value * (1 - Stacks * 0.05f), 0, MidpointRounding.AwayFromZero));
         orig(self);
     }
 
@@ -57,15 +54,15 @@ internal class AmnesiaCurse : Curse
             self.AddState(new HutongGames.PlayMaker.FsmState(self.Fsm)
             {
                 Name = "Amnesia Penalty",
-                Actions = new HutongGames.PlayMaker.FsmStateAction[]
-                {
+                Actions =
+                [
                     new Lambda(() =>
                     {
                         self.gameObject.LocateMyFSM("damages_enemy").FsmVariables.FindFsmInt("damageDealt").Value =
-                        Convert.ToInt32(Math.Round(self.gameObject.LocateMyFSM("damages_enemy").FsmVariables.FindFsmInt("damageDealt").Value * (1 - (Stacks * 0.1f))
+                        Convert.ToInt32(Math.Round(self.gameObject.LocateMyFSM("damages_enemy").FsmVariables.FindFsmInt("damageDealt").Value * (1 - (Stacks * 0.05f))
                         , MidpointRounding.AwayFromZero));
                     })
-                }
+                ]
             });
             self.GetState("Set Damage").AdjustTransition("FINISHED", "Amnesia Penalty");
             self.GetState("Amnesia Penalty").AddTransition("FINISHED", "Finished");
@@ -100,88 +97,11 @@ internal class AmnesiaCurse : Curse
         On.HutongGames.PlayMaker.Actions.FloatCompare.OnEnter -= FloatCompare_OnEnter;
         On.PlayMakerFSM.OnEnable -= PlayMakerFSM_OnEnable;
         On.HutongGames.PlayMaker.Actions.FlingObjectsFromGlobalPool.OnEnter += FlingObjectsFromGlobalPool_OnEnter;
-
     }
 
-    public override void ApplyCurse()
-    {
-        if (Stacks == 9)
-        {
-            if ((PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1
-                || PlayerData.instance.GetInt(nameof(PlayerData.instance.screamLevel)) > 1
-                || PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1))
-            {
-                List<string> availableSpells = [];
-                if (PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1)
-                    availableSpells.Add("fireballLevel");
-                if (PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1)
-                    availableSpells.Add("quakeLevel");
-                if (PlayerData.instance.GetInt(nameof(PlayerData.instance.screamLevel)) > 1)
-                    availableSpells.Add("screamLevel");
+    public override void ApplyCurse() => Stacks = Math.Min(18, Stacks + 1 + DespairCurse.CastedDespair);
 
-                if (!availableSpells.Any())
-                    CurseRandomizer.Instance.LogError("Couldn't find a spell to downgrade. This curse shouldn't be allowed to be casted. Report this to the mod developer please.");
-                else
-                {
-                    int selected = UnityEngine.Random.Range(0, availableSpells.Count);
-                    PlayerData.instance.DecrementInt(availableSpells[selected]);
-                    if (availableSpells[selected] == "fireballLevel")
-                        GameHelper.DisplayMessage("FOOL! (Your shade soul vanished)");
-                    else if (availableSpells[selected] == "quakeLevel")
-                        GameHelper.DisplayMessage("FOOL! (Your descending dark vanished)");
-                    else
-                        GameHelper.DisplayMessage("FOOL! (Your abyss shriek vanished)");
-                }
-            }
-            else
-                CurseRandomizer.Instance.LogError("Couldn't find a spell to downgrade. This curse shouldn't be allowed to be casted. Report this to the mod developer please.");
-        }
-        else
-        {
-            List<string> availableSpells = new();
-            if (PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1
-                || PlayerData.instance.GetInt(nameof(PlayerData.instance.screamLevel)) > 1
-                || PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1)
-            {
-                if (PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1)
-                    availableSpells.Add("fireballLevel");
-                if (PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1)
-                    availableSpells.Add("quakeLevel");
-                if (PlayerData.instance.GetInt(nameof(PlayerData.instance.screamLevel)) > 1)
-                    availableSpells.Add("screamLevel");
-            }
-
-            // 20% chance for a spell upgrade to be taken.
-            if (availableSpells.Any() && UnityEngine.Random.Range(0, 5) == 0)
-            {
-                int selected = UnityEngine.Random.Range(0, availableSpells.Count);
-                PlayerData.instance.DecrementInt(availableSpells[selected]);
-                if (availableSpells[selected] == "fireballLevel")
-                    GameHelper.DisplayMessage("FOOL! (Your shade soul vanished)");
-                else if (availableSpells[selected] == "quakeLevel")
-                    GameHelper.DisplayMessage("FOOL! (Your descending dark vanished)");
-                else
-                    GameHelper.DisplayMessage("FOOL! (Your abyss shriek vanished)");
-            }
-            else
-            {
-                Stacks++;
-                GameHelper.DisplayMessage("FOOL! (Your spells got weaker)");
-            }
-        }
-    }
-
-    public override bool CanApplyCurse()
-    {
-        // Upgrades can only be taken if cap is above 4.
-        if (PlayerData.instance.GetInt(nameof(PlayerData.instance.quakeLevel)) > 1
-            || PlayerData.instance.GetInt(nameof(PlayerData.instance.screamLevel)) > 1
-            || PlayerData.instance.GetInt(nameof(PlayerData.instance.fireballLevel)) > 1)
-            return true;
-        return Stacks < 9;
-    }
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 9)); 
+    public override bool CanApplyCurse() => Stacks < 18;
 
     #endregion
 }

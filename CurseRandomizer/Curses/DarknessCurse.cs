@@ -49,7 +49,7 @@ internal class DarknessCurse : TemporaryCurse
         if (self.IsCorrectContext("Darkness Control", "Vignette", null) && !PassedScenes.Contains("Inactive"))
         {
             Vector3 normalScale = new(self.x.Value, self.y.Value);
-            float darknessFactor = 1 - ((Math.Min(5, Data.CastedAmount) + 1) * 0.15f);
+            float darknessFactor = 1 - ((Math.Min(5, 1 + DespairCurse.CastedDespair) + 1) * 0.15f);
             self.vector3Variable.Value = new(Math.Max(0.4f, normalScale.x * darknessFactor), Math.Max(0.4f, normalScale.y * darknessFactor), Math.Max(0.4f, normalScale.z * darknessFactor));
         }
     }
@@ -71,8 +71,7 @@ internal class DarknessCurse : TemporaryCurse
             if ((int)gate.Value < 4 && (int)_enteredTransition < 4 && gate.Value != _enteredTransition
                 && !PassedScenes.Contains(_currentScene))
             {
-                if (!DespairCurse.DespairActive)
-                    PassedScenes.Add(_currentScene);
+                PassedScenes.Add(_currentScene);
                 UpdateProgression();
             }
             switch (gate.Value)
@@ -139,8 +138,6 @@ internal class DarknessCurse : TemporaryCurse
         base.ApplyCurse();
         HeroController.instance.vignetteFSM.SendEvent("SCENE RESET");
     }
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 5));
 
     public override void ResetAdditionalData()
     {

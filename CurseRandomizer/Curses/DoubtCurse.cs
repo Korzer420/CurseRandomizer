@@ -12,7 +12,7 @@ internal class DoubtCurse : Curse
     public override void ApplyCurse()
     {
         int totalCost = 0;
-        List<int> availableCharms = new();
+        List<int> availableCharms = [];
         for (int i = 1; i < 41; i++)
         {
             if (i == 36)
@@ -33,6 +33,9 @@ internal class DoubtCurse : Curse
             totalCost += 2;
         else
             totalCost++;
+
+        // Add despair penalty
+        totalCost += DespairCurse.CastedDespair * 2;
 
         // Unequip all charms
         PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).RemoveAll(x => x != 36);
@@ -98,6 +101,4 @@ internal class DoubtCurse : Curse
         }
         return totalCost < charmAmount * 6;
     }
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 40));
 }

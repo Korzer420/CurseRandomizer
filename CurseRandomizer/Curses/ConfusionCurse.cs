@@ -80,20 +80,9 @@ internal class ConfusionCurse : TemporaryCurse
         orig(self, attackDirection, attackType, ignoreEvasion);
         if (IsActive() && self.gameObject.GetComponent<ConfusionViable>() != null)
         {
-            if (!DespairCurse.DespairActive)
-                CurrentAmount++;
+            CurrentAmount++;
             UpdateProgression();
         }
-    }
-
-    private int ModHooks_AfterTakeDamageHook(int hazardType, int damageAmount)
-    {
-        if (damageAmount > 0 && IsActive() && UnityEngine.Random.Range(0, 20) == 0)
-        {
-            GameHelper.DisplayMessage("???");
-            SetBindings(false);
-        }
-        return damageAmount;
     }
 
     #endregion
@@ -107,19 +96,25 @@ internal class ConfusionCurse : TemporaryCurse
         On.InputHandler.ResetDefaultKeyBindings += InputHandler_ResetDefaultKeyBindings;
         On.InputHandler.ResetDefaultControllerButtonBindings += InputHandler_ResetDefaultControllerButtonBindings;
         On.InputHandler.ResetAllControllerButtonBindings += InputHandler_ResetAllControllerButtonBindings;
-        ModHooks.AfterTakeDamageHook += ModHooks_AfterTakeDamageHook;
         On.HealthManager.OnEnable += HealthManager_OnEnable;
         On.HealthManager.Die += HealthManager_Die;
 
+        InputHandler.Instance.inputActions.attack = _actions[0];
+        InputHandler.Instance.inputActions.cast = _actions[1];
+        InputHandler.Instance.inputActions.dash = _actions[2];
+        InputHandler.Instance.inputActions.jump = _actions[3];
+        InputHandler.Instance.inputActions.quickCast = _actions[4];
+        InputHandler.Instance.inputActions.dreamNail = _actions[5];
+        InputHandler.Instance.inputActions.superDash = _actions[6];
+
         _actions[0] = InputHandler.Instance.inputActions.attack;
         _actions[1] = InputHandler.Instance.inputActions.cast;
-        _actions[2] = InputHandler.Instance.inputActions.quickCast;
-        _actions[3] = InputHandler.Instance.inputActions.dreamNail;
-        _actions[4] = InputHandler.Instance.inputActions.openInventory;
-        _actions[5] = InputHandler.Instance.inputActions.quickMap;
+        _actions[2] = InputHandler.Instance.inputActions.dash;
+        _actions[3] = InputHandler.Instance.inputActions.jump;
+        _actions[4] = InputHandler.Instance.inputActions.quickCast;
+        _actions[5] = InputHandler.Instance.inputActions.dreamNail;
         _actions[6] = InputHandler.Instance.inputActions.superDash;
-        _actions[7] = InputHandler.Instance.inputActions.jump;
-        _actions[8] = InputHandler.Instance.inputActions.dash;
+
         if (CurrentAmount != -1)
             SetBindings(false);
         base.ApplyHooks();
@@ -132,7 +127,6 @@ internal class ConfusionCurse : TemporaryCurse
         On.InputHandler.ResetDefaultKeyBindings -= InputHandler_ResetDefaultKeyBindings;
         On.InputHandler.ResetDefaultControllerButtonBindings -= InputHandler_ResetDefaultControllerButtonBindings;
         On.InputHandler.ResetAllControllerButtonBindings -= InputHandler_ResetAllControllerButtonBindings;
-        ModHooks.AfterTakeDamageHook -= ModHooks_AfterTakeDamageHook;
         On.HealthManager.OnEnable -= HealthManager_OnEnable;
         On.HealthManager.Die -= HealthManager_Die;
 
@@ -147,8 +141,6 @@ internal class ConfusionCurse : TemporaryCurse
         SetBindings(false);
         base.ApplyCurse();
     }
-
-    public override int SetCap(int value) => Math.Max(5, Math.Min(40, value));
 
     public override void ResetAdditionalData() => CurrentAmount = -1;
 
@@ -182,52 +174,47 @@ internal class ConfusionCurse : TemporaryCurse
         {
             InputHandler.Instance.inputActions.attack = _actions[0];
             InputHandler.Instance.inputActions.cast = _actions[1];
-            InputHandler.Instance.inputActions.quickCast = _actions[2];
-            InputHandler.Instance.inputActions.dreamNail = _actions[3];
-            InputHandler.Instance.inputActions.openInventory = _actions[4];
-            InputHandler.Instance.inputActions.quickMap = _actions[5];
+            InputHandler.Instance.inputActions.dash = _actions[2];
+            InputHandler.Instance.inputActions.jump = _actions[3];
+            InputHandler.Instance.inputActions.quickCast = _actions[4];
+            InputHandler.Instance.inputActions.dreamNail = _actions[5];
             InputHandler.Instance.inputActions.superDash = _actions[6];
-            InputHandler.Instance.inputActions.jump = _actions[7];
-            InputHandler.Instance.inputActions.dash = _actions[8];
         }
         else
         {
-            List<PlayerAction> viableActions = _actions.ToList();
-            PlayerAction selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
-            InputHandler.Instance.inputActions.attack = selectedAction;
-            viableActions.Remove(selectedAction);
+            int affectedAmount = 4 + DespairCurse.CastedDespair;
+            List<PlayerAction> viableActions = [.. _actions.Take(affectedAmount)];
 
-            selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
-            InputHandler.Instance.inputActions.cast = selectedAction;
-            viableActions.Remove(selectedAction);
-
-            selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
-            InputHandler.Instance.inputActions.quickCast = selectedAction;
-            viableActions.Remove(selectedAction);
-
-            selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
-            InputHandler.Instance.inputActions.dreamNail = selectedAction;
-            viableActions.Remove(selectedAction);
-
-            selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
-            InputHandler.Instance.inputActions.openInventory = selectedAction;
-            viableActions.Remove(selectedAction);
-
-            selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
-            InputHandler.Instance.inputActions.quickMap = selectedAction;
-            viableActions.Remove(selectedAction);
-
-            selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
-            InputHandler.Instance.inputActions.superDash = selectedAction;
-            viableActions.Remove(selectedAction);
-
-            selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
-            InputHandler.Instance.inputActions.jump = selectedAction;
-            viableActions.Remove(selectedAction);
-
-            selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
-            InputHandler.Instance.inputActions.dash = selectedAction;
-            viableActions.Remove(selectedAction);
+            for (int i = 0; i < affectedAmount; i++)
+            {
+                PlayerAction selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
+                switch (i)
+                {
+                    case 0:
+                        InputHandler.Instance.inputActions.attack = selectedAction;
+                        break;
+                    case 1:
+                        InputHandler.Instance.inputActions.cast = selectedAction;
+                        break;
+                    case 2:
+                        InputHandler.Instance.inputActions.dash = selectedAction;
+                        break;
+                    case 3:
+                        InputHandler.Instance.inputActions.jump = selectedAction;
+                        break;
+                    case 4:
+                        InputHandler.Instance.inputActions.quickCast = selectedAction;
+                        break;
+                    case 5:
+                        InputHandler.Instance.inputActions.dreamNail = selectedAction;
+                        break;
+                    case 6:
+                    default:
+                        InputHandler.Instance.inputActions.superDash = selectedAction;
+                        break;
+                }
+                viableActions.Remove(selectedAction);
+            }
         }
     }
 

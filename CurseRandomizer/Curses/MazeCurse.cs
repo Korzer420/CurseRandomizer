@@ -53,9 +53,9 @@ internal class MazeCurse : TemporaryCurse
         if (CurrentAmount != -1 && !string.IsNullOrEmpty(info.EntryGateName)
             && (info.EntryGateName.StartsWith("left") || info.EntryGateName.StartsWith("right")
             || info.EntryGateName.StartsWith("top") || info.EntryGateName.StartsWith("bot"))
-            && KnownScenes.Count > 3 && UnityEngine.Random.Range(0, 100) <= 7)
+            && KnownScenes.Count > 3 && UnityEngine.Random.Range(0, 100) <= Math.Min(17, 7 + DespairCurse.CastedDespair))
         {
-            List<string> viableScenes = KnownScenes.Select(x => x.Key).Where(x => x != "Counter" && x != info.SceneName).ToList();
+            List<string> viableScenes = [.. KnownScenes.Select(x => x.Key).Where(x => x != "Counter" && x != info.SceneName)];
             if (viableScenes.Any())
             {
                 info.SceneName = viableScenes[UnityEngine.Random.Range(0, viableScenes.Count)];
@@ -85,8 +85,7 @@ internal class MazeCurse : TemporaryCurse
     {
         if (CurrentAmount != -1 && args != null && ((args.OriginalState == ObtainState.Unobtained && args.Placement is not IMultiCostPlacement) || args.Item?.name == "Generosity"))
         {
-            if (!DespairCurse.DespairActive)
-                CurrentAmount++;
+            CurrentAmount++;
             UpdateProgression();
         }
     }
@@ -126,8 +125,6 @@ internal class MazeCurse : TemporaryCurse
             KnownScenes["Counter"] = "0";
         base.ApplyCurse();
     }
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(10, value));
 
     protected override bool IsActive() => CurrentAmount != -1;
 

@@ -3,7 +3,6 @@ using HutongGames.PlayMaker;
 using ItemChanger;
 using ItemChanger.FsmStateActions;
 using ItemChanger.UIDefs;
-using KorzUtils.Data;
 using KorzUtils.Helper;
 using Modding;
 using MonoMod.Cil;
@@ -49,8 +48,6 @@ internal class UnknownCurse : Curse
             return Data.AdditionalData as List<AffectedVisual>;
         }
     }
-
-    public static bool AreCursesHidden => CurseManager.GetCurse<UnknownCurse>().Affected.Contains(AffectedVisual.Items);
 
     #endregion
 
@@ -389,22 +386,9 @@ internal class UnknownCurse : Curse
                 GameObject.DontDestroyOnLoad(_maskCover);
             }
         }
-        else if (chosen == AffectedVisual.Items)
-        {
-            foreach (AbstractPlacement placement in ItemChanger.Internal.Ref.Settings.Placements.Values)
-                foreach (AbstractItem item in placement.Items)
-                    if (item.GetResolvedUIDef() is MsgUIDef msgUIDef)
-                    {
-                        msgUIDef.name = new BoxedString("???");
-                        msgUIDef.shopDesc = new BoxedString("You'll need this ???, otherwise you can't continue your journey. Although ??? might be a good substitution. \n<i>You don't know some of these words.</i>");
-                        msgUIDef.sprite = new CustomSprite("Fool");
-                    }
-        }
     }
 
     public override bool CanApplyCurse() => Data.CastedAmount < 5;
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 5));
 
     public override void ResetAdditionalData() => Affected.Clear();
 

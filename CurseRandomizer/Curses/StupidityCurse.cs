@@ -1,14 +1,18 @@
-﻿using KorzUtils.Helper;
-using CurseRandomizer.Manager;
-using System;
-using UnityEngine;
-using CurseRandomizer.Modules;
+﻿using CurseRandomizer.Modules;
 using ItemChanger;
+using KorzUtils.Helper;
+using UnityEngine;
 
 namespace CurseRandomizer.Curses;
 
 internal class StupidityCurse : Curse
 {
+    #region Properties
+
+    public static int SpellCost => 33 + CurseManager.GetCurse<StupidityCurse>().Data.CastedAmount * (3 + DespairCurse.CastedDespair);
+
+    #endregion
+
     #region Event handler
 
     private void SendMessage_OnEnter(On.HutongGames.PlayMaker.Actions.SendMessage.orig_OnEnter orig, HutongGames.PlayMaker.Actions.SendMessage self)
@@ -68,13 +72,11 @@ internal class StupidityCurse : Curse
         if (vesselModule.SoulVessel == 0)
             return false;
         else if (vesselModule.SoulVessel == 1)
-            cap = Mathf.Min(cap, 66);
-        return 33 + Data.CastedAmount * 3 < cap;
+            cap = 66;
+        return SpellCost + (3 + DespairCurse.CastedDespair) <= cap;
     }
 
     public override void ApplyCurse() { }
-
-    public override int SetCap(int value) => Math.Max(36, Math.Min(value, 99)); 
 
     #endregion
 }

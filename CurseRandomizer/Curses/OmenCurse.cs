@@ -48,7 +48,7 @@ internal class OmenCurse : TemporaryCurse
     {
         if (damageAmount > 0 && damageAmount < 420 && !KilledEnemies.Contains("Inactive"))
         {
-            List<Curse> availableCurses = CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Permanent && x.CanApplyCurse() && x.Data.Active).ToList();
+            List<Curse> availableCurses = [.. CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Permanent && x.CanApplyCurse() && x.Data.Active)];
             if (!availableCurses.Any())
                 damageAmount = 999;
             else
@@ -75,8 +75,7 @@ internal class OmenCurse : TemporaryCurse
     {
         if (!KilledEnemies.Contains("Inactive") && !KilledEnemies.Contains(playerDataName) && !OmenMode)
         {
-            if (!DespairCurse.DespairActive)
-                KilledEnemies.Add(playerDataName);
+            KilledEnemies.Add(playerDataName);
             UpdateProgression();
         }
     }
@@ -112,9 +111,6 @@ internal class OmenCurse : TemporaryCurse
             KilledEnemies.RemoveAll(x => x == "Inactive");
         UpdateProgression();
     }
-
-    public override int SetCap(int value)
-    => Math.Max(5, Math.Min(value, 50));
 
     public override void ResetAdditionalData() => Data.AdditionalData = new List<string>() { "Inactive" };
 

@@ -1,8 +1,7 @@
 ﻿using CurseRandomizer.Enums;
-using HutongGames.PlayMaker;
 using KorzUtils.Helper;
-using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace CurseRandomizer.Curses;
 
@@ -38,68 +37,66 @@ internal class LostCurse : Curse
         On.HutongGames.PlayMaker.Actions.GetPlayerDataInt.OnEnter -= GetPlayerDataInt_OnEnter;
     }
 
-    public override bool CanApplyCurse()
-    {
-        int spellCost = 33 + CurseManager.GetCurse<StupidityCurse>().Data.CastedAmount * 3;
-        int maxMp = PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) + PlayerData.instance.GetInt(nameof(PlayerData.instance.maxMP));
-        return PlayerData.instance.GetInt("charmSlots") > 1 || maxMp / spellCost > 1
-            || PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > 1;
-    }
+    public override bool CanApplyCurse() => PDHelper.CharmSlots > 1 
+        || (PDHelper.MPReserveMax + PDHelper.MaxMP) / StupidityCurse.SpellCost > 1 || PDHelper.MaxHealthBase > 1;
 
     public override void ApplyCurse()
     {
         List<string> viableSlots = [];
+        
 
-        if (PlayerData.instance.GetInt("charmSlots") > 1)
-            viableSlots.Add("charmSlots");
-        if (PlayerData.instance.GetInt(nameof(PlayerData.instance.maxHealthBase)) > 1)
-            viableSlots.Add("masks");
-        int spellCost = 33 + CurseManager.GetCurse<StupidityCurse>().Data.CastedAmount * 3;
-        int maxMp = PlayerData.instance.GetInt(nameof(PlayerData.instance.MPReserveMax)) + PlayerData.instance.GetInt(nameof(PlayerData.instance.maxMP));
-        if (maxMp / spellCost > 1)
-            viableSlots.Add("vessels");
-        string rolledConsumable = null;
-
-        if (rolledConsumable == "charmSlots")
+        for (int i = 0; i < 1 + DespairCurse.CastedDespair / 2; i++)
         {
-            PlayerData.instance.DecrementInt(nameof(PlayerData.charmSlots));
-            // Unequip all charms
-            PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).RemoveAll(x =>
+            viableSlots.Clear();
+            if (PDHelper.CharmSlots > 1)
+                viableSlots.Add("charmSlots");
+            if (PDHelper.MaxHealthBase > 1)
+                viableSlots.Add("masks");
+            int maxMp = PDHelper.MPReserveMax + PDHelper.MaxMP;
+            if (maxMp / StupidityCurse.SpellCost > 1)
+                viableSlots.Add("vessels");
+            if (viableSlots.Count == 0)
+                break;
+            int rolledConsumable = Random.Range(0, 3);
+            if (rolledConsumable == 0)
             {
-                if (x == 36)
-                    return false;
-                PlayerData.instance.SetBool("equippedCharm_" + x, false);
-                return true;
-            });
-            HeroController.instance.CharmUpdate();
-            PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
-            GameHelper.DisplayMessage("FOOL! (You lost a charm notch)");
-        }
-        else
-        {
-            if (rolledConsumable == "masks")
-            {
-                HeroController.instance.AddToMaxHealth(-1);
-                GameHelper.DisplayMessage("FOOL! (You lost a mask)");
+                PlayerData.instance.DecrementInt(nameof(PlayerData.charmSlots));
+                // Unequip all charms
+                PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).RemoveAll(x =>
+                {
+                    if (x == 36)
+                        return false;
+                    PlayerData.instance.SetBool("equippedCharm_" + x, false);
+                    return true;
+                });
+                HeroController.instance.CharmUpdate();
+                PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
+                GameHelper.DisplayMessage("FOOL! (You lost a charm notch)");
             }
             else
             {
-                HeroController.instance.AddToMaxMPReserve(-1);
-                GameHelper.DisplayMessage("FOOL! (You lost a vessel)");
-            }
+                if (rolledConsumable == 1)
+                {
+                    HeroController.instance.AddToMaxHealth(-1);
+                    GameHelper.DisplayMessage("FOOL! (You lost a mask)");
+                }
+                else
+                {
+                    HeroController.instance.AddToMaxMPReserve(-1);
+                    GameHelper.DisplayMessage("FOOL! (You lost a vessel)");
+                }
 
-            // To force the UI to update to amount of masks.
-            if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
-                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
-            else
-            {
-                GameCameras.instance.hudCanvas.gameObject.SetActive(false);
-                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+                // To force the UI to update to amount of masks.
+                if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
+                    GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+                else
+                {
+                    GameCameras.instance.hudCanvas.gameObject.SetActive(false);
+                    GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+                }
             }
         }
     }
-
-    public override int SetCap(int value) => Math.Max(0, Math.Min(value, 11)); 
 
     #endregion
 }

@@ -86,7 +86,7 @@ internal class NormalityCurse : Curse
 
     public override void ApplyCurse()
     {
-        List<int> availableCharms = new();
+        List<int> availableCharms = [];
         for (int i = 1; i < 41; i++)
         {
             // Skip quest charms
@@ -95,23 +95,25 @@ internal class NormalityCurse : Curse
             if (PlayerData.instance.GetBool($"gotCharm_{i}"))
                 availableCharms.Add(i);
         }
-        availableCharms = availableCharms.Except(DisabledCharmId).ToList();
+        availableCharms = [.. availableCharms.Except(DisabledCharmId)];
 
-        int rolledCharm = availableCharms[UnityEngine.Random.Range(0, availableCharms.Count())];
-        DisabledCharmId.Add(rolledCharm);
-        if (PlayerData.instance.GetBool("equippedCharm_" + rolledCharm))
+        for (int i = 0; i < 1 + DespairCurse.CastedDespair / 2; i++)
         {
-            PlayerData.instance.SetBool("equippedCharm_" + rolledCharm, false);
-            PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).Remove(rolledCharm);
-            HeroController.instance.CharmUpdate();
-            PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
+            int rolledCharm = availableCharms[UnityEngine.Random.Range(0, availableCharms.Count())];
+            DisabledCharmId.Add(rolledCharm);
+            if (PlayerData.instance.GetBool("equippedCharm_" + rolledCharm))
+            {
+                PlayerData.instance.SetBool("equippedCharm_" + rolledCharm, false);
+                PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).Remove(rolledCharm);
+                HeroController.instance.CharmUpdate();
+                PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
+            }
+            GameHelper.DisplayMessage("FOOL! (Your " + (Regex.Replace(((CharmRef)rolledCharm).ToString(), "([a-z])([A-Z])", "$1 $2")) + " lost its power.)");
+            availableCharms.Remove(rolledCharm);
         }
-        GameHelper.DisplayMessage("FOOL! (Your " + (Regex.Replace(((CharmRef)rolledCharm).ToString(), "([a-z])([A-Z])", "$1 $2"))+ " lost its power.)");
     }
 
     public override void ResetAdditionalData() => DisabledCharmId.Clear();
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 30)); 
 
     #endregion
 }

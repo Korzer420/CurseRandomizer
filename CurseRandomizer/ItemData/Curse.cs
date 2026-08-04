@@ -89,13 +89,6 @@ public abstract class Curse
     public virtual void ResetAdditionalData() { }
 
     /// <summary>
-    /// Is called, when the cap value of the curse changes in the menu. Use this to establish the boundary of your cap.
-    /// </summary>
-    /// <param name="value">The value the player has entered.</param>
-    /// <returns>The value the cap should actually be set to.</returns>
-    public abstract int SetCap(int value);
-
-    /// <summary>
     /// Add needed hooks for your curse to work.
     /// <para>Is called, when the player entered a save file</para>
     /// </summary>

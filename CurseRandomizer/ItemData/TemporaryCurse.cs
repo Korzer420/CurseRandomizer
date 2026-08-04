@@ -35,10 +35,10 @@ internal abstract class TemporaryCurse : Curse
 
     public static float Scale { get; set; } = 1f;
 
-    public static GameObject TrackerContainer 
+    public static GameObject TrackerContainer
     {
-        get 
-        { 
+        get
+        {
             if (_trackerContainer == null)
             {
                 GameObject hudCanvas = GameObject.Find("_GameCameras").transform.Find("HudCamera/Hud Canvas").gameObject;
@@ -107,7 +107,7 @@ internal abstract class TemporaryCurse : Curse
     {
         On.DisplayItemAmount.OnEnable += DisplayItemAmount_OnEnable;
         CurseManager.Handler.StartCoroutine(Wait());
-        
+
     }
 
     public override void Unhook()
@@ -132,11 +132,8 @@ internal abstract class TemporaryCurse : Curse
         {
             RepositionTracker();
             TextMeshPro currentCounter = _tracker.GetComponent<DisplayItemAmount>().textObject;
-            if (DespairCurse.DespairActive && Type != CurseType.Despair)
-                currentCounter.text = $"<color={TextColor}>{CurrentAmount}/{NeededAmount}</color>";
-            else
-                currentCounter.text = $"{CurrentAmount}/{NeededAmount}";
-            if (CurrentAmount >= NeededAmount && !DespairCurse.DespairActive)
+            currentCounter.text = $"{CurrentAmount}/{NeededAmount}";
+            if (CurrentAmount >= NeededAmount)
                 LiftCurse();
         }
     }

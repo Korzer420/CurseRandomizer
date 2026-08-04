@@ -172,7 +172,7 @@ internal class RandomizerMenu
             CurseSettings settings = CurseRandomizer.Instance.Settings.CurseSettings.FirstOrDefault(x => x == curse);
             if (settings == null)
             {
-                settings = new() { Name = curse.Name, Cap = curse.SetCap(1) };
+                settings = new() { Name = curse.Name };
                 CurseRandomizer.Instance.Settings.CurseSettings.Add(settings);
             }
 
@@ -192,15 +192,13 @@ internal class RandomizerMenu
             curseEnable.Bind(settings, ReflectionHelper.GetPropertyInfo(typeof(CurseSettings), "Active"));
             _curseSettings.Add(curse.Name, new(_cursePage, new(0f, 0f), 100, false, [curseEnable]));
         }
-        new GridItemPanel(_cursePage, new(0f, 400f), 5, 150, 400, true, _curseSettings
+        new GridItemPanel(_cursePage, new(0f, 400f), 5, 150, 400, true, [.. _curseSettings
             .Where(x => CurseManager.GetCurseByName(x.Key).Type != CurseType.Custom)
-            .Select(x => x.Value)
-            .ToArray());
+            .Select(x => x.Value)]);
 
-        GridItemPanel customCursePanel = new(_cursePage, new(0f, -200f), 5, 200, 400, false, _curseSettings
+        GridItemPanel customCursePanel = new(_cursePage, new(0f, -200f), 5, 200, 400, false, [.. _curseSettings
             .Where(x => CurseManager.GetCurseByName(x.Key).Type == CurseType.Custom)
-            .Select(x => x.Value)
-            .ToArray());
+            .Select(x => x.Value)]);
 
         if (!customCursePanel.Items.Any())
         {
@@ -257,10 +255,7 @@ internal class RandomizerMenu
 
             foreach (CurseSettings curseSettings in settings.CurseSettings)
                 if (_curseSettings.ContainsKey(curseSettings.Name))
-                {
                     (_curseSettings[curseSettings.Name].Items[0] as ToggleButton).SetValue(curseSettings.Active);
-                    (_curseSettings[curseSettings.Name].Items[1] as EntryField<int>).SetValue(curseSettings.Cap);
-                }
 
             (_additionalElements[0] as MenuItem<string>).SetValue(settings.CurseControlSettings.DefaultCurse);
             (_additionalElements[1] as ToggleButton).SetValue(settings.CurseControlSettings.CustomCurses);

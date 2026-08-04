@@ -38,13 +38,13 @@ internal class SlothCurse : Curse
 
         if (cursor.TryGotoNext(MoveType.After,
             x => x.MatchLdfld<HeroController>("ATTACK_COOLDOWN_TIME_CH")))
-            cursor.EmitDelegate<Func<float, float>>(x => x + (Stacks[0] * 0.1f));
+            cursor.EmitDelegate<Func<float, float>>(x => x + (Stacks[0] * 0.05f));
         else
             CurseRandomizer.Instance.LogError("Couldn't find attack cooldown match");
 
         if (cursor.TryGotoNext(MoveType.After,
             x => x.MatchLdfld<HeroController>("ATTACK_COOLDOWN_TIME")))
-            cursor.EmitDelegate<Func<float, float>>(x => x + (Stacks[0] * 0.1f));
+            cursor.EmitDelegate<Func<float, float>>(x => x + (Stacks[0] * 0.05f));
     }
 
     private void HeroController_HeroDash(ILContext il)
@@ -54,13 +54,13 @@ internal class SlothCurse : Curse
 
         if (cursor.TryGotoNext(MoveType.After,
             x => x.MatchLdfld<HeroController>("DASH_COOLDOWN_CH")))
-            cursor.EmitDelegate<Func<float, float>>(x => x + Stacks[1] * 0.1f);
+            cursor.EmitDelegate<Func<float, float>>(x => x + Stacks[1] * 0.05f);
         else
             CurseRandomizer.Instance.LogError("Couldn't find dash cooldown ch logic");
 
         if (cursor.TryGotoNext(MoveType.After,
             x => x.MatchLdfld<HeroController>("DASH_COOLDOWN")))
-            cursor.EmitDelegate<Func<float, float>>(x => x + Stacks[1] * 0.1f);
+            cursor.EmitDelegate<Func<float, float>>(x => x + Stacks[1] * 0.05f);
         else
             CurseRandomizer.Instance.LogError("Couldn't find dash cooldown logic");
     }
@@ -69,10 +69,10 @@ internal class SlothCurse : Curse
     {
         orig(self);
         if (self.IsCorrectContext("Superdash", null, "On Ground?"))
-            HeroController.instance.superDash.FsmVariables.FindFsmFloat("Charge Time").Value += Stacks[2] * 0.15f;
+            HeroController.instance.superDash.FsmVariables.FindFsmFloat("Charge Time").Value += Stacks[2] * 0.075f;
         // This action does exist twice in the fsm state
         else if (self.IsCorrectContext("Superdash", null, "Regain Control"))
-            HeroController.instance.superDash.FsmVariables.FindFsmFloat("Charge Time").Value -= Stacks[2] * 0.0725f;
+            HeroController.instance.superDash.FsmVariables.FindFsmFloat("Charge Time").Value -= Stacks[2] * 0.03625f;
     }
 
     private void HeroController_CharmUpdate(On.HeroController.orig_CharmUpdate orig, HeroController self)
@@ -80,7 +80,7 @@ internal class SlothCurse : Curse
         orig(self);
         if (Stacks[3] > 0)
             ReflectionHelper.SetField<HeroController, float>(HeroController.instance,
-                "nailChargeTime", Stacks[3] * 0.15f + (CharmHelper.EquippedCharm(KorzUtils.Enums.CharmRef.NailmastersGlory)
+                "nailChargeTime", Stacks[3] * 0.075f + (CharmHelper.EquippedCharm(KorzUtils.Enums.CharmRef.NailmastersGlory)
                 ? HeroController.instance.NAIL_CHARGE_TIME_CHARM
                 : HeroController.instance.NAIL_CHARGE_TIME_DEFAULT));
     }
@@ -90,7 +90,7 @@ internal class SlothCurse : Curse
         orig(self);
         if (Stacks[3] > 0)
             ReflectionHelper.SetField<HeroController, float>(HeroController.instance,
-                "nailChargeTime", Stacks[3] * 0.15f + (CharmHelper.EquippedCharm(KorzUtils.Enums.CharmRef.NailmastersGlory)
+                "nailChargeTime", Stacks[3] * 0.075f + (CharmHelper.EquippedCharm(KorzUtils.Enums.CharmRef.NailmastersGlory)
                 ? HeroController.instance.NAIL_CHARGE_TIME_CHARM
                 : HeroController.instance.NAIL_CHARGE_TIME_DEFAULT));
     }
@@ -121,7 +121,7 @@ internal class SlothCurse : Curse
     public override void ApplyCurse() 
     {
         int selected = UnityEngine.Random.Range(0, 4);
-        Stacks[selected]++;
+        Stacks[selected] = Stacks[selected] + 1 + DespairCurse.CastedDespair;
         string message = selected switch
         {
             0 => "FOOL! (You slash slower)",
@@ -132,9 +132,7 @@ internal class SlothCurse : Curse
         GameHelper.DisplayMessage(message);
     }
 
-    public override bool CanApplyCurse() => Data.CastedAmount < 99;
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 99));
+    public override bool CanApplyCurse() => true;
 
     #endregion
 }

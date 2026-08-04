@@ -106,10 +106,24 @@ internal class EmptinessCurse : TemporaryCurse
         if (!EasyLift)
             enemyData.Clear();
         enemyData.Add("Dummy", 1);
+        // Despair sets the health lower as a penalty.
+        if (DespairCurse.CastedDespair > 0 && PDHelper.Health > 1)
+        {
+            int setHealth = Math.Max(1, PDHelper.Health - DespairCurse.CastedDespair);
+            PlayerData.instance.AddHealth(PDHelper.Health - (PDHelper.Health - setHealth));
+
+            // To force the UI to update to amount of masks.
+            if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
+                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+            else
+            {
+                GameCameras.instance.hudCanvas.gameObject.SetActive(false);
+                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+            }
+        }
+            
         base.ApplyCurse();
     }
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 8));
 
     protected override bool IsActive() => CurrentAmount >= 0;
 

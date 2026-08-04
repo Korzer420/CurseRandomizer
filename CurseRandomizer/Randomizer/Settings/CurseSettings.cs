@@ -18,11 +18,6 @@ public class CurseSettings
     public bool Active { get; set; }
 
     /// <summary>
-    /// Gets or sets the cap of the curse.
-    /// </summary>
-    public int Cap { get; set; }
-
-    /// <summary>
     /// Gets if the curse settings are related to the curse.
     /// </summary>
     /// <param name="settings"></param>

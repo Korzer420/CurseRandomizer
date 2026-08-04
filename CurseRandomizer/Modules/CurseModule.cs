@@ -84,12 +84,6 @@ public class CurseModule : Module
             yield return new WaitForSeconds(5f);
         // Display the FOOL text.
         GameHelper.DisplayMessage("FOOL!");
-        if (DespairCurse.DespairActive)
-        {
-            (CurseManager.GetCurse<DespairCurse>().Data.AdditionalData as DespairTracker).CurseDesperation++;
-            CurseManager.GetCurse<DespairCurse>().UpdateProgression();
-        }
-
         while (CurseQueue.Any())
         {
             // Pain will be stacked

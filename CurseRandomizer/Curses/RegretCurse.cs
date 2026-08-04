@@ -47,8 +47,7 @@ internal class RegretCurse : TemporaryCurse
         orig(self, amount);
         if (CurrentAmount != -1)
         {
-            if (!DespairCurse.DespairActive)
-                CurrentAmount += amount;
+            CurrentAmount += amount;
             UpdateProgression();
         }
     }
@@ -88,8 +87,6 @@ internal class RegretCurse : TemporaryCurse
         base.Unhook();
     }
 
-    public override int SetCap(int value) => Math.Max(1, Math.Min(10, value));
-
     public override void ResetAdditionalData() => Data.AdditionalData = -1;
 
     protected override bool IsActive() => CurrentAmount != -1;
@@ -119,8 +116,9 @@ internal class RegretCurse : TemporaryCurse
             KilledEnemies.Clear();
         }
 
-        if (KilledEnemies.Count == 20)
-            KilledEnemies.RemoveAt(19);
+        // Despair expands the enemy list.
+        if (KilledEnemies.Count == 20 + DespairCurse.CastedDespair * 4)
+            KilledEnemies.RemoveAt(19 + DespairCurse.CastedDespair * 4);
         KilledEnemies.Insert(0, enemyName);
     }
 

@@ -1,6 +1,6 @@
 ﻿using CurseRandomizer.Enums;
+using KorzUtils.Helper;
 using System;
-using UnityEngine;
 
 namespace CurseRandomizer.Curses;
 
@@ -8,13 +8,11 @@ internal class GreedCurse : Curse
 {
     public override CurseTag Tag => CurseTag.Instant;
 
-    public override bool CanApplyCurse() => PlayerData.instance.GetInt("geo") > 1;
+    public override bool CanApplyCurse() => PDHelper.Geo > 1;
 
     public override void ApplyCurse()
     {
-        int geoToTake = PlayerData.instance.GetInt("geo") / 2;
+        int geoToTake = (int)Math.Round(PDHelper.Geo * (0.3f + (Math.Min(0.7f, DespairCurse.CastedDespair * 0.1f))));
         HeroController.instance.TakeGeo(geoToTake);
     }
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 5000));
 }
