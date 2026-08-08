@@ -88,7 +88,7 @@ internal class UnknownCurse : Curse
     private void FsmState_OnEnter(On.HutongGames.PlayMaker.FsmState.orig_OnEnter orig, HutongGames.PlayMaker.FsmState self)
     {
         orig(self);
-        if (self.Fsm.Name == "Update Vessels" && self.Name == "Idle" && Affected.Contains(AffectedVisual.Soul))
+        if (self.Fsm.Name == "Update Vessels" && self?.Name == "Idle" && Affected.Contains(AffectedVisual.Soul))
             self.ClearTransitions();
     }
 
@@ -343,7 +343,7 @@ internal class UnknownCurse : Curse
 
     public override void ApplyCurse()
     {
-        List<AffectedVisual> viableVisuals = (Enum.GetValues(typeof(AffectedVisual)) as AffectedVisual[]).Except(Affected).ToList();
+        List<AffectedVisual> viableVisuals = [.. (Enum.GetValues(typeof(AffectedVisual)) as AffectedVisual[]).Except(Affected)];
         AffectedVisual chosen = viableVisuals[UnityEngine.Random.Range(0, viableVisuals.Count)];
         Affected.Add(chosen);
         GameHelper.DisplayMessage("FOOL! (You can no longer see your " + chosen + ")");

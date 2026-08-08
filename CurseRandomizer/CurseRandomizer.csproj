@@ -37,6 +37,9 @@
 		<Reference Include="Benchwarp">
 		  <HintPath>$(HollowKnightRefs)Mods\Benchwarp\Benchwarp.dll</HintPath>
 		</Reference>
+		<Reference Include="DebugMod">
+		  <HintPath>$(HollowKnightRefs)Mods\DebugMod\DebugMod.dll</HintPath>
+		</Reference>
 		<Reference Include="FStats">
 		  <HintPath>$(HollowKnightRefs)Mods\FStats\FStats.dll</HintPath>
 		</Reference>

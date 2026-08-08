@@ -1,12 +1,15 @@
-﻿using CurseRandomizer.Curses;
+﻿using CurseRandomizer.Components;
+using CurseRandomizer.Curses;
 using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
+using CurseRandomizer.ModInterop.Debug;
 using CurseRandomizer.Randomizer.Settings;
 using CurseRandomizer.SaveManagment;
 using Modding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace CurseRandomizer;
@@ -28,11 +31,25 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public bool ToggleButtonInsideMenu => false;
 
-    public override void Initialize()
+    public override List<(string, string)> GetPreloadNames() => [("Deepnest_East_11", "Super Spitter (4)")];
+
+    public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
         RandoManager.HookRando();
         CurseManager.Initialize();
+        TraumaCounter.AspidPrefab = preloadedObjects["Deepnest_East_11"]["Super Spitter (4)"];
+#if DEBUG
+        if (ModHooks.GetMod("DebugMod") is Mod)
+            HookDebug();
+#endif
     }
+
+#if DEBUG
+    private void HookDebug()
+    {
+        DebugModInterop.Initialize();
+    } 
+#endif
 
     #region Save Data control
 

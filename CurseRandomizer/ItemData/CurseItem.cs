@@ -15,6 +15,8 @@ internal class CurseItem : AbstractItem
 
     public string CurseName { get; set; }
 
+    public UIDef? FakeUIDef { get; set; }
+
     protected override void OnLoad() => ItemChangerMod.Modules.GetOrAdd<CurseModule>();
     
     public override void GiveImmediate(GiveInfo info)
@@ -26,6 +28,7 @@ internal class CurseItem : AbstractItem
             curse = CurseManager.GetCurse<DisorientationCurse>();
             CurseName = "Disorientation";
         }
+        FakeUIDef = UIDef.Clone();
         CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
         if (curse.CanApplyCurse() || (OmenCurse.OmenMode && CurseName == "Omen" && CurseManager.GetCurse<OmenCurse>().KilledEnemies.Contains("Inactive")))
             module.QueueCurse(CurseName);

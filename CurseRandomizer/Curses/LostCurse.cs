@@ -1,6 +1,8 @@
 ﻿using CurseRandomizer.Enums;
+using ItemChanger;
 using KorzUtils.Helper;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace CurseRandomizer.Curses;
@@ -37,66 +39,113 @@ internal class LostCurse : Curse
         On.HutongGames.PlayMaker.Actions.GetPlayerDataInt.OnEnter -= GetPlayerDataInt_OnEnter;
     }
 
-    public override bool CanApplyCurse() => PDHelper.CharmSlots > 1 
-        || (PDHelper.MPReserveMax + PDHelper.MaxMP) / StupidityCurse.SpellCost > 1 || PDHelper.MaxHealthBase > 1;
+    public override bool CanApplyCurse() => GetAvailablePools().Any(x => x);
 
     public override void ApplyCurse()
     {
-        List<string> viableSlots = [];
-        
-
-        for (int i = 0; i < 1 + DespairCurse.CastedDespair / 2; i++)
+        List<bool> slots = GetAvailablePools();
+        List<int> availableSlotNumbers = [];
+        for (int i = 0; i < slots.Count; i++)
+            if (slots[i])
+                availableSlotNumbers.Add(i);
+        int selectedSlot = availableSlotNumbers[UnityEngine.Random.Range(0, availableSlotNumbers.Count)];
+        AbstractItem itemToShuffle = null;
+        string message = "";
+        if (selectedSlot == 0)
         {
-            viableSlots.Clear();
-            if (PDHelper.CharmSlots > 1)
-                viableSlots.Add("charmSlots");
-            if (PDHelper.MaxHealthBase > 1)
-                viableSlots.Add("masks");
-            int maxMp = PDHelper.MPReserveMax + PDHelper.MaxMP;
-            if (maxMp / StupidityCurse.SpellCost > 1)
-                viableSlots.Add("vessels");
-            if (viableSlots.Count == 0)
-                break;
-            int rolledConsumable = Random.Range(0, 3);
-            if (rolledConsumable == 0)
+            PlayerData.instance.DecrementInt(nameof(PlayerData.charmSlots));
+            // Unequip all charms
+            PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).RemoveAll(x =>
             {
-                PlayerData.instance.DecrementInt(nameof(PlayerData.charmSlots));
-                // Unequip all charms
-                PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).RemoveAll(x =>
-                {
-                    if (x == 36)
-                        return false;
-                    PlayerData.instance.SetBool("equippedCharm_" + x, false);
-                    return true;
-                });
-                HeroController.instance.CharmUpdate();
-                PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
-                GameHelper.DisplayMessage("FOOL! (You lost a charm notch)");
-            }
+                if (x == 36)
+                    return false;
+                PlayerData.instance.SetBool("equippedCharm_" + x, false);
+                return true;
+            });
+            HeroController.instance.CharmUpdate();
+            PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
+            itemToShuffle = Finder.GetItem(ItemNames.Charm_Notch);
+            message = "a charm notch";
+        }
+        else if (selectedSlot == 1)
+        {
+            HeroController.instance.AddToMaxHealth(-1);
+            itemToShuffle = Finder.GetItem(ItemNames.Full_Mask);
+            message = "a mask";
+            // To force the UI to update to amount of masks.
+            if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
+                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
             else
             {
-                if (rolledConsumable == 1)
-                {
-                    HeroController.instance.AddToMaxHealth(-1);
-                    GameHelper.DisplayMessage("FOOL! (You lost a mask)");
-                }
-                else
-                {
-                    HeroController.instance.AddToMaxMPReserve(-1);
-                    GameHelper.DisplayMessage("FOOL! (You lost a vessel)");
-                }
-
-                // To force the UI to update to amount of masks.
-                if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
-                    GameCameras.instance.hudCanvas.gameObject.SetActive(true);
-                else
-                {
-                    GameCameras.instance.hudCanvas.gameObject.SetActive(false);
-                    GameCameras.instance.hudCanvas.gameObject.SetActive(true);
-                }
+                GameCameras.instance.hudCanvas.gameObject.SetActive(false);
+                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
             }
         }
+        else if (selectedSlot == 2)
+        {
+            HeroController.instance.AddToMaxMPReserve(-1);
+            itemToShuffle = Finder.GetItem(ItemNames.Full_Soul_Vessel);
+            message = "a vessel";
+            // To force the UI to update to amount of masks.
+            if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
+                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+            else
+            {
+                GameCameras.instance.hudCanvas.gameObject.SetActive(false);
+                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+            }
+        }
+        else if (selectedSlot == 3)
+        {
+            PDHelper.FireballLevel = 1;
+            itemToShuffle = Finder.GetItem(ItemNames.Shade_Soul);
+            message = "shade soul";
+        }
+        else if (selectedSlot == 4)
+        {
+            PDHelper.QuakeLevel = 1;
+            itemToShuffle = Finder.GetItem(ItemNames.Descending_Dark);
+            message = "descending dark";
+        }
+        else
+        {
+            PDHelper.ScreamLevel = 1;
+            itemToShuffle = Finder.GetItem(ItemNames.Abyss_Shriek);
+            message = "abyss shriek";
+        }
+
+        if (Random.Range(1, 101) <= DespairCurse.CastedDespair * 4)
+            message += " (forever)";
+        else
+        {
+            List<AbstractPlacement> viablePlacements = [];
+            foreach (AbstractPlacement placement in ItemChanger.Internal.Ref.Settings.GetPlacements())
+            {
+                if (!placement.AllObtained())
+                    continue;
+                viablePlacements.Add(placement);
+            }
+            if (viablePlacements.Count == 0)
+                message += " (forever)";
+            else
+            {
+                AbstractPlacement selectedPlacement = viablePlacements[Random.Range(0, viablePlacements.Count)];
+                selectedPlacement.Add(itemToShuffle);
+            }
+        }
+        GameHelper.DisplayMessage($"You lost {message}");
     }
 
     #endregion
+
+    private List<bool> GetAvailablePools()
+    {
+        return [PDHelper.CharmSlots > 1,
+        PDHelper.MaxHealthBase > 1,
+        (PDHelper.MPReserveMax + PDHelper.MaxMP) / StupidityCurse.SpellCost > 1,
+        PDHelper.FireballLevel > 1,
+        PDHelper.QuakeLevel > 1,
+        PDHelper.ScreamLevel > 1
+        ];
+    }
 }

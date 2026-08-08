@@ -99,14 +99,6 @@ internal class ConfusionCurse : TemporaryCurse
         On.HealthManager.OnEnable += HealthManager_OnEnable;
         On.HealthManager.Die += HealthManager_Die;
 
-        InputHandler.Instance.inputActions.attack = _actions[0];
-        InputHandler.Instance.inputActions.cast = _actions[1];
-        InputHandler.Instance.inputActions.dash = _actions[2];
-        InputHandler.Instance.inputActions.jump = _actions[3];
-        InputHandler.Instance.inputActions.quickCast = _actions[4];
-        InputHandler.Instance.inputActions.dreamNail = _actions[5];
-        InputHandler.Instance.inputActions.superDash = _actions[6];
-
         _actions[0] = InputHandler.Instance.inputActions.attack;
         _actions[1] = InputHandler.Instance.inputActions.cast;
         _actions[2] = InputHandler.Instance.inputActions.dash;

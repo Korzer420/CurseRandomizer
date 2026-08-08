@@ -70,32 +70,11 @@ internal class NormalityCurse : Curse
         CheckFsmStateAction.OnEnter -= CheckFsmStateAction_OnEnter;
     }
 
-    public override bool CanApplyCurse()
-    {
-        List<int> availableCharms = [];
-        for (int i = 1; i < 41; i++)
-        {
-            // Skip quest charms
-            if (i == 36 || i == 10 || i == 17 || i == 23 || i == 24 || i == 25 || i == 40 || i == 2)
-                continue;
-            if (PlayerData.instance.GetBool($"gotCharm_{i}"))
-                availableCharms.Add(i);
-        }
-        return availableCharms.Except(DisabledCharmId).Any();
-    }
+    public override bool CanApplyCurse() => GetAvailableCharms().Except(DisabledCharmId).Any();
 
     public override void ApplyCurse()
     {
-        List<int> availableCharms = [];
-        for (int i = 1; i < 41; i++)
-        {
-            // Skip quest charms
-            if (i == 36 || i == 10 || i == 17 || i == 23 || i == 24 || i == 25 || i == 40)
-                continue;
-            if (PlayerData.instance.GetBool($"gotCharm_{i}"))
-                availableCharms.Add(i);
-        }
-        availableCharms = [.. availableCharms.Except(DisabledCharmId)];
+        List<int> availableCharms = [.. GetAvailableCharms().Except(DisabledCharmId)];
 
         for (int i = 0; i < 1 + DespairCurse.CastedDespair / 2; i++)
         {
@@ -114,6 +93,20 @@ internal class NormalityCurse : Curse
     }
 
     public override void ResetAdditionalData() => DisabledCharmId.Clear();
+
+    public static List<int> GetAvailableCharms()
+    {
+        List<int> availableCharms = [];
+        for (int i = 1; i < 41; i++)
+        {
+            // Skip quest charms
+            if (i == 36 || i == 10 || i == 17 || i == 23 || i == 24 || i == 25 || i == 40)
+                continue;
+            if (PlayerData.instance.GetBool($"gotCharm_{i}"))
+                availableCharms.Add(i);
+        }
+        return availableCharms;
+    }
 
     #endregion
 }
