@@ -32,7 +32,7 @@ public static class CurseManager
         new MazeCurse() { Name = "Maze", Type = CurseType.Maze },
         new DespairCurse() { Name = "Despair", Type = CurseType.Despair },
         new TraumaCurse() { Name = "Trauma", Type = CurseType.Trauma },
-        new FrailCurse() { Name = "Frail", Type = CurseType.Frail },
+        new ClumsyCurse() { Name = "Clumsy", Type = CurseType.Clumsy },
         new MelancholyCurse() { Name = "Melancholy", Type = CurseType.Melancholy },
     };
 

@@ -107,7 +107,7 @@ public enum CurseType
     /// </summary>
     Midas,
 
-    Frail,
+    Clumsy,
 
     Trauma,
 

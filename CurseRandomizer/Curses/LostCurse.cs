@@ -9,20 +9,7 @@ namespace CurseRandomizer.Curses;
 
 internal class LostCurse : Curse
 {
-    #region Event Handler
-
-    /// <summary>
-    /// Fix the shade health.
-    /// </summary>
-    private void GetPlayerDataInt_OnEnter(On.HutongGames.PlayMaker.Actions.GetPlayerDataInt.orig_OnEnter orig, HutongGames.PlayMaker.Actions.GetPlayerDataInt self)
-    {
-        orig(self);
-        if (self.IsCorrectContext("Shade Control", null, "Init") && self.intName.Value == "shadeHealth")
-            self.storeValue.Value += Data.CastedAmount;
-    }
-
-    #endregion
-
+    
     #region Control
 
     public override CurseTag Tag => CurseTag.Instant;
@@ -114,7 +101,7 @@ internal class LostCurse : Curse
             message = "abyss shriek";
         }
 
-        if (Random.Range(1, 101) <= DespairCurse.CastedDespair * 4)
+        if (Random.Range(1, 101) <= Data.DespairEnhanced * 5)
             message += " (forever)";
         else
         {
@@ -138,6 +125,8 @@ internal class LostCurse : Curse
 
     #endregion
 
+    #region Private Methods
+    
     private List<bool> GetAvailablePools()
     {
         return [PDHelper.CharmSlots > 1,
@@ -147,5 +136,21 @@ internal class LostCurse : Curse
         PDHelper.QuakeLevel > 1,
         PDHelper.ScreamLevel > 1
         ];
+    } 
+
+    #endregion
+
+    #region Event Handler
+
+    /// <summary>
+    /// Fix the shade health.
+    /// </summary>
+    private void GetPlayerDataInt_OnEnter(On.HutongGames.PlayMaker.Actions.GetPlayerDataInt.orig_OnEnter orig, HutongGames.PlayMaker.Actions.GetPlayerDataInt self)
+    {
+        orig(self);
+        if (self.IsCorrectContext("Shade Control", null, "Init") && self.intName.Value == "shadeHealth")
+            self.storeValue.Value += Data.CastedAmount;
     }
+
+    #endregion
 }
