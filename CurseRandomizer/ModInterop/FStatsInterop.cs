@@ -10,7 +10,7 @@ namespace CurseRandomizer.ModInterop;
 /// </summary>
 internal static class FStatsInterop
 {
-    internal static void HookFStats() => API.OnGenerateScreen += RegisterPage;
+    internal static void Hook() => API.OnGenerateScreen += RegisterPage;
     
     private static void RegisterPage(Action<DisplayInfo> registerPage)
     {
