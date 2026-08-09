@@ -32,7 +32,132 @@ internal class ConfusionCurse : TemporaryCurse
         set => Data.AdditionalData = value;
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount, 3);
+    public override int NeededAmount => Data.CastedAmount <= 5 
+        ? 1 
+        : 2;
+
+    #endregion
+
+    #region Control
+
+    public override void ApplyHooks()
+    {
+        On.InputHandler.SendButtonBindingsToGameSettings += InputHandler_SendButtonBindingsToGameSettings;
+        On.InputHandler.SendKeyBindingsToGameSettings += InputHandler_SendKeyBindingsToGameSettings;
+        On.InputHandler.ResetDefaultKeyBindings += InputHandler_ResetDefaultKeyBindings;
+        On.InputHandler.ResetDefaultControllerButtonBindings += InputHandler_ResetDefaultControllerButtonBindings;
+        On.InputHandler.ResetAllControllerButtonBindings += InputHandler_ResetAllControllerButtonBindings;
+        On.HealthManager.OnEnable += HealthManager_OnEnable;
+        On.HealthManager.Die += HealthManager_Die;
+        ModHooks.AfterTakeDamageHook += ModHooks_AfterTakeDamageHook;
+
+        _actions[0] = InputHandler.Instance.inputActions.attack;
+        _actions[1] = InputHandler.Instance.inputActions.cast;
+        _actions[2] = InputHandler.Instance.inputActions.dash;
+        _actions[3] = InputHandler.Instance.inputActions.jump;
+        _actions[4] = InputHandler.Instance.inputActions.quickCast;
+        _actions[5] = InputHandler.Instance.inputActions.dreamNail;
+        _actions[6] = InputHandler.Instance.inputActions.superDash;
+
+        if (CurrentAmount != -1)
+            SetBindings(false);
+        base.ApplyHooks();
+    }
+
+    public override void Unhook()
+    {
+        On.InputHandler.SendButtonBindingsToGameSettings -= InputHandler_SendButtonBindingsToGameSettings;
+        On.InputHandler.SendKeyBindingsToGameSettings -= InputHandler_SendKeyBindingsToGameSettings;
+        On.InputHandler.ResetDefaultKeyBindings -= InputHandler_ResetDefaultKeyBindings;
+        On.InputHandler.ResetDefaultControllerButtonBindings -= InputHandler_ResetDefaultControllerButtonBindings;
+        On.InputHandler.ResetAllControllerButtonBindings -= InputHandler_ResetAllControllerButtonBindings;
+        On.HealthManager.OnEnable -= HealthManager_OnEnable;
+        On.HealthManager.Die -= HealthManager_Die;
+        ModHooks.AfterTakeDamageHook -= ModHooks_AfterTakeDamageHook;
+
+        SetBindings(true);
+        base.Unhook();
+    }
+
+    public override void ApplyCurse()
+    {
+        SetBindings(false);
+        base.ApplyCurse();
+    }
+
+    protected override bool IsActive() => CurrentAmount != -1;
+
+    protected override void LiftCurse()
+    {
+        CurrentAmount = -1;
+        SetBindings(true);
+        base.LiftCurse();
+    }
+
+    protected override Vector2 MoveToPosition(CurseCounterPosition position)
+    {
+        return position switch
+        {
+            CurseCounterPosition.HorizontalBlock => new(-4, 1.5f),
+            CurseCounterPosition.VerticalBlock => new(-2f, 1.5f),
+            CurseCounterPosition.Column => new(0f, 4.5f),
+            _ => new(-12f, 0f),
+        };
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private void SetBindings(bool reset)
+    {
+        if (reset)
+        {
+            InputHandler.Instance.inputActions.attack = _actions[0];
+            InputHandler.Instance.inputActions.cast = _actions[1];
+            InputHandler.Instance.inputActions.dash = _actions[2];
+            InputHandler.Instance.inputActions.jump = _actions[3];
+            InputHandler.Instance.inputActions.quickCast = _actions[4];
+            InputHandler.Instance.inputActions.dreamNail = _actions[5];
+            InputHandler.Instance.inputActions.superDash = _actions[6];
+        }
+        else
+        {
+            int affectedAmount = Math.Min(_actions.Length, 3 + Data.CastedAmount);
+            List<PlayerAction> viableActions = [.. _actions.Take(affectedAmount)];
+
+            for (int i = 0; i < affectedAmount; i++)
+            {
+                PlayerAction selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
+                switch (i)
+                {
+                    case 0:
+                        InputHandler.Instance.inputActions.attack = selectedAction;
+                        break;
+                    case 1:
+                        InputHandler.Instance.inputActions.cast = selectedAction;
+                        break;
+                    case 2:
+                        InputHandler.Instance.inputActions.dash = selectedAction;
+                        break;
+                    case 3:
+                        InputHandler.Instance.inputActions.jump = selectedAction;
+                        break;
+                    case 4:
+                        InputHandler.Instance.inputActions.quickCast = selectedAction;
+                        break;
+                    case 5:
+                        InputHandler.Instance.inputActions.dreamNail = selectedAction;
+                        break;
+                    case 6:
+                    default:
+                        InputHandler.Instance.inputActions.superDash = selectedAction;
+                        break;
+                }
+                viableActions.Remove(selectedAction);
+            }
+        }
+    }
 
     #endregion
 
@@ -85,125 +210,15 @@ internal class ConfusionCurse : TemporaryCurse
         }
     }
 
-    #endregion
-
-    #region Control
-
-    public override void ApplyHooks()
+    private int ModHooks_AfterTakeDamageHook(int hazardType, int damageAmount)
     {
-        On.InputHandler.SendButtonBindingsToGameSettings += InputHandler_SendButtonBindingsToGameSettings;
-        On.InputHandler.SendKeyBindingsToGameSettings += InputHandler_SendKeyBindingsToGameSettings;
-        On.InputHandler.ResetDefaultKeyBindings += InputHandler_ResetDefaultKeyBindings;
-        On.InputHandler.ResetDefaultControllerButtonBindings += InputHandler_ResetDefaultControllerButtonBindings;
-        On.InputHandler.ResetAllControllerButtonBindings += InputHandler_ResetAllControllerButtonBindings;
-        On.HealthManager.OnEnable += HealthManager_OnEnable;
-        On.HealthManager.Die += HealthManager_Die;
-
-        _actions[0] = InputHandler.Instance.inputActions.attack;
-        _actions[1] = InputHandler.Instance.inputActions.cast;
-        _actions[2] = InputHandler.Instance.inputActions.dash;
-        _actions[3] = InputHandler.Instance.inputActions.jump;
-        _actions[4] = InputHandler.Instance.inputActions.quickCast;
-        _actions[5] = InputHandler.Instance.inputActions.dreamNail;
-        _actions[6] = InputHandler.Instance.inputActions.superDash;
-
-        if (CurrentAmount != -1)
+        if (damageAmount > 0 && IsActive() && UnityEngine.Random.Range(0, 20) < Data.DespairEnhanced && HeroController.instance.GetComponent<ConfusionCooldown>() == null)
+        {
             SetBindings(false);
-        base.ApplyHooks();
-    }
-
-    public override void Unhook()
-    {
-        On.InputHandler.SendButtonBindingsToGameSettings -= InputHandler_SendButtonBindingsToGameSettings;
-        On.InputHandler.SendKeyBindingsToGameSettings -= InputHandler_SendKeyBindingsToGameSettings;
-        On.InputHandler.ResetDefaultKeyBindings -= InputHandler_ResetDefaultKeyBindings;
-        On.InputHandler.ResetDefaultControllerButtonBindings -= InputHandler_ResetDefaultControllerButtonBindings;
-        On.InputHandler.ResetAllControllerButtonBindings -= InputHandler_ResetAllControllerButtonBindings;
-        On.HealthManager.OnEnable -= HealthManager_OnEnable;
-        On.HealthManager.Die -= HealthManager_Die;
-
-        SetBindings(true);
-        base.Unhook();
-    }
-
-    public override void ApplyCurse()
-    {
-        SetBindings(false);
-        base.ApplyCurse();
-    }
-
-    protected override bool IsActive() => CurrentAmount != -1;
-
-    protected override void LiftCurse()
-    {
-        CurrentAmount = -1;
-        SetBindings(true);
-        base.LiftCurse();
-    }
-
-    protected override Vector2 MoveToPosition(CurseCounterPosition position)
-    {
-        return position switch
-        {
-            CurseCounterPosition.HorizontalBlock => new(-4, 1.5f),
-            CurseCounterPosition.VerticalBlock => new(-2f, 1.5f),
-            CurseCounterPosition.Column => new(0f, 4.5f),
-            _ => new(-12f, 0f),
-        };
-    }
-
-    #endregion
-
-    #region Methods
-
-    private void SetBindings(bool reset)
-    {
-        if (reset)
-        {
-            InputHandler.Instance.inputActions.attack = _actions[0];
-            InputHandler.Instance.inputActions.cast = _actions[1];
-            InputHandler.Instance.inputActions.dash = _actions[2];
-            InputHandler.Instance.inputActions.jump = _actions[3];
-            InputHandler.Instance.inputActions.quickCast = _actions[4];
-            InputHandler.Instance.inputActions.dreamNail = _actions[5];
-            InputHandler.Instance.inputActions.superDash = _actions[6];
+            GameHelper.DisplayMessage("???");
+            HeroController.instance.gameObject.AddComponent<ConfusionCooldown>();
         }
-        else
-        {
-            int affectedAmount = 4 + DespairCurse.CastedDespair;
-            List<PlayerAction> viableActions = [.. _actions.Take(affectedAmount)];
-
-            for (int i = 0; i < affectedAmount; i++)
-            {
-                PlayerAction selectedAction = viableActions[UnityEngine.Random.Range(0, viableActions.Count)];
-                switch (i)
-                {
-                    case 0:
-                        InputHandler.Instance.inputActions.attack = selectedAction;
-                        break;
-                    case 1:
-                        InputHandler.Instance.inputActions.cast = selectedAction;
-                        break;
-                    case 2:
-                        InputHandler.Instance.inputActions.dash = selectedAction;
-                        break;
-                    case 3:
-                        InputHandler.Instance.inputActions.jump = selectedAction;
-                        break;
-                    case 4:
-                        InputHandler.Instance.inputActions.quickCast = selectedAction;
-                        break;
-                    case 5:
-                        InputHandler.Instance.inputActions.dreamNail = selectedAction;
-                        break;
-                    case 6:
-                    default:
-                        InputHandler.Instance.inputActions.superDash = selectedAction;
-                        break;
-                }
-                viableActions.Remove(selectedAction);
-            }
-        }
+        return damageAmount;
     }
 
     #endregion
