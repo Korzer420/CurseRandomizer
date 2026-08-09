@@ -92,7 +92,7 @@ Determines how many curses should be placed. These option are based on the total
 
 #### Bargains
 Allows items in the shop to be "cursed", so they apply curses upon you, once bought. A purple/pink text is visible under the item description showing how much curses will be applied to you. This ranges from 1-3 curses.
-Note that the cursed items ARE NOT counted as normal curse items and will be placed **on top of the selected amount**! Depending on the selected amount, the chance for an item to be cursed is increased by 10% for each step. "Few" grants a 10% per shop item to be cursed up to 70% if "Custom" is used. The order can be seen under "Curse Amount". Once all curses of an item got resolved, it will display what the casted curses where. Note that if a curse was blocked (i.e "Lost" was about to be casted but you have no mask, vessel and charm notch to spare), the actual result might differ from the shown message!
+Note that the cursed items ARE NOT counted as normal curse items and will be placed **on top of the selected amount**! Depending on the selected amount, the chance for an item to be cursed is increased by 10% for each step. "Few" grants a 10% per shop item to be cursed up to 70% if "Custom" is used. The order can be seen under "Curse Amount". Once all curses of an item got resolved, it will display what the casted curses were. Note that if a curse was blocked (i.e "Lost" was about to be casted but you have no mask, vessel and charm notch to spare), the actual result might differ from the shown message!
 
 ## Cursed Wallet
 Limits the amount of geo the player can hold at a time. The base capacity is 500.
