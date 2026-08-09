@@ -30,6 +30,8 @@ internal class RegretCurse : TemporaryCurse
 
     public List<string> KilledEnemies { get; set; } = [];
 
+    public int ListMax => 20 + Data.DespairEnhanced * 4;
+
     #endregion
 
     #region Control
@@ -98,8 +100,8 @@ internal class RegretCurse : TemporaryCurse
         }
 
         // Despair expands the enemy list.
-        if (KilledEnemies.Count == 20 + Data.DespairEnhanced * 4)
-            KilledEnemies.RemoveAt(19 + Data.DespairEnhanced * 4);
+        if (KilledEnemies.Count == ListMax)
+            KilledEnemies.RemoveAt(ListMax - 1);
         KilledEnemies.Insert(0, enemyName);
     }
 

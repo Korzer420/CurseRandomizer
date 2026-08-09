@@ -212,7 +212,7 @@ internal class ConfusionCurse : TemporaryCurse
 
     private int ModHooks_AfterTakeDamageHook(int hazardType, int damageAmount)
     {
-        if (damageAmount > 0 && IsActive() && UnityEngine.Random.Range(0, 20) < Data.DespairEnhanced && HeroController.instance.GetComponent<ConfusionCooldown>() == null)
+        if (damageAmount > 0 && IsActive() && UnityEngine.Random.Range(0, 40) < Data.DespairEnhanced && HeroController.instance.GetComponent<ConfusionCooldown>() == null)
         {
             SetBindings(false);
             GameHelper.DisplayMessage("???");

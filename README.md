@@ -14,71 +14,61 @@ With this method it is ensured, that a curse is applied regardless of the contex
 
 ### Curses
 Here's a list of available curses:
-- Amnesia (Permanent): Lowers the damage of your spells by 5% (up to 90%).
-- Darkness (Temporarly): Lowers the vision range by 30% until you traverse 3 different rooms ("Traverse" as in you need to exit on a different side than you entered). The needed room amount increases by 3 each time.
+- Amnesia (Permanent): Lowers the damage of your spells by 10% (up to 90%).
+- Clumsy (Permanent): Taking damage lowers your soul by 1 for each time this curse has been casted.
+- Confusion* (Temporary): Switches player actions with each other. Vanishes after killing a boss (Enemies with more than 200 hp are considered bosses), or 2 if this curse has been cast 5 times already. Affected one more action each time this curse is applied (up to 7 total).
+- Darkness (Temporary): Lowers the vision range by 30% until you traverse 6 different rooms ("Traverse" as in you need to exit on a different side than you entered). The vision range decreases with subsequent casts even further.
+- Despair** (Permanent): Causes most other **future** curses to be more harmful
 - Diminish (Permanent): Lowers your nail range by 0.05. For perspective, your base nail range is around 1.4. Do the math yourself :c
 - Disorientation (Instant): Warps you back to your bench.
-- Emptiness (Temporarly): You can no longer gain hp, even through benches. Trying to focus will deal 1 damage to you instead. Dealing 300 damage to enemies, will cease the curse (Damage is capped at 100 per enemy type) and heal you for 1 hp. Increases by 300 additional damage each time this is casted.
-- Greed (Instant): Takes 50% of you geo.
-- Lost (Instant): Remove a notch, mask or vessel (It is ensured, that you have at least one notch to equip quest charms). Can take vessels from the base one, lowering up to 33 soul. You'll always have enough soul to cast at least one spell.
+- Doubt (Instant): Unequippes all charms that you're wearing. Also reshuffles the cost of ALL charms. The total cost is increased by up to 5. For example: If you have Dashmaster (3) and Compass (5), a possible final cost could be Dashmaster (6) and Compass (3) (from 8 total to 9). Charms can never cost more than 6 notches. The added extra costs decreases as your total cost goes higher.
+- Emptiness (Temporary): You can no longer gain hp, even through benches. Trying to focus will deal 1 damage to you instead. Dealing 200 damage to enemies, will cease the curse (Damage is capped at 100 per enemy type) and heal you for 1 hp. Increases by 200 additional damage each time this is casted.
+- Greed (Instant): Takes 30% of you geo.
+- Lost (Instant): Remove a notch, mask or vessel (It is ensured, that you have at least one notch to equip quest charms). Can take vessels from the base one, lowering up to 33 soul. You'll always have enough soul to cast at least one spell. The taken consumable will be reshuffled to a an already cleared location.
+- Maze (Temporary): Each time you enter a room, there is a 7% chance that you will enter a known room instead. This curse vanishes after picking up 5 different items. Note that shop items (besides "Generosity") are not counted! A wrong warp is marked by "???" appearing.
+- Melancholy (Instant): Respawns all already picked up curses.
 - Normality (Permanent): Makes a charm useless, removing all it's effect, but it heals you to full health. This curse cannot be applied to quest charms. 
-- Omen (Temporarly): Upon taking a hit, apply a random permanent curse onto you. This curse vanishes after killing 5 different TYPES of enemies (although the casted curses through "Omen" remain). With each cast, 5 additional enemies types are needed (up to 50 if uncapped). Taking a hit reduces the needed kill amount by 10. If you have less 10 ten kills remaining, it sets you to 1 instead. If no permanent curse can be applied, you'll be killed instantly instead.
+- Omen (Temporary): Upon taking a hit, apply a random permanent curse onto you. This curse vanishes after killing 5 different TYPES of enemies (although the casted curses through "Omen" remain). With each cast, 5 additional enemies types are needed (up to 50 if uncapped). Taking a hit reduces the needed kill amount by 5. If you have less than 5 kills remaining, it will grant you 1 instead. If no permanent curse can be applied, you'll be killed instantly instead.
 - Pain (Instant): Take 1 damage. This will not be affected by overcharming.
-- Sloth (Permanent): Add a additional cooldown to your dash (0.05 seconds), crystal dash charge (0.075 seconds), nail art charge (0.075 seconds) or nail swing (0.05 seconds).
+- Regret* (Temporary): Each time you kill an enemy, there is a 2% chance that a random instant curse is applied to you. The chance increases by 4% for each time you have killed that enemy in the last 20. Resets the enemy list each time a curse is applied. Can also cast instant curses that are not activated in the mod menu! Spending 300 Geo removes the curse. 300 more geo is needed each time the curse is casted again.
+- Sloth (Permanent): Add a additional cooldown to your nail swing (0.05 seconds).
 - Stupidity (Permanent): Spells cost 3 more soul. Also applies to focus. (Since focus works different, the extra amount is taken after the cast is finished.)
-- Thirst (Permanent): Every 12th time you'd get soul it is negated. This intervall is smaller for each subsequent cast (up to 10 times).
-- Unknown (Permanent): Disables the health, soul, geo, essence or item display. Note that curses will retain at least their icon, so you know you got cursed even though the name is obscured.
+- Thirst (Permanent): You gain 1 soul less from all sources (but never less than 1).
+- Trauma (Temporary): For the next 300 seconds spawn a Primal Aspid above you each 60 seconds. This interval decreases the more this curse is casted.
+- Unknown (Permanent): Disables the health, soul, geo or essence display.
 - Weakness (Permanent): Reduce your base nail damage by 1.
-- Doubt (Instant): Unequippes all charms that you're wearing. Also reshuffles the cost of ALL charms. The total cost is increased by up to 5. For example: If you have Dashmaster (3) and Compass (5), a possible final cost could be Dashmaster (6) and Compass (3) (from 8 total to 9). Charms can never cost more than 6 notches.
-- Confusion (Temporarly): Switches all 9 player actions (nail, spell, dream nail etc.) with each other. Vanishes after killing a boss (Enemies with more than 200 hp are considered bosses). The needed boss kill amount is increased by 1 each time this is casted. Taking a hit has a 25% chance to reshuffle the controls if this curse is active. The shuffle is marked by "???" appearing.
-- Regret (Temporarly): Each time you kill an enemy, there is a 5% chance that a random instant curse is applied to you. The chance increases by 4% for each time you have killed that enemy in the last 20. Resets the enemy list each time a curse is applied. Can also cast instant curses that are not activated in the mod menu! Spending 300 Geo removes the curse. 300 more geo is needed each time the curse is casted again. Hint: If you suffer from this curse, Iselda will sell the item "Generosity" which can be bought each time you enter the shop to spend infinite geo (so the curse is always removable). The greed curse also progresses this curse.
-- Maze (Temporarly): Each time you enter a room, there is a 7% chance that you will enter a known room instead. This curse vanishes after picking up 5 different items. Note that shop items (besides "Generosity") are not counted! A wrong warp is marked by "???" appearing.
-- Despair (Permanent): Enhances the effects of most other curses:
-	- Amnesia: Damage penalty of subsequent casts are increased by 5% for each despair cast.
-	- Darkness: Increases the vision penalty by 15% for each despair cast.
-	- Diminish: Decrease the nail length by another 0.05 for each despair cast.
-	- Disorientation: No effect.
-	- Emptiness: Decreases your health by one for each despair cast. This can never lower your health below 1.
-	- Greed: An additional 5% geo is taken for each despair cast.
-	- Lost: For every other despair cast one additional penalty is applied (starting on the second despair).
-	- Normality: For every other despair cast one additional penalty is applied (starting on the second despair).
-	- Omen: No effect.
-	- Pain: The damage is increased by 1 for each despair cast.
-	- Sloth: The applied penalty is increased by 100% for each despair cast.
-	- Stupidity: Spell cost is additionally increased by 1 for each despair cast on each subsequent cast.
-	- Thirst: Hits on enemies grant 1 soul less for each despair cast (up to 10).
-	- Unknown: No effect.
-	- Weakness: Damage penalty is increased by 1 for each subsequent cast.
-	- Doubt: The cost is increased by an additional point for each despair cast on each subsequent cast.
-	
 
 **Choosing certain curses will override the logic to remove skip logic, since they may break specific skips. The application of the curses takes priority! Be aware of that.**
+
+*If this curse is active, Iselda will repeatedly sell a dummy item for 400 geo.
+** Despair effect:
+- Amnesia: Adds a 5% chance per despair to deal just 1 damage instead.
+- Clumsy: Adds a 5% chance per despair to take your full soul away instead.
+- Confusion: Adds 2.5% chance on hit to reroll your binding again (only if the curse is active). This effect has a 60 seconds cooldown.
+- Darkness: Increases the needed rooms to clear this curse by 2 per despair cast.
+- Diminish: Casts this curse an additional time per despair.
+- Disorientation: No effect.
+- Doubt: Adds 1 extra notch cost to the total pool per despair.
+- Emptiness: Lowers your health by 1 per despair when this is casted. This can never set your health below 1.
+- Greed: Increases the geo you drop by 10%.
+- Lost: Adds a 5% per despair to permanently destroy the dropped item instead.
+- Maze: Increases the items needed to lift this curse by 5 for each despair. Caps at 50 items.
+- Melancholy: No effect.
+- Normality: Adds a 10% per despair to target a charm that the player has equipped instead.
+- Omen: Adds a 1% chance per cast to reset progress upon taking a hit. Caps at 20%.
+- Pain: Increases the damage by 1 per despair cast.
+- Regret: Increases the amount of enemies "remembered" by 4 for each despair cast (up to 80).
+- Sloth: Slows down the nail art charge speed by 0.075 seconds per despair.
+- Stupidity: Adds a 5% chance to remove your full soul upon casting a spell or using focus.
+- Thirst: Every 20th time you'd gain soul is negated. The interval decreases for each despair cast. Capped at every other time.
+- Trauma: Increases the amount of Primal Aspid spawning by 1 for each despair.
+- Unknown: No effect.
+- Weakness: No effect.
 
 ### Main Settings
 
 #### Perfect Mimics
 If enabled, even the names will match the original items, giving the player no indicator if an item might be a curse instead. Playing with this is not recommended. (Unless you like pain... I guess) If you are using the AllMajorItemsByArea mod, items which mimic skills will be considered as major items, trying to trick you even more.
-
-#### Cap Effects
-If enabled, the "cap" of curses can be determined by the player. These are used to evaluate if a curse can applied at all. For example, if you set the "Pain Cap" to 2, this curse cannot deal damage to you if you have 2 or less masks remaining. Here's what the caps do:
-
-- Amnesia: Determines how much times the spell damage can be lowered. If you select 3, the spell damage can be lowered by 30%. **If you set the cap to lower than 5, spell upgrades cannot be taken away.**
-- Darkness: Determines how stacked the vision range can be. If you select 3, the vision range can be lowered up to 45%. **Doesn't affected the needed rooms or if the curse can be casted.**
-- Diminish: Determines how stacked the nail decrease can be. If you select 3, the nail range can be lowered by 0.3 (Slightly above 20%).
-- Disorientation: The cap does nothing, but since otherwise the curse would feel excluded from the rest of the group, it also has cap button. ^-^
-- Emptiness: Determines how low your BASE max health can be.
-- Greed: Determines how much geo can be taken at max from a single cast.
-- Lost: Determines what the amount of relics/notches you need to posess is. If you select 3, it can only take relics/notches from which you have at least 3. Although this can be set to 0. The notch check will still evalute as if the cap would be one, since otherwise equipping charms is impossible.
-- Normality: Determines how much charms can be made useless. 
-- Omen: Determines the max amount of needed enemy type kills.
-- Pain: Determines the min health you need for the curse to be applied.
-- Sloth: Determines the max amount of slows that can be applied. If you select 3, you nail slash and dash can only have an additional cooldown of 0.3 seconds.
-- Stupidity: Determines the max amount of soul a spell/focus can cost.
-- Thirst: Determines the min amount of soul which you should get from hits.
-- Unknown: Determines how many visuals can be taken from you.
-- Weakness: Determines the min amount of damage you nail should deal.
-
-Custom: To check what the cap does for custom curses, you'd need to look it up in their respective readme.
 
 #### Default Curse
 Determines which curse should be applied to be casted if the normal curse fails. If this fails as well, disorientation is cast instead. It is suggested that this should be pain or another non permanent curse.
@@ -99,7 +89,7 @@ Determines how many curses should be placed. These option are based on the total
 - Medium: 7% to 9% are curse items. At least 10 to 15.
 - Many: 10% to 12% are curse items. At least 15 to 20.
 - Oh Oh: 13% to 15% are curse items. At least 20 to 30.
-- Custom: A player defined range between 0 and 200.
+- Custom: A player defined range between 0 and 300.
 
 #### Replacable Items
 - Defines which items the mod can replace with curses if the curse method is not "Add".

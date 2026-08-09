@@ -9,32 +9,31 @@ public static class CurseManager
 {
     #region Members
 
-    private static List<Curse> _curses = new()
-    {
-        new PainCurse() { Name = "Pain", Type = CurseType.Pain},
-        new GreedCurse() { Name = "Greed"},
-        new ThirstCurse() { Name = "Thirst", Type = CurseType.Thirst},
-        new WeaknessCurse() { Name = "Weakness", Type = CurseType.Weakness },
-        new DisorientationCurse() { Name = "Disorientation", Type = CurseType.Disorientation },
-        new StupidityCurse() { Name = "Stupidity", Type = CurseType.Stupidity },
+    private static List<Curse> _curses =
+    [
+        new AmnesiaCurse() {Name = "Amnesia", Type = CurseType.Amnesia},
+        new ClumsyCurse() { Name = "Frail", Type = CurseType.Despair },
+        new ConfusionCurse() { Name = "Confusion", Type = CurseType.Confusion },
+        new DarknessCurse() {Name = "Darkness", Type = CurseType.Darkness },
+        new DespairCurse() { Name = "Despair", Type = CurseType.Despair },
         new DiminishCurse() {Name = "Diminish", Type = CurseType.Diminish },
-        new SlothCurse() {Name = "Sloth", Type = CurseType.Sloth },
         new DoubtCurse() { Name = "Doubt", Type = CurseType.Doubt },
         new EmptinessCurse() { Name = "Emptiness", Type = CurseType.Emptiness},
+        new GreedCurse() { Name = "Greed"},
         new LostCurse() { Name = "Lost", Type = CurseType.Lost },
-        new NormalityCurse() { Name = "Normality", Type = CurseType.Normality },
-        new AmnesiaCurse() {Name = "Amnesia", Type = CurseType.Amnesia},
-        new DarknessCurse() {Name = "Darkness", Type = CurseType.Darkness },
-        new UnknownCurse() {Name = "Unknown", Type = CurseType.Unknown },
-        new OmenCurse() {Name = "Omen", Type = CurseType.Omen },
-        new ConfusionCurse() { Name = "Confusion", Type = CurseType.Confusion },
-        new RegretCurse() { Name = "Regret", Type = CurseType.Regret },
         new MazeCurse() { Name = "Maze", Type = CurseType.Maze },
-        new DespairCurse() { Name = "Despair", Type = CurseType.Despair },
-        new TraumaCurse() { Name = "Trauma", Type = CurseType.Trauma },
-        new ClumsyCurse() { Name = "Clumsy", Type = CurseType.Clumsy },
-        new MelancholyCurse() { Name = "Melancholy", Type = CurseType.Melancholy },
-    };
+        new MelancholyCurse() { Name = "Melancholy", Type = CurseType.Despair },
+        new NormalityCurse() { Name = "Normality", Type = CurseType.Normality },
+        new OmenCurse() {Name = "Omen", Type = CurseType.Omen },
+        new PainCurse() { Name = "Pain", Type = CurseType.Pain},
+        new RegretCurse() { Name = "Regret", Type = CurseType.Regret },
+        new SlothCurse() {Name = "Sloth", Type = CurseType.Sloth },
+        new StupidityCurse() {Name = "Stupidity", Type = CurseType.Stupidity },
+        new ThirstCurse() {Name = "Thirst", Type = CurseType.Thirst},
+        new TraumaCurse() { Name = "Trauma", Type = CurseType.Despair },
+        new UnknownCurse() {Name = "Unknown", Type = CurseType.Unknown },
+        new WeaknessCurse() { Name = "Weakness", Type = CurseType.Weakness },
+    ];
 
     #endregion
 
