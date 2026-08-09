@@ -119,19 +119,7 @@ internal class MazeCurse : TemporaryCurse
         base.Unhook();
     }
 
-    public override void ApplyCurse()
-    {
-        if (!EasyLift)
-            KnownScenes["Counter"] = "0";
-        base.ApplyCurse();
-    }
-
     protected override bool IsActive() => CurrentAmount != -1;
-
-    public override void ResetAdditionalData()
-    {
-        Data.AdditionalData = new Dictionary<string, string>() { { "Counter", "-1" } };
-    }
 
     protected override Vector2 MoveToPosition(CurseCounterPosition position)
     {

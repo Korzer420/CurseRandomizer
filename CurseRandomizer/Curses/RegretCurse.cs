@@ -63,13 +63,6 @@ internal class RegretCurse : TemporaryCurse
 
     #region Control
 
-    public override void ApplyCurse()
-    {
-        if (!EasyLift)
-            CurrentAmount = 0;
-        base.ApplyCurse();
-    }
-
     public override void ApplyHooks()
     {
         ModHooks.RecordKillForJournalHook += ModHooks_RecordKillForJournalHook;
@@ -86,8 +79,6 @@ internal class RegretCurse : TemporaryCurse
 
         base.Unhook();
     }
-
-    public override void ResetAdditionalData() => Data.AdditionalData = -1;
 
     protected override bool IsActive() => CurrentAmount != -1;
 

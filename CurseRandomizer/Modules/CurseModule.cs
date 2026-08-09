@@ -79,7 +79,7 @@ public class CurseModule : Module
             yield return null;
         }
 
-        // Display messages throw an error if done too early as the fsm didn't get setu
+        // Display messages throw an error if done too early as the fsm didn't get setup
         if (initialize)
             yield return new WaitForSeconds(5f);
         // Display the FOOL text.
@@ -93,6 +93,7 @@ public class CurseModule : Module
                 if (!CurseManager.GetCurse<PainCurse>().Data.Ignored)
                 {
                     CurseManager.GetCurse<PainCurse>().Data.CastedAmount += painAmount;
+                    CurseManager.GetCurse<PainCurse>().Data.DespairEnhanced += CurseManager.GetCurse<DespairCurse>().Data.CastedAmount;
                     PainCurse.DoDamage(painAmount);
                 }
             }
@@ -120,6 +121,7 @@ public class CurseModule : Module
                         else
                         {
                             curse.Data.CastedAmount++;
+                            curse.Data.DespairEnhanced += CurseManager.GetCurse<DespairCurse>().Data.CastedAmount;
                             curse.ApplyCurse();
                         }
                 }

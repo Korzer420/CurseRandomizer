@@ -23,7 +23,7 @@ internal static class CurseStats
                 Title = "Curse Stats",
                 MainStat = "Total afflicted curses: " + CurseManager.GetCurses().Select(x => x.Data.CastedAmount).Aggregate((x, y) => x + y),
                 Priority = -4,
-                StatColumns = new()
+                StatColumns = []
             };
 
             List<Curse> curses = CurseManager.GetCurses();

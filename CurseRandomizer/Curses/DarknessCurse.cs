@@ -131,18 +131,9 @@ internal class DarknessCurse : TemporaryCurse
 
     public override void ApplyCurse()
     {
-        if (!EasyLift)
-            PassedScenes.Clear();
-        else
-            PassedScenes.RemoveAll(x => x == "Inactive");
+        PassedScenes.RemoveAll(x => x == "Inactive");
         base.ApplyCurse();
         HeroController.instance.vignetteFSM.SendEvent("SCENE RESET");
-    }
-
-    public override void ResetAdditionalData()
-    {
-        PassedScenes.Clear();
-        PassedScenes.Add("Inactive");
     }
 
     protected override bool IsActive() => !PassedScenes.Contains("Inactive");

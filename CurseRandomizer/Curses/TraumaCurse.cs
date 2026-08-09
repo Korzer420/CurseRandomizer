@@ -32,8 +32,6 @@ internal class TraumaCurse : TemporaryCurse
 
     protected override bool IsActive() => CurrentAmount != -1;
 
-    public override void ResetAdditionalData() => Data.AdditionalData = -1;
-
     protected override Vector2 MoveToPosition(CurseCounterPosition position)
     {
         return position switch

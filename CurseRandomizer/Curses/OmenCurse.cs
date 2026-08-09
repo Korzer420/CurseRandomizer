@@ -104,15 +104,9 @@ internal class OmenCurse : TemporaryCurse
 
     public override void ApplyCurse()
     {
-        base.ApplyCurse();
-        if (!EasyLift)
-            KilledEnemies.Clear();
-        else
-            KilledEnemies.RemoveAll(x => x == "Inactive");
+        KilledEnemies.RemoveAll(x => x == "Inactive");
         UpdateProgression();
     }
-
-    public override void ResetAdditionalData() => Data.AdditionalData = new List<string>() { "Inactive" };
 
     protected override bool IsActive() => !KilledEnemies.Contains("Inactive");
 

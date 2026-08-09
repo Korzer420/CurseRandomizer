@@ -80,8 +80,6 @@ internal abstract class TemporaryCurse : Curse
 
     public static CurseCounterPosition Position { get; set; }
 
-    public static bool EasyLift { get; set; }
-
     #endregion
 
     #region Event handler

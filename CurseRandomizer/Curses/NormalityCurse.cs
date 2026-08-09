@@ -92,8 +92,6 @@ internal class NormalityCurse : Curse
         }
     }
 
-    public override void ResetAdditionalData() => DisabledCharmId.Clear();
-
     public static List<int> GetAvailableCharms()
     {
         List<int> availableCharms = [];

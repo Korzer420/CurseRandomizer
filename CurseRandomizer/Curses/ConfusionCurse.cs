@@ -15,7 +15,7 @@ internal class ConfusionCurse : TemporaryCurse
 {
     #region Members
 
-    private PlayerAction[] _actions = new PlayerAction[9];
+    private PlayerAction[] _actions = new PlayerAction[7];
 
     #endregion
 
@@ -128,13 +128,9 @@ internal class ConfusionCurse : TemporaryCurse
 
     public override void ApplyCurse()
     {
-        if (!EasyLift)
-            CurrentAmount = 0;
         SetBindings(false);
         base.ApplyCurse();
     }
-
-    public override void ResetAdditionalData() => CurrentAmount = -1;
 
     protected override bool IsActive() => CurrentAmount != -1;
 

@@ -61,7 +61,7 @@ public abstract class Curse
     /// <summary>
     /// The logic for actually applying the curse. This will be called, once the HeroController has gained control again.
     /// </summary>
-    public abstract void ApplyCurse();
+    public virtual void ApplyCurse() { }
 
     /// <summary>
     /// Allows to load save data into this curse.
@@ -79,14 +79,9 @@ public abstract class Curse
     internal void ResetData()
     {
         Data.CastedAmount = 0;
-        ResetAdditionalData();
+        Data.DespairEnhanced = 0;
+        Data.AdditionalData = null;
     }
-
-    /// <summary>
-    /// Can be used to reset the data stored in <see cref="CurseData.AdditionalData"/>. The <see cref="CurseData.CastedAmount"/> will be reset automatically.
-    /// <para>Called when the player starts a new game file.</para>
-    /// </summary>
-    public virtual void ResetAdditionalData() { }
 
     /// <summary>
     /// Add needed hooks for your curse to work.

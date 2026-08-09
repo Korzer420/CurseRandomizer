@@ -390,7 +390,5 @@ internal class UnknownCurse : Curse
 
     public override bool CanApplyCurse() => Data.CastedAmount < 5;
 
-    public override void ResetAdditionalData() => Affected.Clear();
-
     #endregion
 }
