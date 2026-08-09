@@ -18,7 +18,7 @@ Here's a list of available curses:
 - Clumsy (Permanent): Taking damage lowers your soul by 1 for each time this curse has been casted.
 - Confusion* (Temporary): Switches player actions with each other. Vanishes after killing a boss (Enemies with more than 200 hp are considered bosses), or 2 if this curse has been cast 5 times already. Affected one more action each time this curse is applied (up to 7 total).
 - Darkness (Temporary): Lowers the vision range by 30% until you traverse 6 different rooms ("Traverse" as in you need to exit on a different side than you entered). The vision range decreases with subsequent casts even further.
-- Despair** (Permanent): Causes most other **future** curses to be more harmful
+- Despair (Permanent): Causes most other **future** curses to be more harmful. See below for their effects.
 - Diminish (Permanent): Lowers your nail range by 0.05. For perspective, your base nail range is around 1.4. Do the math yourself :c
 - Disorientation (Instant): Warps you back to your bench.
 - Doubt (Instant): Unequippes all charms that you're wearing. Also reshuffles the cost of ALL charms. The total cost is increased by up to 5. For example: If you have Dashmaster (3) and Compass (5), a possible final cost could be Dashmaster (6) and Compass (3) (from 8 total to 9). Charms can never cost more than 6 notches. The added extra costs decreases as your total cost goes higher.
@@ -41,7 +41,8 @@ Here's a list of available curses:
 **Choosing certain curses will override the logic to remove skip logic, since they may break specific skips. The application of the curses takes priority! Be aware of that.**
 
 *If this curse is active, Iselda will repeatedly sell a dummy item for 400 geo.
-** Despair effect:
+
+#### Despair effects
 - Amnesia: Adds a 5% chance per despair to deal just 1 damage instead.
 - Clumsy: Adds a 5% chance per despair to take your full soul away instead.
 - Confusion: Adds 2.5% chance on hit to reroll your binding again (only if the curse is active). This effect has a 60 seconds cooldown.
