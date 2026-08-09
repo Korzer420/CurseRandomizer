@@ -35,7 +35,7 @@ internal class DarknessCurse : TemporaryCurse
         }
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount * 3, 30);
+    public override int NeededAmount => Math.Min(6 + Data.DespairEnhanced * 2, 30);
 
     public override int CurrentAmount { get => PassedScenes.Count; set { } }
 
@@ -49,7 +49,7 @@ internal class DarknessCurse : TemporaryCurse
         if (self.IsCorrectContext("Darkness Control", "Vignette", null) && !PassedScenes.Contains("Inactive"))
         {
             Vector3 normalScale = new(self.x.Value, self.y.Value);
-            float darknessFactor = 1 - ((Math.Min(5, 1 + DespairCurse.CastedDespair) + 1) * 0.15f);
+            float darknessFactor = 1 - ((Math.Min(5, 1 + Data.CastedAmount) + 1) * 0.15f);
             self.vector3Variable.Value = new(Math.Max(0.4f, normalScale.x * darknessFactor), Math.Max(0.4f, normalScale.y * darknessFactor), Math.Max(0.4f, normalScale.z * darknessFactor));
         }
     }

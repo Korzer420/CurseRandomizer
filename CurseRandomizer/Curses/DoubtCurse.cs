@@ -1,5 +1,4 @@
-﻿using CurseRandomizer.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,8 +6,8 @@ namespace CurseRandomizer.Curses;
 
 internal class DoubtCurse : Curse
 {
-    public override CurseTag Tag => CurseTag.Instant;
-
+    #region Properties
+    
     public override void ApplyCurse()
     {
         int totalCost = 0;
@@ -21,21 +20,21 @@ internal class DoubtCurse : Curse
             availableCharms.Add(i);
             totalCost += PlayerData.instance.GetInt("charmCost_" + i);
         }
-        
+
         // Decrease penality based on the current max cost
-        if (totalCost < 101)
+        if (totalCost < 50)
             totalCost += 5;
-        else if (totalCost < 151)
+        else if (totalCost < 100)
             totalCost += 4;
-        else if (totalCost < 201)
+        else if (totalCost < 150)
             totalCost += 3;
-        else if (totalCost < 251)
+        else if (totalCost < 200)
             totalCost += 2;
         else
             totalCost++;
 
         // Add despair penalty
-        totalCost += DespairCurse.CastedDespair * 2;
+        totalCost += Data.DespairEnhanced;
 
         // Unequip all charms
         PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).RemoveAll(x => x != 36);
@@ -100,5 +99,7 @@ internal class DoubtCurse : Curse
             }
         }
         return totalCost < charmAmount * 6;
-    }
+    } 
+
+    #endregion
 }

@@ -1,33 +1,14 @@
-﻿using System;
-
-namespace CurseRandomizer.Curses;
+﻿namespace CurseRandomizer.Curses;
 
 /// <summary>
-/// A curse that makes other curses worse
+/// A curse that makes other curses worse.
+/// <para>Each curse should, if possible try to implement a despair effect. Use <see cref="CurseData.DespairEnhanced"/> to count the times despair has been casted on a specific curse.</para>
 /// </summary>
 internal class DespairCurse : Curse
 {
-    #region Properties
-
-    public static int CastedDespair
-    { 
-        get
-        {
-            DespairCurse despair = CurseManager.GetCurse<DespairCurse>();
-            if (despair.Data.Active)
-                return despair.Data.CastedAmount;
-            else
-                return 0;
-        }
-    }
-
-    #endregion
-
     #region Control
 
     public override bool CanApplyCurse() => true;
-
-    public override void ApplyCurse() { }
 
     #endregion
 }

@@ -5,7 +5,15 @@ namespace CurseRandomizer.Curses;
 
 internal class DisorientationCurse : Curse
 {
-    public override CurseTag Tag => CurseTag.Instant;
-    
-    public override void ApplyCurse() => ChangeScene.WarpToRespawn();
+    #region Properties
+
+    public override CurseTag Tag => CurseTag.Instant; 
+
+    #endregion
+
+    #region Control
+
+    public override void ApplyCurse() => ChangeScene.WarpToRespawn(); 
+
+    #endregion
 }

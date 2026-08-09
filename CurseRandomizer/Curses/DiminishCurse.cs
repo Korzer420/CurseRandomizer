@@ -23,6 +23,18 @@ internal class DiminishCurse : Curse
 
     #endregion
 
+    #region Control
+
+    public override void ApplyHooks() => On.NailSlash.StartSlash += NailSlash_StartSlash;
+
+    public override void Unhook() => On.NailSlash.StartSlash -= NailSlash_StartSlash;
+
+    public override void ApplyCurse() => Stacks = Math.Min(16, Stacks + 1 + Data.DespairEnhanced);
+
+    public override bool CanApplyCurse() => Stacks < 16;
+
+    #endregion
+
     #region Event handler
 
     private void NailSlash_StartSlash(On.NailSlash.orig_StartSlash orig, NailSlash self)
@@ -30,18 +42,6 @@ internal class DiminishCurse : Curse
         orig(self);
         self.transform.localScale -= new Vector3(0.05f * Stacks, 0.05f * Stacks);
     }
-
-    #endregion
-
-    #region Control
-
-    public override void ApplyHooks() => On.NailSlash.StartSlash += NailSlash_StartSlash;
-
-    public override void Unhook() => On.NailSlash.StartSlash -= NailSlash_StartSlash;
-
-    public override void ApplyCurse() => Stacks = Math.Min(16, Stacks + 1 + DespairCurse.CastedDespair);
-
-    public override bool CanApplyCurse() => Data.CastedAmount < 16;
 
     #endregion
 }
