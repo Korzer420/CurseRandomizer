@@ -25,8 +25,8 @@ internal class TraumaCurse : TemporaryCurse
 
     public override void ApplyCurse()
     {
-        base.ApplyCurse();
         CurrentAmount = 0;
+        base.ApplyCurse();
         HeroController.instance.gameObject.GetOrAddComponent<TraumaCounter>();
     }
 

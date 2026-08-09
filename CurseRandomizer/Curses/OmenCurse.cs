@@ -48,7 +48,8 @@ internal class OmenCurse : TemporaryCurse
     {
         if (damageAmount > 0 && damageAmount < 420 && !KilledEnemies.Contains("Inactive"))
         {
-            List<Curse> availableCurses = [.. CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Permanent && x.CanApplyCurse() && x.Data.Active)];
+            List<Curse> availableCurses = [.. CurseManager.GetCurses().Where(x => x.Tag == CurseTag.Permanent && x.CanApplyCurse() 
+                && x.Data.Active && x.Type != CurseType.Despair)];
             if (!availableCurses.Any())
                 damageAmount = 999;
             else
@@ -67,6 +68,13 @@ internal class OmenCurse : TemporaryCurse
                 UpdateProgression();
                 GameHelper.DisplayMessage("The curse of " + selectedCurse + " was layed upon you.");
             }
+
+            if (UnityEngine.Random.Range(0, 100) < Mathf.Min(20, Data.DespairEnhanced))
+            {
+                KilledEnemies.Clear();
+                UpdateProgression();
+            }    
+
         }
         return damageAmount;
     }

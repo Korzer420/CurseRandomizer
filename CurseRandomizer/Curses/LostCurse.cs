@@ -9,10 +9,13 @@ namespace CurseRandomizer.Curses;
 
 internal class LostCurse : Curse
 {
-    
-    #region Control
+    #region Properties
 
     public override CurseTag Tag => CurseTag.Instant;
+
+    #endregion
+
+    #region Control
 
     public override void ApplyHooks()
     {

@@ -25,42 +25,6 @@ internal class StupidityCurse : Curse
 
     #endregion
 
-    #region Event handler
-
-    private void SendMessage_OnEnter(On.HutongGames.PlayMaker.Actions.SendMessage.orig_OnEnter orig, HutongGames.PlayMaker.Actions.SendMessage self)
-    {
-        if (self.functionCall?.FunctionName == "TakeMP" && self.Fsm.Name == "Spell Control")
-        {
-            int baseValue = self.functionCall.IntParameter.Value;
-            self.functionCall.IntParameter.Value = Mathf.Min(99, baseValue + Data.CastedAmount * 3);
-            orig(self);
-            self.functionCall.IntParameter.Value = baseValue;
-            return;
-        }
-
-        if ((self.IsCorrectContext("Spell Control", "Knight", "Focus Heal") || self.IsCorrectContext("Spell Control", "Knight", "Focus Heal 2")) && Data.CastedAmount > 0)
-            HeroController.instance.TakeMP(Data.CastedAmount * 3);
-        orig(self);
-    }
-
-    private void IntCompare_OnEnter(On.HutongGames.PlayMaker.Actions.IntCompare.orig_OnEnter orig, HutongGames.PlayMaker.Actions.IntCompare self)
-    {
-        if (self.IsCorrectContext("Spell Control", "Knight", "Can Cast? QC") || self.IsCorrectContext("Spell Control", "Knight", "Can Cast?"))
-        {
-            int baseValue = self.integer2.Value;
-            self.integer2.Value = Mathf.Min(99, baseValue + Data.CastedAmount * 3);
-            orig(self);
-            self.integer2.Value = baseValue;
-            return;
-        }
-
-        if (self.IsCorrectContext("Spell Control", "Knight", "Can Focus?"))
-            self.integer2.Value += Data.CastedAmount * 3;
-            orig(self);
-    } 
-
-    #endregion
-
     #region Control
 
     public override void ApplyHooks()
@@ -84,19 +48,52 @@ internal class StupidityCurse : Curse
             return false;
         else if (vesselModule.SoulVessel == 1)
             cap = 66;
-        return SpellCost + Stacks <= cap;
+        return SpellCost + Stacks + 3 <= cap;
     }
 
-    public override void ApplyCurse()
+    public override void ApplyCurse() => Stacks += 3;
+
+    #endregion
+
+    #region Event handler
+
+    private void SendMessage_OnEnter(On.HutongGames.PlayMaker.Actions.SendMessage.orig_OnEnter orig, HutongGames.PlayMaker.Actions.SendMessage self)
     {
-        // The inital needed 33 soul are omitted here, so it is easier to calculate.
-        int cap = 66;
-        VesselModule vesselModule = ItemChangerMod.Modules.GetOrAdd<VesselModule>();
-        if (vesselModule.SoulVessel == 0)
+        if (self.functionCall?.FunctionName == "TakeMP" && self.Fsm.Name == "Spell Control")
+        {
+            int baseValue = self.functionCall.IntParameter.Value;
+            self.functionCall.IntParameter.Value = Mathf.Min(99, baseValue + Stacks);
+            if (UnityEngine.Random.Range(0, 20) < Data.DespairEnhanced)
+                self.functionCall.IntParameter.Value = 99;
+            orig(self);
+            self.functionCall.IntParameter.Value = baseValue;
             return;
-        else if (vesselModule.SoulVessel == 1)
-            cap = 33;
-        Stacks = Math.Min(cap, Stacks + 3 + DespairCurse.CastedDespair);
+        }
+
+        if ((self.IsCorrectContext("Spell Control", "Knight", "Focus Heal") || self.IsCorrectContext("Spell Control", "Knight", "Focus Heal 2")) && Stacks > 0)
+        {
+            if (UnityEngine.Random.Range(0, 20) < Data.DespairEnhanced)
+                HeroController.instance.ClearMP();
+            else
+                HeroController.instance.TakeMP(Stacks);
+        }
+        orig(self);
+    }
+
+    private void IntCompare_OnEnter(On.HutongGames.PlayMaker.Actions.IntCompare.orig_OnEnter orig, HutongGames.PlayMaker.Actions.IntCompare self)
+    {
+        if (self.IsCorrectContext("Spell Control", "Knight", "Can Cast? QC") || self.IsCorrectContext("Spell Control", "Knight", "Can Cast?"))
+        {
+            int baseValue = self.integer2.Value;
+            self.integer2.Value = Mathf.Min(99, baseValue + Stacks);
+            orig(self);
+            self.integer2.Value = baseValue;
+            return;
+        }
+
+        if (self.IsCorrectContext("Spell Control", "Knight", "Can Focus?"))
+            self.integer2.Value += Stacks;
+        orig(self);
     }
 
     #endregion

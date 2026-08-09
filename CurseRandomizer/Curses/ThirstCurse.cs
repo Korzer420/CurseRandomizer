@@ -1,4 +1,5 @@
 ﻿using Modding;
+using System;
 using UnityEngine;
 
 namespace CurseRandomizer.Curses;
@@ -11,19 +12,17 @@ internal class ThirstCurse : Curse
 
     #endregion
 
-    #region Event handler
+    #region Properties
 
-    private int ModHooks_SoulGainHook(int soulGain)
+    public int Stacks
     {
-        _stepCounter++;
-        if (11 - Data.CastedAmount < _stepCounter)
+        get
         {
-            _stepCounter = 0;
-            return 0;
+            if (Data.AdditionalData == null)
+                Data.AdditionalData = 0;
+            return Convert.ToInt32(Data.AdditionalData);
         }
-        if (DespairCurse.CastedDespair > 0)
-            return Mathf.Max(1, soulGain - DespairCurse.CastedDespair);
-        return soulGain;
+        set => Data.AdditionalData = value;
     }
 
     #endregion
@@ -38,9 +37,25 @@ internal class ThirstCurse : Curse
 
     public override void Unhook() => ModHooks.SoulGainHook -= ModHooks_SoulGainHook;
 
-    public override bool CanApplyCurse() => Data.CastedAmount < 10;
+    public override bool CanApplyCurse() => Stacks < 10;
 
-    public override void ApplyCurse() { }
+    public override void ApplyCurse() => Stacks++;
+
+    #endregion
+
+    #region Event handler
+
+    private int ModHooks_SoulGainHook(int soulGain)
+    {
+        soulGain = Math.Max(1, soulGain - Stacks);
+        _stepCounter++;
+        if (Data.DespairEnhanced > 0 && Math.Max(2, 21 - Data.DespairEnhanced) < _stepCounter)
+        {
+            _stepCounter = 0;
+            return 0;
+        }
+        return soulGain;
+    }
 
     #endregion
 }

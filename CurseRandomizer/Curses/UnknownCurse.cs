@@ -106,10 +106,10 @@ internal class UnknownCurse : Curse
             self.AddState(new FsmState(self.Fsm)
             {
                 Name = "Check for Unknown",
-                Actions = new FsmStateAction[]
-                {
-                new Lambda(() => self.SendEvent(Affected.Contains(AffectedVisual.Health) ? "HIDDEN FURY" : "FINISHED"))
-                }
+                Actions =
+                [
+                    new Lambda(() => self.SendEvent(Affected.Contains(AffectedVisual.Health) ? "HIDDEN FURY" : "FINISHED"))
+                ]
             });
             self.GetState("Get Ref").AdjustTransition("FINISHED", "Check for Unknown");
 
@@ -130,14 +130,14 @@ internal class UnknownCurse : Curse
             self.AddState(new FsmState(self.Fsm)
             {
                 Name = "Fake Hiveblood",
-                Actions = new FsmStateAction[]
-                {
-                new Lambda(() =>
-                {
-                    if (Affected.Contains(AffectedVisual.Health) && self.FsmVariables.FindFsmInt("Health Number").Value == PlayerData.instance.GetInt("health"))
-                        self.transform.parent.gameObject.LocateMyFSM("Hive Health Regen").SendEvent("DAMAGE TAKEN");
-                })
-                }
+                Actions =
+                [
+                    new Lambda(() =>
+                    {
+                        if (Affected.Contains(AffectedVisual.Health) && self.FsmVariables.FindFsmInt("Health Number").Value == PlayerData.instance.GetInt("health"))
+                            self.transform.parent.gameObject.LocateMyFSM("Hive Health Regen").SendEvent("DAMAGE TAKEN");
+                    })
+                ]
             });
             self.GetState("Inactive").AddTransition("HERO DAMAGED", "Fake Hiveblood");
             self.GetState("Fake Hiveblood").AddTransition("FINISHED", "Inactive");

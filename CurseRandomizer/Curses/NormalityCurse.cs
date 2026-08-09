@@ -1,7 +1,6 @@
 ﻿using KorzUtils.Enums;
 using KorzUtils.Helper;
 using Modding;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -11,48 +10,17 @@ namespace CurseRandomizer.Curses;
 
 internal class NormalityCurse : Curse
 {
-    #region Constructors
-
-    public NormalityCurse()
-    {
-        Data.AdditionalData = new List<int>();
-    }
-
-    #endregion
-
     #region Properties
 
-    internal List<int> DisabledCharmId 
-    { 
-        get 
+    internal List<int> DisabledCharmId
+    {
+        get
         {
             if (Data.AdditionalData == null)
                 Data.AdditionalData = new List<int>();
             return Data.AdditionalData as List<int>;
         }
     }
-
-    #endregion
-
-    #region Event handler
-
-    private void CheckFsmStateAction_OnEnter(CheckFsmStateAction.orig_OnEnter orig, FSMUtility.CheckFsmStateAction self)
-    {
-        if (self.IsCorrectContext("UI Charms", "Charms", "Deactivate UI"))
-            self.falseEvent = DisabledCharmId.Contains(int.Parse(self.Fsm.Variables.FindFsmString("Item Num String").Value)) ? self.trueEvent : null;
-        orig(self);
-    }
-
-    private string ShowUselessCharm(string key, string sheetTitle, string orig)
-    {
-        if (key.StartsWith("CHARM_DESC_"))
-        {
-            if (int.TryParse(key.Substring(11), out int charmId))
-                if (DisabledCharmId.Contains(charmId))
-                    orig += $"\r\n<color={TextColor}>It seems like this charm has lost its power.</color>";
-        }
-        return orig;
-    } 
 
     #endregion
 
@@ -76,23 +44,27 @@ internal class NormalityCurse : Curse
     {
         List<int> availableCharms = [.. GetAvailableCharms().Except(DisabledCharmId)];
 
-        for (int i = 0; i < 1 + DespairCurse.CastedDespair / 2; i++)
+        // Despair tries to look for an equipped charm rather than a completely random one.
+        if (UnityEngine.Random.Range(0, 10) < Data.DespairEnhanced && PlayerData.instance.equippedCharms.Count > 0)
+            availableCharms = [..PlayerData.instance.equippedCharms];
+        int rolledCharm = availableCharms[UnityEngine.Random.Range(0, availableCharms.Count())];
+        DisabledCharmId.Add(rolledCharm);
+        if (PlayerData.instance.GetBool("equippedCharm_" + rolledCharm))
         {
-            int rolledCharm = availableCharms[UnityEngine.Random.Range(0, availableCharms.Count())];
-            DisabledCharmId.Add(rolledCharm);
-            if (PlayerData.instance.GetBool("equippedCharm_" + rolledCharm))
-            {
-                PlayerData.instance.SetBool("equippedCharm_" + rolledCharm, false);
-                PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).Remove(rolledCharm);
-                HeroController.instance.CharmUpdate();
-                PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
-            }
-            GameHelper.DisplayMessage("FOOL! (Your " + (Regex.Replace(((CharmRef)rolledCharm).ToString(), "([a-z])([A-Z])", "$1 $2")) + " lost its power.)");
-            availableCharms.Remove(rolledCharm);
+            PlayerData.instance.SetBool("equippedCharm_" + rolledCharm, false);
+            PlayerData.instance.GetVariable<List<int>>(nameof(PlayerData.instance.equippedCharms)).Remove(rolledCharm);
+            HeroController.instance.CharmUpdate();
+            PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
         }
+        GameHelper.DisplayMessage("FOOL! (Your " + (Regex.Replace(((CharmRef)rolledCharm).ToString(), "([a-z])([A-Z])", "$1 $2")) + " lost its power.)");
+        availableCharms.Remove(rolledCharm);
     }
 
-    public static List<int> GetAvailableCharms()
+    #endregion
+
+    #region Private Methods
+
+    private static List<int> GetAvailableCharms()
     {
         List<int> availableCharms = [];
         for (int i = 1; i < 41; i++)
@@ -107,4 +79,27 @@ internal class NormalityCurse : Curse
     }
 
     #endregion
+
+    #region Event handler
+
+    private void CheckFsmStateAction_OnEnter(CheckFsmStateAction.orig_OnEnter orig, FSMUtility.CheckFsmStateAction self)
+    {
+        if (self.IsCorrectContext("UI Charms", "Charms", "Deactivate UI"))
+            self.falseEvent = DisabledCharmId.Contains(int.Parse(self.Fsm.Variables.FindFsmString("Item Num String").Value)) ? self.trueEvent : null;
+        orig(self);
+    }
+
+    private string ShowUselessCharm(string key, string sheetTitle, string orig)
+    {
+        if (key.StartsWith("CHARM_DESC_"))
+        {
+            if (int.TryParse(key.Substring(11), out int charmId))
+                if (DisabledCharmId.Contains(charmId))
+                    orig += $"\r\n<color={TextColor}>It seems like this charm has lost its power.</color>";
+        }
+        return orig;
+    }
+
+    #endregion
+
 }

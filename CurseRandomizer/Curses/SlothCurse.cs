@@ -1,10 +1,8 @@
-﻿using HutongGames.PlayMaker.Actions;
-using KorzUtils.Helper;
+﻿using KorzUtils.Helper;
 using Modding;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System;
-using System.Collections.Generic;
 
 namespace CurseRandomizer.Curses;
 
@@ -13,86 +11,23 @@ namespace CurseRandomizer.Curses;
 /// </summary>
 internal class SlothCurse : Curse
 {
-    private ILHook _attackHook;
+    #region Members
+
+    private ILHook _attackHook; 
+
+    #endregion
 
     #region Properties
 
-    public List<int> Stacks
+    public int Stacks
     {
         get
         {
             if (Data.AdditionalData is null)
-                Data.AdditionalData = new List<int>() { 0, 0, 0, 0 };
-            return Data.AdditionalData as List<int>;
+                Data.AdditionalData = 0;
+            return Convert.ToInt32(Data.AdditionalData);
         }
-    }
-
-    #endregion
-
-    #region Event handler
-
-    private void HeroController_DoAttack(MonoMod.Cil.ILContext il)
-    {
-        ILCursor cursor = new(il);
-        cursor.Goto(0);
-
-        if (cursor.TryGotoNext(MoveType.After,
-            x => x.MatchLdfld<HeroController>("ATTACK_COOLDOWN_TIME_CH")))
-            cursor.EmitDelegate<Func<float, float>>(x => x + (Stacks[0] * 0.05f));
-        else
-            CurseRandomizer.Instance.LogError("Couldn't find attack cooldown match");
-
-        if (cursor.TryGotoNext(MoveType.After,
-            x => x.MatchLdfld<HeroController>("ATTACK_COOLDOWN_TIME")))
-            cursor.EmitDelegate<Func<float, float>>(x => x + (Stacks[0] * 0.05f));
-    }
-
-    private void HeroController_HeroDash(ILContext il)
-    {
-        ILCursor cursor = new(il);
-        cursor.Goto(0);
-
-        if (cursor.TryGotoNext(MoveType.After,
-            x => x.MatchLdfld<HeroController>("DASH_COOLDOWN_CH")))
-            cursor.EmitDelegate<Func<float, float>>(x => x + Stacks[1] * 0.05f);
-        else
-            CurseRandomizer.Instance.LogError("Couldn't find dash cooldown ch logic");
-
-        if (cursor.TryGotoNext(MoveType.After,
-            x => x.MatchLdfld<HeroController>("DASH_COOLDOWN")))
-            cursor.EmitDelegate<Func<float, float>>(x => x + Stacks[1] * 0.05f);
-        else
-            CurseRandomizer.Instance.LogError("Couldn't find dash cooldown logic");
-    }
-
-    private void CallMethodProper_OnEnter(On.HutongGames.PlayMaker.Actions.CallMethodProper.orig_OnEnter orig, CallMethodProper self)
-    {
-        orig(self);
-        if (self.IsCorrectContext("Superdash", null, "On Ground?"))
-            HeroController.instance.superDash.FsmVariables.FindFsmFloat("Charge Time").Value += Stacks[2] * 0.075f;
-        // This action does exist twice in the fsm state
-        else if (self.IsCorrectContext("Superdash", null, "Regain Control"))
-            HeroController.instance.superDash.FsmVariables.FindFsmFloat("Charge Time").Value -= Stacks[2] * 0.03625f;
-    }
-
-    private void HeroController_CharmUpdate(On.HeroController.orig_CharmUpdate orig, HeroController self)
-    {
-        orig(self);
-        if (Stacks[3] > 0)
-            ReflectionHelper.SetField<HeroController, float>(HeroController.instance,
-                "nailChargeTime", Stacks[3] * 0.075f + (CharmHelper.EquippedCharm(KorzUtils.Enums.CharmRef.NailmastersGlory)
-                ? HeroController.instance.NAIL_CHARGE_TIME_CHARM
-                : HeroController.instance.NAIL_CHARGE_TIME_DEFAULT));
-    }
-
-    private void HeroController_Start(On.HeroController.orig_Start orig, HeroController self)
-    {
-        orig(self);
-        if (Stacks[3] > 0)
-            ReflectionHelper.SetField<HeroController, float>(HeroController.instance,
-                "nailChargeTime", Stacks[3] * 0.075f + (CharmHelper.EquippedCharm(KorzUtils.Enums.CharmRef.NailmastersGlory)
-                ? HeroController.instance.NAIL_CHARGE_TIME_CHARM
-                : HeroController.instance.NAIL_CHARGE_TIME_DEFAULT));
+        set => Data.AdditionalData = value;
     }
 
     #endregion
@@ -102,8 +37,6 @@ internal class SlothCurse : Curse
     public override void ApplyHooks()
     {
         _attackHook = new(ReflectionHelper.GetMethodInfo(typeof(HeroController), "orig_DoAttack"), HeroController_DoAttack);
-        IL.HeroController.HeroDash += HeroController_HeroDash;
-        On.HutongGames.PlayMaker.Actions.CallMethodProper.OnEnter += CallMethodProper_OnEnter;
         On.HeroController.Start += HeroController_Start;
         On.HeroController.CharmUpdate += HeroController_CharmUpdate;
     }
@@ -112,27 +45,53 @@ internal class SlothCurse : Curse
     {
         _attackHook.Dispose();
         _attackHook = null;
-        IL.HeroController.HeroDash -= HeroController_HeroDash;
-        On.HutongGames.PlayMaker.Actions.CallMethodProper.OnEnter -= CallMethodProper_OnEnter;
         On.HeroController.Start -= HeroController_Start;
         On.HeroController.CharmUpdate -= HeroController_CharmUpdate;
     }
 
-    public override void ApplyCurse() 
-    {
-        int selected = UnityEngine.Random.Range(0, 4);
-        Stacks[selected] = Stacks[selected] + 1 + DespairCurse.CastedDespair;
-        string message = selected switch
-        {
-            0 => "FOOL! (You slash slower)",
-            1 => "FOOL! (You dash slower)",
-            2 => "FOOL! (Your crystal heart got weaker)",
-            _ => "FOOL! (You charge the nail slower)",
-        };
-        GameHelper.DisplayMessage(message);
-    }
+    public override void ApplyCurse() => Stacks++;
 
     public override bool CanApplyCurse() => true;
+
+    #endregion
+
+    #region Event handler
+
+    private void HeroController_DoAttack(ILContext il)
+    {
+        ILCursor cursor = new(il);
+        cursor.Goto(0);
+
+        if (cursor.TryGotoNext(MoveType.After,
+            x => x.MatchLdfld<HeroController>("ATTACK_COOLDOWN_TIME_CH")))
+            cursor.EmitDelegate<Func<float, float>>(x => x + (Stacks * 0.05f));
+        else
+            CurseRandomizer.Instance.LogError("Couldn't find attack cooldown match");
+
+        if (cursor.TryGotoNext(MoveType.After,
+            x => x.MatchLdfld<HeroController>("ATTACK_COOLDOWN_TIME")))
+            cursor.EmitDelegate<Func<float, float>>(x => x + (Stacks * 0.05f));
+    }
+
+    private void HeroController_CharmUpdate(On.HeroController.orig_CharmUpdate orig, HeroController self)
+    {
+        orig(self);
+        if (Data.DespairEnhanced > 0)
+            ReflectionHelper.SetField<HeroController, float>(HeroController.instance,
+                "nailChargeTime", Data.DespairEnhanced * 0.075f + (CharmHelper.EquippedCharm(KorzUtils.Enums.CharmRef.NailmastersGlory)
+                ? HeroController.instance.NAIL_CHARGE_TIME_CHARM
+                : HeroController.instance.NAIL_CHARGE_TIME_DEFAULT));
+    }
+
+    private void HeroController_Start(On.HeroController.orig_Start orig, HeroController self)
+    {
+        orig(self);
+        if (Data.DespairEnhanced > 0)
+            ReflectionHelper.SetField<HeroController, float>(HeroController.instance,
+                "nailChargeTime", Data.DespairEnhanced * 0.075f + (CharmHelper.EquippedCharm(KorzUtils.Enums.CharmRef.NailmastersGlory)
+                ? HeroController.instance.NAIL_CHARGE_TIME_CHARM
+                : HeroController.instance.NAIL_CHARGE_TIME_DEFAULT));
+    }
 
     #endregion
 }

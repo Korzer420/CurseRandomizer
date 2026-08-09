@@ -21,24 +21,6 @@ internal class WeaknessCurse : Curse
 
     #endregion
 
-    #region Event handler
-
-    private int ModifyNailDamage(string name, int originalValue)
-    {
-        if (name == "nailDamage")
-            originalValue = Math.Max(1, originalValue - Stacks);
-        return originalValue;
-    }
-
-    private void IntOperator_OnEnter(On.HutongGames.PlayMaker.Actions.IntOperator.orig_OnEnter orig, HutongGames.PlayMaker.Actions.IntOperator self)
-    {
-        if (self.IsCorrectContext("Shade Control", null, "Init"))
-            self.integer1.Value += Stacks;
-        orig(self);
-    }
-
-    #endregion
-
     #region Control
 
     public override void ApplyHooks() 
@@ -57,8 +39,26 @@ internal class WeaknessCurse : Curse
 
     public override void ApplyCurse()
     {
-        Stacks += 1 + DespairCurse.CastedDespair;
+        Stacks++;
         PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
+    }
+
+    #endregion
+
+    #region Event handler
+
+    private int ModifyNailDamage(string name, int originalValue)
+    {
+        if (name == "nailDamage")
+            originalValue = Math.Max(1, originalValue - Stacks);
+        return originalValue;
+    }
+
+    private void IntOperator_OnEnter(On.HutongGames.PlayMaker.Actions.IntOperator.orig_OnEnter orig, HutongGames.PlayMaker.Actions.IntOperator self)
+    {
+        if (self.IsCorrectContext("Shade Control", null, "Init"))
+            self.integer1.Value += Stacks;
+        orig(self);
     }
 
     #endregion

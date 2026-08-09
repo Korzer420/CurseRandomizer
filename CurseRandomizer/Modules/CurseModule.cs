@@ -94,7 +94,7 @@ public class CurseModule : Module
                 {
                     CurseManager.GetCurse<PainCurse>().Data.CastedAmount += painAmount;
                     CurseManager.GetCurse<PainCurse>().Data.DespairEnhanced += CurseManager.GetCurse<DespairCurse>().Data.CastedAmount;
-                    PainCurse.DoDamage(painAmount);
+                    CurseManager.GetCurse<PainCurse>().DoDamage(painAmount);
                 }
             }
             // Casting multiple disorientation curses doesn't serve any purpose which is why the get removed all at once.

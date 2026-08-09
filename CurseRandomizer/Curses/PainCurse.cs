@@ -1,5 +1,4 @@
 ﻿using CurseRandomizer.Enums;
-using System;
 
 namespace CurseRandomizer.Curses;
 
@@ -17,9 +16,9 @@ internal class PainCurse : Curse
 
     public override void ApplyCurse() => DoDamage(1);
 
-    internal static void DoDamage(int amount)
+    internal void DoDamage(int amount)
     {
-        int finalDamage = (1 + DespairCurse.CastedDespair) * amount;
+        int finalDamage = (1 + Data.DespairEnhanced) * amount;
 
         // Pain should not be affected by overcharming hence we remove it temporarly.
         bool overcharmed = PlayerData.instance.GetBool(nameof(PlayerData.instance.overcharmed));
