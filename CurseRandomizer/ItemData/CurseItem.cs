@@ -32,11 +32,6 @@ internal class CurseItem : AbstractItem
         CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
         if (curse.CanApplyCurse() || (OmenCurse.OmenMode && CurseName == "Omen" && CurseManager.GetCurse<OmenCurse>().KilledEnemies.Contains("Inactive")))
             module.QueueCurse(CurseName);
-        else if (CurseManager.DefaultCurse.CanApplyCurse())
-        {
-            module.QueueCurse(CurseManager.DefaultCurse.Name);
-            CurseName = CurseManager.DefaultCurse.Name;
-        }
         else
         {
             module.QueueCurse("Disorientation");

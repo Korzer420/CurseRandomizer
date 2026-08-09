@@ -1,6 +1,7 @@
 ﻿using CurseRandomizer.Curses;
 using CurseRandomizer.ItemData;
 using CurseRandomizer.Manager;
+using CurseRandomizer.ModInterop;
 using CurseRandomizer.ModInterop.MoreLocations;
 using CurseRandomizer.Randomizer;
 using CurseRandomizer.Randomizer.Settings;
@@ -174,7 +175,6 @@ internal static class RandoManager
         RandomizerMenu.AttachMenu();
         SettingsLog.AfterLogSettings += WriteCurseRandoSettings;
         ProgressionInitializer.OnCreateProgressionInitializer += SetupVesselTerm;
-        RandoController.OnExportCompleted += RandoController_OnExportCompleted;
 
         if (ModHooks.GetMod("RandoSettingsManager") is Mod)
             HookRandoSettingsManager();
@@ -185,9 +185,6 @@ internal static class RandoManager
         if (ModHooks.GetMod("MoreLocations") is Mod)
             MoreLocationsInterop.Hook();
     }
-
-    private static void RandoController_OnExportCompleted(RandoController obj) 
-        => CurseManager.UseCaps = CurseRandomizer.Instance.Settings.CurseControlSettings.CapEffects;
 
     private static void SetupVesselTerm(LogicManager logicManager, GenerationSettings generationSettings, ProgressionInitializer progressionInitializer)
     {
@@ -214,7 +211,7 @@ internal static class RandoManager
         () => CurseRandomizer.Instance.Settings.GeneralSettings.Enabled ? CurseRandomizer.Instance.Settings : null));
     }
 
-    private static void HookFStats() => CurseStats.HookFStats();
+    private static void HookFStats() => FStatsInterop.HookFStats();
 
     private static int RandoController_OnCalculateHash(RandoController controller, int hashValue)
     {
@@ -223,13 +220,9 @@ internal static class RandoManager
         int addition = 0;
         if (CurseRandomizer.Instance.Settings.CurseControlSettings.PerfectMimics)
             addition += 410;
-        if (CurseRandomizer.Instance.Settings.CurseControlSettings.CapEffects)
-            addition++;
 
         foreach (Curse curse in _availableCurses)
             addition += 120 * (int)curse.Type;
-        addition += (int)CurseManager.DefaultCurse.Type * 420;
-        addition += (CurseManager.GetCurses().Select(x => x.Name).IndexOf(CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse) + 1) * 777;
 
         return 24691 + addition;
     }
@@ -545,25 +538,16 @@ internal static class RandoManager
 
         // Check all curses that can be used.
         _availableCurses.Clear();
-        CurseManager.DefaultCurse = null;
         foreach (CurseSettings settings in CurseRandomizer.Instance.Settings.CurseSettings)
             if (CurseManager.GetCurseByName(settings.Name) is Curse curse)
             {
-                if (curse.Type != CurseType.Custom || CurseRandomizer.Instance.Settings.CurseControlSettings.CustomCurses)
-                {
-                    curse.Data.Active = settings.Active;
-                    if (settings.Active)
-                        _availableCurses.Add(curse);
-                }
-                if (settings.Name == CurseRandomizer.Instance.Settings.CurseControlSettings.DefaultCurse && settings.Active)
-                    CurseManager.DefaultCurse = curse;
+                curse.Data.Active = settings.Active;
+                if (settings.Active)
+                    _availableCurses.Add(curse);
             }
 
         if (!_availableCurses.Any())
             throw new Exception("No curses available to place.");
-
-        // If for some reason the default curse is not active, we just select the curse of pain.
-        CurseManager.DefaultCurse ??= CurseManager.GetCurse<PainCurse>();
 
         CurseRandomizer.Instance.LogDebug("Total amount of items is: " + totalItemCount);
         // Get the amount of curses to be placed.
@@ -610,7 +594,7 @@ internal static class RandoManager
                 ReplacedItems.Add(pickedItem);
                 if (availableItems.Length == 0)
                     availablePools.Remove(pickedGroup);
-                string itemToMimic = CurseRandomizer.Instance.Settings.CurseControlSettings.TakeReplaceGroup 
+                string itemToMimic = CurseRandomizer.Instance.Settings.CurseControlSettings.TakeReplaceGroup
                     ? "Evil_" + pickedItem
                     : RollMimic();
                 builder.AddItemByName(CurseItem.CursePrefix + itemToMimic);

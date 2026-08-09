@@ -2,7 +2,7 @@
 using CurseRandomizer.Curses;
 using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
-using CurseRandomizer.ModInterop.Debug;
+using CurseRandomizer.ModInterop.DebugInterop;
 using CurseRandomizer.Randomizer.Settings;
 using CurseRandomizer.SaveManagment;
 using Modding;
@@ -60,7 +60,6 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         TemporaryCurse.Scale = Math.Max(0.1f, randoSettings.TrackerScaling);
         TemporaryCurse.TrackerPosition = randoSettings.TrackerPosition;
         TemporaryCurse.AdjustTracker();
-        TemporaryCurse.EasyLift = randoSettings.EasyCurseLift;
     }
 
     public void OnLoadLocal(LocalSaveData saveData)
@@ -71,9 +70,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             if (saveData == null)
                 return;
             CurseManager.ParseSaveData(saveData.Data);
-            CurseManager.UseCaps = saveData.UseCaps;
             OmenCurse.OmenMode = saveData.OmenMode;
-            CurseManager.DefaultCurse = CurseManager.GetCurseByName(saveData.DefaultCurse);
         }
         catch (System.Exception exception)
         {
@@ -87,8 +84,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             Settings = Settings,
             CounterPosition = TemporaryCurse.Position,
             TrackerPosition = TemporaryCurse.TrackerPosition,
-            TrackerScaling = TemporaryCurse.Scale,
-            EasyCurseLift = TemporaryCurse.EasyLift
+            TrackerScaling = TemporaryCurse.Scale
         };
 
     public LocalSaveData OnSaveLocal()
@@ -101,8 +97,6 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         LocalSaveData saveData = new()
         {
             Data = curseData,
-            UseCaps = CurseManager.UseCaps,
-            DefaultCurse = CurseManager.DefaultCurse == null ? "Pain" : CurseManager.DefaultCurse.Name,
             OmenMode = OmenCurse.OmenMode
         };
         return saveData;
@@ -174,10 +168,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
                     TemporaryCurse.AdjustTracker();
                 }
             },
-            () => 0),
-            new ("Easy curse lift", new string[] {"Disabled", "Enabled"}, "If enabled, temporary curses will not fully reset, if recasted.",
-            index => TemporaryCurse.EasyLift = index == 1,
-            () => TemporaryCurse.EasyLift ? 1 : 0)
+            () => 0)
         };
         //foreach (Curse curse in CurseManager.GetCurses())
         //    options.Add(new($"Ignore {curse.Name}", new string[] { "False", "True" }, $"If true, {curse.Name} doesn't affect you",

@@ -5,10 +5,8 @@ Hollow Knight Randomizer Connection for more cursed stuff.
 
 Adds items which grant debuffs upon obtaining them. They mimic the appearance of normal items with the only distinction, that they have an incorrect name, giving the player a chance (in some contexts) to avoid those.
 
-Upon pickup, the curse evaluates if it can be applied in the first place. If it cannot, the default curse will be checked as well. If even the default curse fails, the "Disorientation" curse is applied.
+Upon pickup, the curse evaluates if it can be applied in the first place. If not, the "Disorientation" curse is applied instead.
 
-Basically:
-Can normal curse be applied? If not -> Can default curse be applied? If not -> Apply disorientation.
 
 With this method it is ensured, that a curse is applied regardless of the context. Curses will only be applied, if you have control of the knight (otherwise, the curse will wait for you, to have control again and block the pause menu).
 
@@ -70,9 +68,6 @@ Here's a list of available curses:
 
 #### Perfect Mimics
 If enabled, even the names will match the original items, giving the player no indicator if an item might be a curse instead. Playing with this is not recommended. (Unless you like pain... I guess) If you are using the AllMajorItemsByArea mod, items which mimic skills will be considered as major items, trying to trick you even more.
-
-#### Default Curse
-Determines which curse should be applied to be casted if the normal curse fails. If this fails as well, disorientation is cast instead. It is suggested that this should be pain or another non permanent curse.
 
 #### Curse Method
 Determines how the curses should be placed.
@@ -145,11 +140,3 @@ Add this property to the Interop tag:
 Only use this for real junk items, which have no purpose at all.
 If it is important for your configuration, which items are actually removed, you can use RandoManager.RemovedItems to figure that out.
 Note that your items are only considered if the player chooses "Custom" as viable "Replaceable Items".
-
-### Curses
-If you want to implement your own curses, that can be done as well:
-- Create a class, which inherts from "Curse".
-- Implement "ApplyCurse" and "SetCap". If your curse has to implement some hooks, overwrite "ApplyHooks" and "Unhook". To check if you curse can be applied at all overwrite "CanApplyCurse".
-- If your curse does actually need save data, you can define the Data.AdditionalData object. Remember to reset it via overwriting "ResetAdditionalData".
-
-**All additional curses fall under "Custom". Which means, that if player disable that option, you curse cannot be applied.**

@@ -40,12 +40,6 @@ public static class CurseManager
     #region Properties
 
     /// <summary>
-    /// Gets or sets the curse, which should be casted if the other ones don't work.
-    /// <para>If this default curse cannot be applied as well, the desorientation curse will be casted instead.</para>
-    /// </summary>
-    public static Curse DefaultCurse { get; set; }
-
-    /// <summary>
     /// Gets or sets if curses should use their caps.
     /// </summary>
     public static bool UseCaps { get; set; }
