@@ -5,75 +5,69 @@ Hollow Knight Randomizer Connection for more cursed stuff.
 
 Adds items which grant debuffs upon obtaining them. They mimic the appearance of normal items with the only distinction, that they have an incorrect name, giving the player a chance (in some contexts) to avoid those.
 
-Upon pickup, the curse evaluates if it can be applied in the first place. If it cannot, the default curse will be checked as well. If even the default curse fails, the "Disorientation" curse is applied.
+Upon pickup, the curse evaluates if it can be applied in the first place. If not, the "Disorientation" curse is applied instead.
 
-Basically:
-Can normal curse be applied? If not -> Can default curse be applied? If not -> Apply disorientation.
 
 With this method it is ensured, that a curse is applied regardless of the context. Curses will only be applied, if you have control of the knight (otherwise, the curse will wait for you, to have control again and block the pause menu).
 
 ### Curses
 Here's a list of available curses:
-- Amnesia (Permanent): Lowers the damage of your spells by 10% or takes away a spell upgrade (20% chance).
-- Darkness (Temporarly): Lowers the vision range by 30% until you traverse 3 different rooms ("Traverse" as in you need to exit on a different side than you entered). Repeated cast increase the vision range penalty by 15% each (up to 90% if not capped). The needed room amount increases by 3 each time as well.
-- Diminish (Permanent): Lowers your nail range by 0.1. For perspective, your base nail range is around 1.4. Do the math yourself :c
+- Amnesia (Permanent): Lowers the damage of your spells by 10% (up to 90%).
+- Clumsy (Permanent): Taking damage lowers your soul by 1 for each time this curse has been casted.
+- Confusion* (Temporary): Switches player actions with each other. Vanishes after killing a boss (Enemies with more than 200 hp are considered bosses), or 2 if this curse has been cast 5 times already. Affected one more action each time this curse is applied (up to 7 total).
+- Darkness (Temporary): Lowers the vision range by 30% until you traverse 6 different rooms ("Traverse" as in you need to exit on a different side than you entered). The vision range decreases with subsequent casts even further.
+- Despair (Permanent): Causes most other **future** curses to be more harmful. See below for their effects.
+- Diminish (Permanent): Lowers your nail range by 0.05. For perspective, your base nail range is around 1.4. Do the math yourself :c
 - Disorientation (Instant): Warps you back to your bench.
-- Emptiness (Temporarly): You can no longer gain hp, even through benches. Trying to focus will deal 1 damage to you instead. Dealing 300 damage to enemies, will cease the curse (Damage is capped at 100 per enemy type) and heal you for 1 hp. Increases by 300 additional damage each time this is casted.
-- Greed (Instant): Takes 50% of you geo.
-- Lost (Instant): Remove a notch, mask or vessel (It is ensured, that you have at least one notch to equip quest charms). Can take vessels from the base one, lowering up to 33 soul. You'll always have enough soul to cast at least one spell.
+- Doubt (Instant): Unequippes all charms that you're wearing. Also reshuffles the cost of ALL charms. The total cost is increased by up to 5. For example: If you have Dashmaster (3) and Compass (5), a possible final cost could be Dashmaster (6) and Compass (3) (from 8 total to 9). Charms can never cost more than 6 notches. The added extra costs decreases as your total cost goes higher.
+- Emptiness (Temporary): You can no longer gain hp, even through benches. Trying to focus will deal 1 damage to you instead. Dealing 200 damage to enemies, will cease the curse (Damage is capped at 100 per enemy type) and heal you for 1 hp. Increases by 200 additional damage each time this is casted.
+- Greed (Instant): Takes 30% of you geo.
+- Lost (Instant): Remove a notch, mask or vessel (It is ensured, that you have at least one notch to equip quest charms). Can take vessels from the base one, lowering up to 33 soul. You'll always have enough soul to cast at least one spell. The taken consumable will be reshuffled to a an already cleared location.
+- Maze (Temporary): Each time you enter a room, there is a 7% chance that you will enter a known room instead. This curse vanishes after picking up 5 different items. Note that shop items (besides "Generosity") are not counted! A wrong warp is marked by "???" appearing.
+- Melancholy (Instant): Respawns all already picked up curses.
 - Normality (Permanent): Makes a charm useless, removing all it's effect, but it heals you to full health. This curse cannot be applied to quest charms. 
-- Omen (Temporarly): Upon taking a hit, apply a random permanent curse onto you. This curse vanishes after killing 5 different TYPES of enemies (although the casted curses through "Omen" remain). With each cast, 5 additional enemies types are needed (up to 50 if uncapped). Taking a hit reduces the needed kill amount by 10. If you have less 10 ten kills remaining, it sets you to 1 instead. If no permanent curse can be applied, you'll be killed instantly instead.
-- Pain (Instant): Take 1 to 3 damage. (60% for 1, 30% for 2 and 10% for 3 damage)
-- Sloth (Permanent): Add a additional cooldown to your dash (0.1 seconds), crystal dash charge (0.15 seconds), nail art charge (0.15 seconds) or nail swing (0.1 seconds).
+- Omen (Temporary): Upon taking a hit, apply a random permanent curse onto you. This curse vanishes after killing 5 different TYPES of enemies (although the casted curses through "Omen" remain). With each cast, 5 additional enemies types are needed (up to 50 if uncapped). Taking a hit reduces the needed kill amount by 5. If you have less than 5 kills remaining, it will grant you 1 instead. If no permanent curse can be applied, you'll be killed instantly instead.
+- Pain (Instant): Take 1 damage. This will not be affected by overcharming.
+- Regret* (Temporary): Each time you kill an enemy, there is a 2% chance that a random instant curse is applied to you. The chance increases by 4% for each time you have killed that enemy in the last 20. Resets the enemy list each time a curse is applied. Can also cast instant curses that are not activated in the mod menu! Spending 300 Geo removes the curse. 300 more geo is needed each time the curse is casted again.
+- Sloth (Permanent): Add a additional cooldown to your nail swing (0.05 seconds).
 - Stupidity (Permanent): Spells cost 3 more soul. Also applies to focus. (Since focus works different, the extra amount is taken after the cast is finished.)
-- Thirst (Permanent): Hits on enemies grant 1 soul less.
-- Unknown (Permanent): Disables the health, soul, geo, essence or item display. Note that curses will retain at least their icon, so you know you got cursed even though the name is obscured.
+- Thirst (Permanent): You gain 1 soul less from all sources (but never less than 1).
+- Trauma (Temporary): For the next 300 seconds spawn a Primal Aspid above you each 60 seconds. This interval decreases the more this curse is casted.
+- Unknown (Permanent): Disables the health, soul, geo or essence display.
 - Weakness (Permanent): Reduce your base nail damage by 1.
-- Doubt (Instant): Unequippes all charms that you're wearing. Also reshuffles the cost of ALL charms. The total cost is increased by up to 5. For example: If you have Dashmaster (3) and Compass (5), a possible final cost could be Dashmaster (6) and Compass (3) (from 8 total to 9). Charms can never cost more than 6 notches.
-- Confusion (Temporarly): Switches all 9 player actions (nail, spell, dream nail etc.) with each other. Vanishes after killing a boss (Enemies with more than 200 hp are considered bosses). The needed boss kill amount is increased by 1 each time this is casted. Taking a hit has a 25% chance to reshuffle the controls if this curse is active. The shuffle is marked by "???" appearing.
-- Regret (Temporarly): Each time you kill an enemy, there is a 5% chance that a random instant curse is applied to you. The chance increases by 4% for each time you have killed that enemy in the last 20. Resets the enemy list each time a curse is applied. Can also cast instant curses that are not activated in the mod menu! Spending 300 Geo removes the curse. 300 more geo is needed each time the curse is casted again. Hint: If you suffer from this curse, Iselda will sell the item "Generosity" which can be bought each time you enter the shop to spend infinite geo (so the curse is always removable). The greed curse also progresses this curse.
-- Maze (Temporarly): Each time you enter a room, there is a 7% chance that you will enter a known room instead. This curse vanishes after picking up 5 different items. Note that shop items (besides "Generosity") are not counted! A wrong warp is marked by "???" appearing.
-- Midas (Permanent): Occasionally you'll turn to gold for a short period of time. Trying to obtain a not necessary item, while being under this effect, will turn it to 8 geo instead. The chance of this happening is at 0.5% each second. Increasing by 0.5% each time this is casted. Picking up geo and ceasing the golden status will grant you a bit of save time, where this effect cannot occur. **If you have problems seeing colors, you can enable the "Colorless Indicator" in the mod menu, which then will give a message each time the effect is enabled/disabled**
-- Custom: Allows all curses which are created from other mods to be viable options. They will appear in the menu to manually setting them yourself.
-- Despair (Temporarly): Prevents all other temporary curses from progressing further. Every 5 minutes you'll receive a random used curse (besides "Despair" itself). This curse vanishes after getting desperate enough (getting 7 despair point, increased by 7 each cast) and then dying (**if you're playing on steel soul the curse will just vanish**). Note that dying in areas, where the shade doesn't appear do not count! Despair points can be obtained from various sources, but are capped at certain interactions. These are all viable options to gain despair point (Note, that it is intended to figure this out by yourself, so I'd recommend to just try it out instead of looking it up. Anyway "Spoilers"):
-    - Spending Geo (1 point per 500 Geo) (Capped at 10 points)
-    - Entering the same rooms over and over again (Entering a room 5 times in between 50 rooms grants 1 point) (Capped at 10 points)
-    - Dying (3 points per Death) (Capped at 15 points)
-    - Killing a new enemy type (1 point) (Unlimited) If this curse is cast multiple times, all known enemies flags will reset. Simply put: You kill a vengefly -> 1 Point -> You pick up another despair -> you can get 1   
-      point from vengeflies again.
-    - Obtaining a curse (1 point) (Unlimited). Curses applied by despair itself and other curses like omen also count.
-    - Dealing damage with spells (1 point per 200 damage) (Capped at 20 points)
 
 **Choosing certain curses will override the logic to remove skip logic, since they may break specific skips. The application of the curses takes priority! Be aware of that.**
+
+*If this curse is active, Iselda will repeatedly sell a dummy item for 400 geo.
+
+#### Despair effects
+- Amnesia: Adds a 5% chance per despair to deal just 1 damage instead.
+- Clumsy: Adds a 5% chance per despair to take your full soul away instead.
+- Confusion: Adds 2.5% chance on hit to reroll your binding again (only if the curse is active). This effect has a 60 seconds cooldown.
+- Darkness: Increases the needed rooms to clear this curse by 2 per despair cast.
+- Diminish: Casts this curse an additional time per despair.
+- Disorientation: No effect.
+- Doubt: Adds 1 extra notch cost to the total pool per despair.
+- Emptiness: Lowers your health by 1 per despair when this is casted. This can never set your health below 1.
+- Greed: Increases the geo you drop by 10%.
+- Lost: Adds a 5% per despair to permanently destroy the dropped item instead.
+- Maze: Increases the items needed to lift this curse by 5 for each despair. Caps at 50 items.
+- Melancholy: No effect.
+- Normality: Adds a 10% per despair to target a charm that the player has equipped instead.
+- Omen: Adds a 1% chance per cast to reset progress upon taking a hit. Caps at 20%.
+- Pain: Increases the damage by 1 per despair cast.
+- Regret: Increases the amount of enemies "remembered" by 4 for each despair cast (up to 80).
+- Sloth: Slows down the nail art charge speed by 0.075 seconds per despair.
+- Stupidity: Adds a 5% chance to remove your full soul upon casting a spell or using focus.
+- Thirst: Every 20th time you'd gain soul is negated. The interval decreases for each despair cast. Capped at every other time.
+- Trauma: Increases the amount of Primal Aspid spawning by 1 for each despair.
+- Unknown: No effect.
+- Weakness: No effect.
 
 ### Main Settings
 
 #### Perfect Mimics
 If enabled, even the names will match the original items, giving the player no indicator if an item might be a curse instead. Playing with this is not recommended. (Unless you like pain... I guess) If you are using the AllMajorItemsByArea mod, items which mimic skills will be considered as major items, trying to trick you even more.
-
-#### Cap Effects
-If enabled, the "cap" of curses can be determined by the player. These are used to evaluate if a curse can applied at all. For example, if you set the "Pain Cap" to 2, this curse cannot deal damage to you if you have 2 or less masks remaining. Here's what the caps do:
-
-- Amnesia: Determines how much times the spell damage can be lowered. If you select 3, the spell damage can be lowered by 30%. **If you set the cap to lower than 5, spell upgrades cannot be taken away.**
-- Darkness: Determines how stacked the vision range can be. If you select 3, the vision range can be lowered up to 45%. **Doesn't affected the needed rooms or if the curse can be casted.**
-- Diminish: Determines how stacked the nail decrease can be. If you select 3, the nail range can be lowered by 0.3 (Slightly above 20%).
-- Disorientation: The cap does nothing, but since otherwise the curse would feel excluded from the rest of the group, it also has cap button. ^-^
-- Emptiness: Determines how low your BASE max health can be.
-- Greed: Determines how much geo can be taken at max from a single cast.
-- Lost: Determines what the amount of relics/notches you need to posess is. If you select 3, it can only take relics/notches from which you have at least 3. Although this can be set to 0. The notch check will still evalute as if the cap would be one, since otherwise equipping charms is impossible.
-- Normality: Determines how much charms can be made useless. 
-- Omen: Determines the max amount of needed enemy type kills.
-- Pain: Determines the min health you need for the curse to be applied.
-- Sloth: Determines the max amount of slows that can be applied. If you select 3, you nail slash and dash can only have an additional cooldown of 0.3 seconds.
-- Stupidity: Determines the max amount of soul a spell/focus can cost.
-- Thirst: Determines the min amount of soul which you should get from hits.
-- Unknown: Determines how many visuals can be taken from you.
-- Weakness: Determines the min amount of damage you nail should deal.
-
-Custom: To check what the cap does for custom curses, you'd need to look it up in their respective readme.
-
-#### Default Curse
-Determines which curse should be applied to be casted if the normal curse fails. If this fails as well, disorientation is cast instead. It is suggested that this should be pain or another non permanent curse.
 
 #### Curse Method
 Determines how the curses should be placed.
@@ -91,14 +85,14 @@ Determines how many curses should be placed. These option are based on the total
 - Medium: 7% to 9% are curse items. At least 10 to 15.
 - Many: 10% to 12% are curse items. At least 15 to 20.
 - Oh Oh: 13% to 15% are curse items. At least 20 to 30.
-- Custom: A player defined range between 0 and 200.
+- Custom: A player defined range between 0 and 300.
 
 #### Replacable Items
 - Defines which items the mod can replace with curses if the curse method is not "Add".
 
 #### Bargains
 Allows items in the shop to be "cursed", so they apply curses upon you, once bought. A purple/pink text is visible under the item description showing how much curses will be applied to you. This ranges from 1-3 curses.
-Note that the cursed items ARE NOT counted as normal curse items and will be placed **on top of the selected amount**! Depending on the selected amount, the chance for an item to be cursed is increased by 10% for each step. "Few" grants a 10% per shop item to be cursed up to 70% if "Custom" is used. The order can be seen under "Curse Amount". Once all curses of an item got resolved, it will display what the casted curses where. Note that if a curse was blocked (i.e "Lost" was about to be casted but you have no mask, vessel and charm notch to spare), the actual result might differ from the shown message!
+Note that the cursed items ARE NOT counted as normal curse items and will be placed **on top of the selected amount**! Depending on the selected amount, the chance for an item to be cursed is increased by 10% for each step. "Few" grants a 10% per shop item to be cursed up to 70% if "Custom" is used. The order can be seen under "Curse Amount". Once all curses of an item got resolved, it will display what the casted curses were. Note that if a curse was blocked (i.e "Lost" was about to be casted but you have no mask, vessel and charm notch to spare), the actual result might differ from the shown message!
 
 ## Cursed Wallet
 Limits the amount of geo the player can hold at a time. The base capacity is 500.
@@ -146,11 +140,3 @@ Add this property to the Interop tag:
 Only use this for real junk items, which have no purpose at all.
 If it is important for your configuration, which items are actually removed, you can use RandoManager.RemovedItems to figure that out.
 Note that your items are only considered if the player chooses "Custom" as viable "Replaceable Items".
-
-### Curses
-If you want to implement your own curses, that can be done as well:
-- Create a class, which inherts from "Curse".
-- Implement "ApplyCurse" and "SetCap". If your curse has to implement some hooks, overwrite "ApplyHooks" and "Unhook". To check if you curse can be applied at all overwrite "CanApplyCurse".
-- If your curse does actually need save data, you can define the Data.AdditionalData object. Remember to reset it via overwriting "ResetAdditionalData".
-
-**All additional curses fall under "Custom". Which means, that if player disable that option, you curse cannot be applied.**

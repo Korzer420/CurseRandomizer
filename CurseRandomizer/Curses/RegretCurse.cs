@@ -26,50 +26,15 @@ internal class RegretCurse : TemporaryCurse
         set => Data.AdditionalData = value;
     }
 
-    public override int NeededAmount => Math.Min(UseCap ? Cap * 300 : 3000, Data.CastedAmount * 300);
+    public override int NeededAmount => Math.Min(3000, Data.CastedAmount * 300);
 
-    public List<string> KilledEnemies { get; set; } = new();
+    public List<string> KilledEnemies { get; set; } = [];
 
-    public override CurseTag Tag => CurseTag.Temporarly;
-
-    #endregion
-
-    #region Event handler
-
-    private void ModHooks_RecordKillForJournalHook(EnemyDeathEffects enemyDeathEffects, string playerDataName, string killedBoolPlayerDataLookupKey, string killCountIntPlayerDataLookupKey, string newDataBoolPlayerDataLookupKey)
-    {
-        if (CurrentAmount != -1)
-            CheckIfCurseCast(playerDataName);
-    }
-
-    private void HeroController_TakeGeo(On.HeroController.orig_TakeGeo orig, HeroController self, int amount)
-    {
-        orig(self, amount);
-        if (CurrentAmount != -1)
-        {
-            if (!DespairCurse.DespairActive)
-                CurrentAmount += amount;
-            UpdateProgression();
-        }
-    }
-
-    private bool ModHooks_GetPlayerBoolHook(string name, bool orig)
-    {
-        if (name == "HasRegrets")
-            return CurrentAmount != -1 || orig;
-        return orig;
-    }
+    public int ListMax => 20 + Data.DespairEnhanced * 4;
 
     #endregion
 
     #region Control
-
-    public override void ApplyCurse()
-    {
-        if (!EasyLift)
-            CurrentAmount = 0;
-        base.ApplyCurse();
-    }
 
     public override void ApplyHooks()
     {
@@ -84,45 +49,12 @@ internal class RegretCurse : TemporaryCurse
         ModHooks.RecordKillForJournalHook -= ModHooks_RecordKillForJournalHook;
         On.HeroController.TakeGeo -= HeroController_TakeGeo;
         ModHooks.GetPlayerBoolHook -= ModHooks_GetPlayerBoolHook;
-
+        // Technically this allows to exploit the curse by S&Q, but if you want to go that length to avoid this, go ahead.
+        KilledEnemies.Clear();
         base.Unhook();
     }
 
-    public override int SetCap(int value) => Math.Max(1, Math.Min(10, value));
-
-    public override void ResetAdditionalData() => Data.AdditionalData = -1;
-
     protected override bool IsActive() => CurrentAmount != -1;
-
-    #endregion
-
-    #region Methods
-
-    private void CheckIfCurseCast(string enemyName)
-    {
-        int chance = 2 + (KilledEnemies.Count(x => x == enemyName) * 4);
-        if (UnityEngine.Random.Range(1, 101) <= chance)
-        {
-            List<Curse> availableCurses = CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Instant && x.Data.Active && x.CanApplyCurse()).ToList();
-            // Lost curse is the only instant curse which can't be applied if disabled.
-            Curse lostCurse = CurseManager.GetCurse<LostCurse>();
-            if (!lostCurse.Data.Active)
-                availableCurses.Remove(lostCurse);
-
-            if (!availableCurses.Any())
-                availableCurses.Add(CurseManager.GetCurse<DisorientationCurse>());
-            CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
-            string selectedCurse = availableCurses[UnityEngine.Random.Range(0, availableCurses.Count)].Name;
-            module.QueueCurse(selectedCurse);
-
-            GameHelper.DisplayMessage($"The sins of <color={TextColor}>" + selectedCurse + "</color> are crawling down your spine...");
-            KilledEnemies.Clear();
-        }
-
-        if (KilledEnemies.Count == 20)
-            KilledEnemies.RemoveAt(19);
-        KilledEnemies.Insert(0, enemyName);
-    }
 
     protected override void LiftCurse()
     {
@@ -140,6 +72,64 @@ internal class RegretCurse : TemporaryCurse
             CurseCounterPosition.Column => new(0f, -1.5f),
             _ => new(4f, 0f),
         };
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private void CheckIfCurseCast(string enemyName)
+    {
+        int chance = 2 + (KilledEnemies.Count(x => x == enemyName) * 4);
+        if (UnityEngine.Random.Range(1, 101) <= chance)
+        {
+            List<Curse> availableCurses = [.. CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Instant && x.Data.Active && x.CanApplyCurse())];
+            // Lost curse is the only instant curse which can't be applied if disabled.
+            Curse lostCurse = CurseManager.GetCurse<LostCurse>();
+            if (!lostCurse.Data.Active)
+                availableCurses.Remove(lostCurse);
+
+            if (!availableCurses.Any())
+                availableCurses.Add(CurseManager.GetCurse<DisorientationCurse>());
+            CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
+            string selectedCurse = availableCurses[UnityEngine.Random.Range(0, availableCurses.Count)].Name;
+            module.QueueCurse(selectedCurse);
+
+            GameHelper.DisplayMessage($"The sins of <color={TextColor}>" + selectedCurse + "</color> are crawling down your spine...");
+            KilledEnemies.Clear();
+        }
+
+        // Despair expands the enemy list.
+        if (KilledEnemies.Count == ListMax)
+            KilledEnemies.RemoveAt(ListMax - 1);
+        KilledEnemies.Insert(0, enemyName);
+    }
+
+    #endregion
+
+    #region Event handler
+
+    private void ModHooks_RecordKillForJournalHook(EnemyDeathEffects enemyDeathEffects, string playerDataName, string killedBoolPlayerDataLookupKey, string killCountIntPlayerDataLookupKey, string newDataBoolPlayerDataLookupKey)
+    {
+        if (CurrentAmount != -1)
+            CheckIfCurseCast(playerDataName);
+    }
+
+    private void HeroController_TakeGeo(On.HeroController.orig_TakeGeo orig, HeroController self, int amount)
+    {
+        orig(self, amount);
+        if (CurrentAmount != -1)
+        {
+            CurrentAmount += amount;
+            UpdateProgression();
+        }
+    }
+
+    private bool ModHooks_GetPlayerBoolHook(string name, bool orig)
+    {
+        if (name == "HasRegrets")
+            return CurrentAmount != -1 || orig;
+        return orig;
     }
 
     #endregion

@@ -1,12 +1,15 @@
-﻿using CurseRandomizer.Curses;
+﻿using CurseRandomizer.Components;
+using CurseRandomizer.Curses;
 using CurseRandomizer.Enums;
 using CurseRandomizer.ItemData;
+using CurseRandomizer.ModInterop.DebugInterop;
 using CurseRandomizer.Randomizer.Settings;
 using CurseRandomizer.SaveManagment;
 using Modding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace CurseRandomizer;
@@ -22,17 +25,31 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
 
     public static CurseRandomizer Instance { get; set; }
 
-    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "5.1.6.0";
+    public override string GetVersion() => /*Since this doesn't work SOMEHOW Assembly.GetExecutingAssembly().GetName().Version.ToString()*/ "6.0.0.0";
 
     public RandoSettings Settings => _settings ??= new();
 
     public bool ToggleButtonInsideMenu => false;
 
-    public override void Initialize()
+    public override List<(string, string)> GetPreloadNames() => [("Deepnest_East_11", "Super Spitter (4)")];
+
+    public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
         RandoManager.HookRando();
         CurseManager.Initialize();
+        TraumaCounter.AspidPrefab = preloadedObjects["Deepnest_East_11"]["Super Spitter (4)"];
+#if DEBUG
+        if (ModHooks.GetMod("DebugMod") is Mod)
+            HookDebug();
+#endif
     }
+
+#if DEBUG
+    private void HookDebug()
+    {
+        DebugModInterop.Initialize();
+    } 
+#endif
 
     #region Save Data control
 
@@ -40,11 +57,9 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
     {
         _settings = randoSettings.Settings;
         TemporaryCurse.Position = randoSettings.CounterPosition;
-        MidasCurse.Colorless = randoSettings.ColorBlindHelp;
         TemporaryCurse.Scale = Math.Max(0.1f, randoSettings.TrackerScaling);
         TemporaryCurse.TrackerPosition = randoSettings.TrackerPosition;
         TemporaryCurse.AdjustTracker();
-        TemporaryCurse.EasyLift = randoSettings.EasyCurseLift;
     }
 
     public void OnLoadLocal(LocalSaveData saveData)
@@ -55,9 +70,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
             if (saveData == null)
                 return;
             CurseManager.ParseSaveData(saveData.Data);
-            CurseManager.UseCaps = saveData.UseCaps;
             OmenCurse.OmenMode = saveData.OmenMode;
-            CurseManager.DefaultCurse = CurseManager.GetCurseByName(saveData.DefaultCurse);
         }
         catch (System.Exception exception)
         {
@@ -70,10 +83,8 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         {
             Settings = Settings,
             CounterPosition = TemporaryCurse.Position,
-            ColorBlindHelp = MidasCurse.Colorless,
             TrackerPosition = TemporaryCurse.TrackerPosition,
-            TrackerScaling = TemporaryCurse.Scale,
-            EasyCurseLift = TemporaryCurse.EasyLift
+            TrackerScaling = TemporaryCurse.Scale
         };
 
     public LocalSaveData OnSaveLocal()
@@ -86,8 +97,6 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
         LocalSaveData saveData = new()
         {
             Data = curseData,
-            UseCaps = CurseManager.UseCaps,
-            DefaultCurse = CurseManager.DefaultCurse == null ? "Pain" : CurseManager.DefaultCurse.Name,
             OmenMode = OmenCurse.OmenMode
         };
         return saveData;
@@ -159,13 +168,7 @@ public class CurseRandomizer : Mod, IGlobalSettings<GlobalSaveData>, ILocalSetti
                     TemporaryCurse.AdjustTracker();
                 }
             },
-            () => 0),
-            new ("Colorless Indicator", new string[]{"Disabled", "Enabled"}, "If enabled, the Midas curse will display a textbox.",
-            index => MidasCurse.Colorless = index == 1,
-            () => MidasCurse.Colorless ? 1 : 0),
-            new ("Easy curse lift", new string[] {"Disabled", "Enabled"}, "If enabled, temporary curses will not fully reset, if recasted.",
-            index => TemporaryCurse.EasyLift = index == 1,
-            () => TemporaryCurse.EasyLift ? 1 : 0)
+            () => 0)
         };
         //foreach (Curse curse in CurseManager.GetCurses())
         //    options.Add(new($"Ignore {curse.Name}", new string[] { "False", "True" }, $"If true, {curse.Name} doesn't affect you",

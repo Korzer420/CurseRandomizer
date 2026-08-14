@@ -79,17 +79,11 @@ public class CurseModule : Module
             yield return null;
         }
 
-        // Display messages throw an error if done too early as the fsm didn't get setu
+        // Display messages throw an error if done too early as the fsm didn't get setup
         if (initialize)
             yield return new WaitForSeconds(5f);
         // Display the FOOL text.
         GameHelper.DisplayMessage("FOOL!");
-        if (DespairCurse.DespairActive)
-        {
-            (CurseManager.GetCurse<DespairCurse>().Data.AdditionalData as DespairTracker).CurseDesperation++;
-            CurseManager.GetCurse<DespairCurse>().UpdateProgression();
-        }
-
         while (CurseQueue.Any())
         {
             // Pain will be stacked
@@ -99,7 +93,8 @@ public class CurseModule : Module
                 if (!CurseManager.GetCurse<PainCurse>().Data.Ignored)
                 {
                     CurseManager.GetCurse<PainCurse>().Data.CastedAmount += painAmount;
-                    PainCurse.DoDamage(painAmount);
+                    CurseManager.GetCurse<PainCurse>().Data.DespairEnhanced += CurseManager.GetCurse<DespairCurse>().Data.CastedAmount;
+                    CurseManager.GetCurse<PainCurse>().DoDamage(painAmount);
                 }
             }
             // Casting multiple disorientation curses doesn't serve any purpose which is why the get removed all at once.
@@ -126,6 +121,7 @@ public class CurseModule : Module
                         else
                         {
                             curse.Data.CastedAmount++;
+                            curse.Data.DespairEnhanced += CurseManager.GetCurse<DespairCurse>().Data.CastedAmount;
                             curse.ApplyCurse();
                         }
                 }

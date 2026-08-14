@@ -15,6 +15,8 @@ internal class CurseItem : AbstractItem
 
     public string CurseName { get; set; }
 
+    public UIDef? FakeUIDef { get; set; }
+
     protected override void OnLoad() => ItemChangerMod.Modules.GetOrAdd<CurseModule>();
     
     public override void GiveImmediate(GiveInfo info)
@@ -26,14 +28,10 @@ internal class CurseItem : AbstractItem
             curse = CurseManager.GetCurse<DisorientationCurse>();
             CurseName = "Disorientation";
         }
+        FakeUIDef = UIDef.Clone();
         CurseModule module = ItemChangerMod.Modules.GetOrAdd<CurseModule>();
         if (curse.CanApplyCurse() || (OmenCurse.OmenMode && CurseName == "Omen" && CurseManager.GetCurse<OmenCurse>().KilledEnemies.Contains("Inactive")))
             module.QueueCurse(CurseName);
-        else if (CurseManager.DefaultCurse.CanApplyCurse())
-        {
-            module.QueueCurse(CurseManager.DefaultCurse.Name);
-            CurseName = CurseManager.DefaultCurse.Name;
-        }
         else
         {
             module.QueueCurse("Disorientation");
@@ -41,17 +39,13 @@ internal class CurseItem : AbstractItem
         }
 
         if (UIDef is not BigUIDef || (info.MessageType != MessageType.Any && info.MessageType != MessageType.Big))
-        {
-            string curseName = UnknownCurse.AreCursesHidden ? "???" : CurseName;
-            (UIDef as MsgUIDef).name = new BoxedString($"<color=#c034eb>{curseName}</color>");
-        }
+            (UIDef as MsgUIDef).name = new BoxedString($"<color=#c034eb>{CurseName}</color>");
         else
         {
-            string curseName = UnknownCurse.AreCursesHidden ? "???" : CurseName;
             // For the big UI we want to display the FOOL message there, which is why the recent item name is set via a tag.
             (UIDef as MsgUIDef).name = new BoxedString($"<color=#c034eb>Fool!</color>");
-            tags.Add(new InteropTag() { Message = "RecentItems", Properties = new() { { "DisplayName", $"<color=#c034eb>{curseName}</color>" } } });
-            (UIDef as BigUIDef).descOne = new BoxedString("You've been cursed by " + curseName);
+            tags.Add(new InteropTag() { Message = "RecentItems", Properties = new() { { "DisplayName", $"<color=#c034eb>{CurseName}</color>" } } });
+            (UIDef as BigUIDef).descOne = new BoxedString("You've been cursed by " + CurseName);
         }
         (UIDef as MsgUIDef).sprite = new CustomSprite("Fool");
 

@@ -3,7 +3,6 @@ using HutongGames.PlayMaker;
 using ItemChanger;
 using ItemChanger.FsmStateActions;
 using ItemChanger.UIDefs;
-using KorzUtils.Data;
 using KorzUtils.Helper;
 using Modding;
 using MonoMod.Cil;
@@ -50,8 +49,6 @@ internal class UnknownCurse : Curse
         }
     }
 
-    public static bool AreCursesHidden => CurseManager.GetCurse<UnknownCurse>().Affected.Contains(AffectedVisual.Items);
-
     #endregion
 
     #region Event handler
@@ -91,7 +88,7 @@ internal class UnknownCurse : Curse
     private void FsmState_OnEnter(On.HutongGames.PlayMaker.FsmState.orig_OnEnter orig, HutongGames.PlayMaker.FsmState self)
     {
         orig(self);
-        if (self.Fsm.Name == "Update Vessels" && self.Name == "Idle" && Affected.Contains(AffectedVisual.Soul))
+        if (self.Fsm.Name == "Update Vessels" && self?.Name == "Idle" && Affected.Contains(AffectedVisual.Soul))
             self.ClearTransitions();
     }
 
@@ -109,10 +106,10 @@ internal class UnknownCurse : Curse
             self.AddState(new FsmState(self.Fsm)
             {
                 Name = "Check for Unknown",
-                Actions = new FsmStateAction[]
-                {
-                new Lambda(() => self.SendEvent(Affected.Contains(AffectedVisual.Health) ? "HIDDEN FURY" : "FINISHED"))
-                }
+                Actions =
+                [
+                    new Lambda(() => self.SendEvent(Affected.Contains(AffectedVisual.Health) ? "HIDDEN FURY" : "FINISHED"))
+                ]
             });
             self.GetState("Get Ref").AdjustTransition("FINISHED", "Check for Unknown");
 
@@ -133,14 +130,14 @@ internal class UnknownCurse : Curse
             self.AddState(new FsmState(self.Fsm)
             {
                 Name = "Fake Hiveblood",
-                Actions = new FsmStateAction[]
-                {
-                new Lambda(() =>
-                {
-                    if (Affected.Contains(AffectedVisual.Health) && self.FsmVariables.FindFsmInt("Health Number").Value == PlayerData.instance.GetInt("health"))
-                        self.transform.parent.gameObject.LocateMyFSM("Hive Health Regen").SendEvent("DAMAGE TAKEN");
-                })
-                }
+                Actions =
+                [
+                    new Lambda(() =>
+                    {
+                        if (Affected.Contains(AffectedVisual.Health) && self.FsmVariables.FindFsmInt("Health Number").Value == PlayerData.instance.GetInt("health"))
+                            self.transform.parent.gameObject.LocateMyFSM("Hive Health Regen").SendEvent("DAMAGE TAKEN");
+                    })
+                ]
             });
             self.GetState("Inactive").AddTransition("HERO DAMAGED", "Fake Hiveblood");
             self.GetState("Fake Hiveblood").AddTransition("FINISHED", "Inactive");
@@ -346,7 +343,7 @@ internal class UnknownCurse : Curse
 
     public override void ApplyCurse()
     {
-        List<AffectedVisual> viableVisuals = (Enum.GetValues(typeof(AffectedVisual)) as AffectedVisual[]).Except(Affected).ToList();
+        List<AffectedVisual> viableVisuals = [.. (Enum.GetValues(typeof(AffectedVisual)) as AffectedVisual[]).Except(Affected)];
         AffectedVisual chosen = viableVisuals[UnityEngine.Random.Range(0, viableVisuals.Count)];
         Affected.Add(chosen);
         GameHelper.DisplayMessage("FOOL! (You can no longer see your " + chosen + ")");
@@ -389,24 +386,9 @@ internal class UnknownCurse : Curse
                 GameObject.DontDestroyOnLoad(_maskCover);
             }
         }
-        else if (chosen == AffectedVisual.Items)
-        {
-            foreach (AbstractPlacement placement in ItemChanger.Internal.Ref.Settings.Placements.Values)
-                foreach (AbstractItem item in placement.Items)
-                    if (item.GetResolvedUIDef() is MsgUIDef msgUIDef)
-                    {
-                        msgUIDef.name = new BoxedString("???");
-                        msgUIDef.shopDesc = new BoxedString("You'll need this ???, otherwise you can't continue your journey. Although ??? might be a good substitution. \n<i>You don't know some of these words.</i>");
-                        msgUIDef.sprite = new CustomSprite("Fool");
-                    }
-        }
     }
 
-    public override bool CanApplyCurse() => Data.CastedAmount < (CurseManager.UseCaps ? Data.Cap : 5);
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 5));
-
-    public override void ResetAdditionalData() => Affected.Clear();
+    public override bool CanApplyCurse() => Data.CastedAmount < 5;
 
     #endregion
 }

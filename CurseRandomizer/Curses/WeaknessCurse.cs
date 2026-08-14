@@ -6,21 +6,18 @@ namespace CurseRandomizer.Curses;
 
 internal class WeaknessCurse : Curse
 {
-    #region Event handler
-
-    private int ModifyNailDamage(string name, int originalValue)
+    #region Properties
+    
+    public int Stacks
     {
-        if (name == "nailDamage")
-            originalValue = Math.Max(1, originalValue - Data.CastedAmount);
-        return originalValue;
-    }
-
-    private void IntOperator_OnEnter(On.HutongGames.PlayMaker.Actions.IntOperator.orig_OnEnter orig, HutongGames.PlayMaker.Actions.IntOperator self)
-    {
-        if (self.IsCorrectContext("Shade Control", null, "Init"))
-            self.integer1.Value += Data.CastedAmount;
-        orig(self);
-    }
+        get
+        {
+            if (Data.AdditionalData == null)
+                Data.AdditionalData = 0;
+            return Convert.ToInt32(Data.AdditionalData);
+        }
+        set => Data.AdditionalData = value;
+    } 
 
     #endregion
 
@@ -38,15 +35,31 @@ internal class WeaknessCurse : Curse
         On.HutongGames.PlayMaker.Actions.IntOperator.OnEnter -= IntOperator_OnEnter;
     }
 
-    public override bool CanApplyCurse()
+    public override bool CanApplyCurse() => 5 + 4 * PDHelper.NailSmithUpgrades - Stacks > 1;
+
+    public override void ApplyCurse()
     {
-        int cap = UseCap ? Cap : 1;
-        return 5 + 4 * PlayerData.instance.GetInt(nameof(PlayerData.instance.nailSmithUpgrades)) - Data.CastedAmount > cap;
+        Stacks++;
+        PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
     }
 
-    public override void ApplyCurse() => PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
+    #endregion
 
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 20));
+    #region Event handler
+
+    private int ModifyNailDamage(string name, int originalValue)
+    {
+        if (name == "nailDamage")
+            originalValue = Math.Max(1, originalValue - Stacks);
+        return originalValue;
+    }
+
+    private void IntOperator_OnEnter(On.HutongGames.PlayMaker.Actions.IntOperator.orig_OnEnter orig, HutongGames.PlayMaker.Actions.IntOperator self)
+    {
+        if (self.IsCorrectContext("Shade Control", null, "Init"))
+            self.integer1.Value += Stacks;
+        orig(self);
+    }
 
     #endregion
 }

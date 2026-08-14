@@ -19,14 +19,17 @@ public class CurseData
     public int CastedAmount { get; set; } = 0;
 
     /// <summary>
-    /// Gets or sets the cap of the curse, to determine if it can be casted.
+    /// Gets or sets the amount of times this curse has been enhanced by despair.
     /// </summary>
-    public int Cap { get; set; }
+    public int DespairEnhanced { get; set; }
 
     /// <summary>
     /// Gets or sets an object, in which the curse can store additional data.
     /// </summary>
     public object AdditionalData { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the effects of this curse should be ignored.
+    /// </summary>
     public bool Ignored { get; set; }
 }

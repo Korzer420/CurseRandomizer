@@ -35,7 +35,7 @@ internal class DarknessCurse : TemporaryCurse
         }
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount * 3, 30);
+    public override int NeededAmount => Math.Min(6 + Data.DespairEnhanced * 2, 30);
 
     public override int CurrentAmount { get => PassedScenes.Count; set { } }
 
@@ -48,9 +48,8 @@ internal class DarknessCurse : TemporaryCurse
         orig(self);
         if (self.IsCorrectContext("Darkness Control", "Vignette", null) && !PassedScenes.Contains("Inactive"))
         {
-            int cap = CurseManager.UseCaps ? Math.Min(Cap, 5) : 5;
             Vector3 normalScale = new(self.x.Value, self.y.Value);
-            float darknessFactor = 1 - ((Math.Min(cap, Data.CastedAmount) + 1) * 0.15f);
+            float darknessFactor = 1 - ((Math.Min(5, 1 + Data.CastedAmount) + 1) * 0.15f);
             self.vector3Variable.Value = new(Math.Max(0.4f, normalScale.x * darknessFactor), Math.Max(0.4f, normalScale.y * darknessFactor), Math.Max(0.4f, normalScale.z * darknessFactor));
         }
     }
@@ -72,8 +71,7 @@ internal class DarknessCurse : TemporaryCurse
             if ((int)gate.Value < 4 && (int)_enteredTransition < 4 && gate.Value != _enteredTransition
                 && !PassedScenes.Contains(_currentScene))
             {
-                if (!DespairCurse.DespairActive)
-                    PassedScenes.Add(_currentScene);
+                PassedScenes.Add(_currentScene);
                 UpdateProgression();
             }
             switch (gate.Value)
@@ -133,20 +131,9 @@ internal class DarknessCurse : TemporaryCurse
 
     public override void ApplyCurse()
     {
-        if (!EasyLift)
-            PassedScenes.Clear();
-        else
-            PassedScenes.RemoveAll(x => x == "Inactive");
+        PassedScenes.RemoveAll(x => x == "Inactive");
         base.ApplyCurse();
         HeroController.instance.vignetteFSM.SendEvent("SCENE RESET");
-    }
-
-    public override int SetCap(int value) => Math.Max(1, Math.Min(value, 5));
-
-    public override void ResetAdditionalData()
-    {
-        PassedScenes.Clear();
-        PassedScenes.Add("Inactive");
     }
 
     protected override bool IsActive() => !PassedScenes.Contains("Inactive");

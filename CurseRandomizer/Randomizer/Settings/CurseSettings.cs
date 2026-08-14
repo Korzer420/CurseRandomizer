@@ -1,40 +1,51 @@
-﻿using MenuChanger.Attributes;
-
-namespace CurseRandomizer.Randomizer.Settings;
+﻿namespace CurseRandomizer.Randomizer.Settings;
 
 /// <summary>
 /// Container which is used in the menu and will be pasted onto the real curses upon starting the rando.
 /// </summary>
 public class CurseSettings
 {
-    /// <summary>
-    /// Gets or sets the name of the curse.
-    /// </summary>
-    public string Name { get; init; }
+    public bool Amnesia { get; set; }
 
-    /// <summary>
-    /// Gets or sets if the curse should be used.
-    /// </summary>
-    public bool Active { get; set; }
+    public bool Confusion { get; set; }
 
-    /// <summary>
-    /// Gets or sets the cap of the curse.
-    /// </summary>
-    public int Cap { get; set; }
+    public bool Darkness { get; set; }
 
-    /// <summary>
-    /// Gets if the curse settings are related to the curse.
-    /// </summary>
-    /// <param name="settings"></param>
-    /// <param name="curse"></param>
-    /// <returns></returns>
-    public static bool operator == (CurseSettings settings, Curse curse) => settings?.Name == curse?.Name;
+    public bool Despair { get; set; }
 
-    /// <summary>
-    /// Gets if the curse settings are not related to the curse.
-    /// </summary>
-    /// <param name="settings"></param>
-    /// <param name="curse"></param>
-    /// <returns></returns>
-    public static bool operator != (CurseSettings settings, Curse curse) => settings?.Name != curse?.Name;
+    public bool Diminish { get; set; }
+
+    public bool Doubt { get; set; }
+
+    public bool Emptiness { get; set; }
+
+    public bool Frail { get; set; }
+
+    public bool Greed { get; set; }
+
+    public bool Lost { get; set; }
+
+    public bool Maze { get; set; }
+
+    public bool Melancholy { get; set; }
+
+    public bool Normality { get; set; }
+
+    public bool Omen { get; set; }
+
+    public bool Pain { get; set; }
+
+    public bool Regret { get; set; }
+
+    public bool Sloth { get; set; }
+
+    public bool Stupidity { get; set; }
+
+    public bool Thirst { get; set; }
+
+    public bool Trauma { get; set; }
+
+    public bool Unknown { get; set; }
+
+    public bool Weakness { get; set; }
 }

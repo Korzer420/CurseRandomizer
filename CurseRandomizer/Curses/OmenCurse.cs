@@ -38,7 +38,7 @@ internal class OmenCurse : TemporaryCurse
         set { }
     }
 
-    public override int NeededAmount => Math.Min(Data.CastedAmount * 5, CurseManager.UseCaps ? Cap : 50);
+    public override int NeededAmount => Math.Min(Data.CastedAmount * 5, 50);
 
     #endregion
 
@@ -48,7 +48,8 @@ internal class OmenCurse : TemporaryCurse
     {
         if (damageAmount > 0 && damageAmount < 420 && !KilledEnemies.Contains("Inactive"))
         {
-            List<Curse> availableCurses = CurseManager.GetCurses().Where(x => x.Tag == Enums.CurseTag.Permanent && x.CanApplyCurse() && x.Data.Active).ToList();
+            List<Curse> availableCurses = [.. CurseManager.GetCurses().Where(x => x.Tag == CurseTag.Permanent && x.CanApplyCurse() 
+                && x.Data.Active && x.Type != CurseType.Despair)];
             if (!availableCurses.Any())
                 damageAmount = 999;
             else
@@ -67,6 +68,13 @@ internal class OmenCurse : TemporaryCurse
                 UpdateProgression();
                 GameHelper.DisplayMessage("The curse of " + selectedCurse + " was layed upon you.");
             }
+
+            if (UnityEngine.Random.Range(0, 100) < Mathf.Min(20, Data.DespairEnhanced))
+            {
+                KilledEnemies.Clear();
+                UpdateProgression();
+            }    
+
         }
         return damageAmount;
     }
@@ -75,8 +83,7 @@ internal class OmenCurse : TemporaryCurse
     {
         if (!KilledEnemies.Contains("Inactive") && !KilledEnemies.Contains(playerDataName) && !OmenMode)
         {
-            if (!DespairCurse.DespairActive)
-                KilledEnemies.Add(playerDataName);
+            KilledEnemies.Add(playerDataName);
             UpdateProgression();
         }
     }
@@ -105,18 +112,9 @@ internal class OmenCurse : TemporaryCurse
 
     public override void ApplyCurse()
     {
-        base.ApplyCurse();
-        if (!EasyLift)
-            KilledEnemies.Clear();
-        else
-            KilledEnemies.RemoveAll(x => x == "Inactive");
+        KilledEnemies.RemoveAll(x => x == "Inactive");
         UpdateProgression();
     }
-
-    public override int SetCap(int value)
-    => Math.Max(5, Math.Min(value, 50));
-
-    public override void ResetAdditionalData() => Data.AdditionalData = new List<string>() { "Inactive" };
 
     protected override bool IsActive() => !KilledEnemies.Contains("Inactive");
 

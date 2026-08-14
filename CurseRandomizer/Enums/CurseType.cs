@@ -107,6 +107,12 @@ public enum CurseType
     /// </summary>
     Midas,
 
+    Clumsy,
+
+    Trauma,
+
+    Melancholy,
+
     /// <summary>
     /// A custom curse implemented by another mod.
     /// </summary>

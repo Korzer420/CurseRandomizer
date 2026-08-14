@@ -8,38 +8,40 @@ namespace CurseRandomizer.Curses;
 /// </summary>
 internal class DiminishCurse : Curse 
 {
-    #region Event handler
+    #region Properties
 
-    private void NailSlash_StartSlash(On.NailSlash.orig_StartSlash orig, NailSlash self)
+    public int Stacks
     {
-        orig(self);
-        self.transform.localScale -= new Vector3(0.1f * Data.CastedAmount, 0.1f * Data.CastedAmount);
+        get
+        {
+            if (Data.AdditionalData == null)
+                Data.AdditionalData = 0;
+            return Convert.ToInt32(Data.AdditionalData);
+        }
+        set => Data.AdditionalData = value;
     }
 
     #endregion
 
     #region Control
 
-    public override void ApplyHooks()
+    public override void ApplyHooks() => On.NailSlash.StartSlash += NailSlash_StartSlash;
+
+    public override void Unhook() => On.NailSlash.StartSlash -= NailSlash_StartSlash;
+
+    public override void ApplyCurse() => Stacks = Math.Min(16, Stacks + 1 + Data.DespairEnhanced);
+
+    public override bool CanApplyCurse() => Stacks < 16;
+
+    #endregion
+
+    #region Event handler
+
+    private void NailSlash_StartSlash(On.NailSlash.orig_StartSlash orig, NailSlash self)
     {
-        On.NailSlash.StartSlash += NailSlash_StartSlash;
+        orig(self);
+        self.transform.localScale -= new Vector3(0.05f * Stacks, 0.05f * Stacks);
     }
-
-    public override void Unhook()
-    {
-        On.NailSlash.StartSlash -= NailSlash_StartSlash;
-    }
-
-    public override void ApplyCurse() { }
-
-    public override bool CanApplyCurse()
-    {
-        int cap = CurseManager.UseCaps ? Data.Cap : 8;
-        return Data.CastedAmount < cap;
-    }
-
-    public override int SetCap(int value)
-    => Math.Max(1, Math.Min(value, 8)); 
 
     #endregion
 }

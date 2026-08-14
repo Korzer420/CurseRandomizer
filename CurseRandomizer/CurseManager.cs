@@ -9,40 +9,35 @@ public static class CurseManager
 {
     #region Members
 
-    private static List<Curse> _curses = new()
-    {
-        new PainCurse() { Name = "Pain", Type = CurseType.Pain, Data = new CurseData() { Cap = 1 }},
-        new GreedCurse() { Name = "Greed", Type = CurseType.Greed, Data = new CurseData() { Cap = 5000 } },
-        new EmptinessCurse() { Name = "Emptiness", Type = CurseType.Emptiness, Data = new CurseData() { Cap = 3 } },
-        new ThirstCurse() { Name = "Thirst", Type = CurseType.Thirst, Data = new CurseData() { Cap = 5 } },
-        new WeaknessCurse() { Name = "Weakness", Type = CurseType.Weakness, Data = new CurseData() { Cap = 3 } },
-        new DisorientationCurse() { Name = "Disorientation", Type = CurseType.Disorientation },
-        new LostCurse() { Name = "Lost", Type = CurseType.Lost, Data = new CurseData() { Cap = 2 } },
-        new NormalityCurse() { Name = "Normality", Type = CurseType.Normality, Data = new CurseData() { Cap = 5 } },
-        new StupidityCurse() { Name = "Stupidity", Type = CurseType.Stupidity, Data = new CurseData() { Cap = 50 } },
-        new AmnesiaCurse() {Name = "Amnesia", Type = CurseType.Amnesia, Data = new() { Cap = 5 } },
-        new DarknessCurse() {Name = "Darkness", Type = CurseType.Darkness, Data = new() { Cap = 3 } },
-        new DiminishCurse() {Name = "Diminish", Type = CurseType.Diminish, Data = new() { Cap = 3 } },
-        new SlothCurse() {Name = "Sloth", Type = CurseType.Sloth, Data = new() { Cap = 5 } },
-        new UnknownCurse() {Name = "Unknown", Type = CurseType.Unknown, Data = new() { Cap = 3 } },
-        new OmenCurse() {Name = "Omen", Type = CurseType.Omen, Data = new() { Cap = 5 } },
-        new DoubtCurse() { Name = "Doubt", Type = CurseType.Doubt, Data = new() {Cap = 5} },
-        new ConfusionCurse() { Name = "Confusion", Type = CurseType.Confusion, Data = new() {Cap = 15} },
-        new RegretCurse() { Name = "Regret", Type = CurseType.Regret, Data = new() {Cap = 5} },
-        new MazeCurse() { Name = "Maze", Type = CurseType.Maze, Data = new() {Cap = 2} },
-        new DespairCurse() { Name = "Despair", Type = CurseType.Despair, Data = new() {Cap = 4} },
-        new MidasCurse() { Name = "Midas", Type = CurseType.Midas, Data = new() { Cap = 10 } }
-    };
+    private static List<Curse> _curses =
+    [
+        new AmnesiaCurse() {Name = "Amnesia", Type = CurseType.Amnesia},
+        new ClumsyCurse() { Name = "Frail", Type = CurseType.Despair },
+        new ConfusionCurse() { Name = "Confusion", Type = CurseType.Confusion },
+        new DarknessCurse() {Name = "Darkness", Type = CurseType.Darkness },
+        new DespairCurse() { Name = "Despair", Type = CurseType.Despair },
+        new DiminishCurse() {Name = "Diminish", Type = CurseType.Diminish },
+        new DoubtCurse() { Name = "Doubt", Type = CurseType.Doubt },
+        new EmptinessCurse() { Name = "Emptiness", Type = CurseType.Emptiness},
+        new GreedCurse() { Name = "Greed"},
+        new LostCurse() { Name = "Lost", Type = CurseType.Lost },
+        new MazeCurse() { Name = "Maze", Type = CurseType.Maze },
+        new MelancholyCurse() { Name = "Melancholy", Type = CurseType.Despair },
+        new NormalityCurse() { Name = "Normality", Type = CurseType.Normality },
+        new OmenCurse() {Name = "Omen", Type = CurseType.Omen },
+        new PainCurse() { Name = "Pain", Type = CurseType.Pain},
+        new RegretCurse() { Name = "Regret", Type = CurseType.Regret },
+        new SlothCurse() {Name = "Sloth", Type = CurseType.Sloth },
+        new StupidityCurse() {Name = "Stupidity", Type = CurseType.Stupidity },
+        new ThirstCurse() {Name = "Thirst", Type = CurseType.Thirst},
+        new TraumaCurse() { Name = "Trauma", Type = CurseType.Despair },
+        new UnknownCurse() {Name = "Unknown", Type = CurseType.Unknown },
+        new WeaknessCurse() { Name = "Weakness", Type = CurseType.Weakness },
+    ];
 
     #endregion
 
     #region Properties
-
-    /// <summary>
-    /// Gets or sets the curse, which should be casted if the other ones don't work.
-    /// <para>If this default curse cannot be applied as well, the desorientation curse will be casted instead.</para>
-    /// </summary>
-    public static Curse DefaultCurse { get; set; }
 
     /// <summary>
     /// Gets or sets if curses should use their caps.

@@ -8,7 +8,5 @@ internal enum AffectedVisual
 
     Geo,
 
-    Essence,
-
-    Items
+    Essence
 }
