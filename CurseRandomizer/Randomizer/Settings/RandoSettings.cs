@@ -8,7 +8,7 @@ public class RandoSettings
 
     public CurseControlSettings CurseControlSettings { get; set; } = new();
 
-    public List<CurseSettings> CurseSettings { get; set; } = new();
+    public CurseSettings Curses { get; set; } = new();
 
     public PoolSettings Pools { get; set; } = new();
 }

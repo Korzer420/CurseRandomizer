@@ -31,9 +31,7 @@ internal class RandomizerMenu
 
     private MenuElementFactory<PoolSettings> _poolFactory;
 
-    private Dictionary<string, ToggleButton> _curseSettings;
-
-    private IMenuElement[] _additionalElements = new IMenuElement[2];
+    private MenuElementFactory<CurseSettings> _curseSettings;
 
     #region Event handler
 
@@ -138,26 +136,8 @@ internal class RandomizerMenu
         else
             _controlFactory.ElementLookup["CurseItems"].Hide();
 
-        //-------------------------- Create the sub curse page. -----------------------------------------
-
-        _curseSettings = [];
-        
-        // Create a toggle button and a cap field for each curse. Curses unknown to the settings will be added.
-        foreach (Curse curse in CurseManager.GetCurses())
-        {
-            CurseSettings settings = CurseRandomizer.Instance.Settings.CurseSettings.FirstOrDefault(x => x == curse);
-            if (settings == null)
-            {
-                settings = new() { Name = curse.Name };
-                CurseRandomizer.Instance.Settings.CurseSettings.Add(settings);
-            }
-
-            ToggleButton curseEnable = new(_cursePage, curse.Name);
-            curseEnable.Bind(settings, ReflectionHelper.GetPropertyInfo(typeof(CurseSettings), "Active"));
-            _curseSettings.Add(curse.Name, curseEnable);
-        }
-        new GridItemPanel(_cursePage, new(0f, 400f), 5, 150, 400, true, [.. _curseSettings
-            .Select(x => x.Value)]);
+        _curseSettings = new(_cursePage, CurseRandomizer.Instance.Settings.Curses);
+        new GridItemPanel(_cursePage, new(0f, 400f), 5, 150, 400, true, [.. _curseSettings.Elements]);
     }
 
     private bool HandleButton(MenuPage previousPage, out SmallButton connectionButton)
@@ -190,10 +170,7 @@ internal class RandomizerMenu
             _generalFactory.SetMenuValues(settings.GeneralSettings);
             _controlFactory.SetMenuValues(settings.CurseControlSettings);
             _poolFactory.SetMenuValues(settings.Pools);
-
-            foreach (CurseSettings curseSettings in settings.CurseSettings)
-                if (_curseSettings.ContainsKey(curseSettings.Name))
-                    (_curseSettings[curseSettings.Name].Items[0] as ToggleButton).SetValue(curseSettings.Active);
+            _curseSettings.SetMenuValues(settings.Curses);
         }
     }
 }

@@ -10,6 +10,7 @@ using ItemChanger.Extensions;
 using ItemChanger.Items;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
+using KorzUtils.Helper;
 using Modding;
 using RandomizerCore.Logic;
 using RandomizerCore.LogicItems;
@@ -24,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using static RandomizerMod.RC.RequestBuilder;
 using static RandomizerMod.Settings.MiscSettings;
 
@@ -78,6 +80,12 @@ internal static class RandoManager
 
         if (ModHooks.GetMod("MoreLocations") is Mod)
             HookMoreLocations();
+
+        if (ModHooks.GetMod("ConnectionSettingsRando") is Mod)
+        {
+            LogHelper.Write("CSR found");
+            HookCSR();
+        }
     }
 
     internal static void DefineItemChangerData()
@@ -191,6 +199,8 @@ internal static class RandoManager
     private static void HookFStats() => FStatsInterop.Hook();
 
     private static void HookMoreLocations() => MoreLocationsInterop.Hook();
+
+    private static void HookCSR() => CSRInterop.Hook();
 
     #endregion
 
@@ -718,11 +728,12 @@ internal static class RandoManager
 
         // Check all curses that can be used.
         _availableCurses.Clear();
-        foreach (CurseSettings settings in CurseRandomizer.Instance.Settings.CurseSettings)
+        var properties = typeof(CurseSettings).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        foreach (PropertyInfo settings in properties)
             if (CurseManager.GetCurseByName(settings.Name) is Curse curse)
             {
-                curse.Data.Active = settings.Active;
-                if (settings.Active)
+                curse.Data.Active = (bool)settings.GetValue(CurseRandomizer.Instance.Settings.Curses);
+                if (curse.Data.Active)
                     _availableCurses.Add(curse);
             }
 

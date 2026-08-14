@@ -16,6 +16,6 @@ public class CurseControlSettings
 
     public Amount CurseAmount { get; set; }
 
-    [MenuRange(0, 200)]
+    [MenuRange(0, 300)]
     public int CurseItems { get; set; }
 }
